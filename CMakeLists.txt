@@ -6,6 +6,7 @@ configure_file(src/fullcontrol_x_config.h.in src/fullcontrol_x_config.h)
 set(SOURCES
   "src/stream_parser.c"
   "src/request_handler.c"
+  "src/fcx_system.m"
   "src/fcx_apps.m"
   "src/main.m"
 )

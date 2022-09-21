@@ -1,8 +1,10 @@
 #include "request_handler.h"
 #include "fcx_apps.h"
+#include "fcx_system.h"
 #include <string.h>
 
 const char fcx_req_ui_apps[] = "ui_apps";
+const char fcx_req_system_info[] = "system_info";
 
 struct json_object *fcx_handle_request(struct json_object *req_obj) {
 
@@ -19,12 +21,13 @@ struct json_object *fcx_handle_request(struct json_object *req_obj) {
   const char *function = json_object_get_string(function_obj);
 
   struct json_object *response = json_object_new_object();
+
   if (strcmp(function, fcx_req_ui_apps) == 0) {
     struct json_object *ui_apps = fcx_ui_apps();
     json_object_object_add(response, "response", ui_apps);
-  } else if (strcmp(function, fcx_req_ui_apps) == 0) {
-    json_object_put(response);
-    return NULL;
+  } else if (strcmp(function, fcx_req_system_info) == 0) {
+    struct json_object *system_info = fcx_system_info();
+    json_object_object_add(response, "response", system_info);
   } else {
     json_object_put(response);
     return NULL;
