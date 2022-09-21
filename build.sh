@@ -1,6 +1,9 @@
 #!/bin/bash
 
-gcc main.c \
+gcc \
+  -x objective-c \
   -framework CoreFoundation \
   -framework CoreGraphics \
-  -o exe
+  -framework AppKit \
+  -o exe \
+  main.m
