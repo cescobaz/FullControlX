@@ -1,3 +1,4 @@
+#include "src/fullcontrol_x_config.h"
 #include <AppKit/AppKit.h>
 #include <CoreFoundation/CoreFoundation.h>
 #include <CoreGraphics/CoreGraphics.h>
@@ -27,9 +28,10 @@ void get_cursor_position() {
 
 #define IS_REQUEST(rl, rr) (strncmp(rl, rr, strlen(rr)) == 0)
 
+const char list_ui_apps[] = "list_ui_apps";
+const char get_cursor_pos[] = "get_cursor_pos";
+
 int main(int argc, char *argv[]) {
-  const char list_ui_apps[] = "list_ui_apps";
-  const char get_cursor_pos[] = "get_cursor_pos";
 
   char request[1024];
   while (fgets(request, sizeof request, stdin)) {

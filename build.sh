@@ -1,9 +1,10 @@
 #!/bin/bash
 
-gcc \
-  -x objective-c \
-  -framework CoreFoundation \
-  -framework CoreGraphics \
-  -framework AppKit \
-  -o exe \
-  main.m
+dir=$(dirname $(realpath $0))
+build_dir="$dir/_build"
+
+mkdir -p "$build_dir"
+cd "$build_dir"
+
+cmake ..
+cmake --build .
