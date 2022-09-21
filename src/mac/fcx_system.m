@@ -1,4 +1,4 @@
-#include "fcx_system.h"
+#include "../fcx_system.h"
 #include <Foundation/Foundation.h>
 
 struct json_object *fcx_system_info() {

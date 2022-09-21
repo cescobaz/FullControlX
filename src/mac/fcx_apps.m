@@ -1,4 +1,4 @@
-#include "fcx_apps.h"
+#include "../fcx_apps.h"
 #include <AppKit/AppKit.h>
 
 struct json_object *fcx_ui_apps() {

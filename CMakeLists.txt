@@ -4,11 +4,11 @@ project(FullControlX VERSION 0.9)
 configure_file(src/fullcontrol_x_config.h.in src/fullcontrol_x_config.h)
 
 set(SOURCES
+  "src/mac/fcx_system.m"
+  "src/mac/fcx_apps.m"
   "src/stream_parser.c"
   "src/request_handler.c"
-  "src/fcx_system.m"
-  "src/fcx_apps.m"
-  "src/main.m"
+  "src/main.c"
 )
 
 add_executable(FullControlX ${SOURCES})
