@@ -9,7 +9,10 @@ set(SOURCES
 
 add_executable(FullControlX ${SOURCES})
 
-target_link_libraries(FullControlX
+find_package(json-c CONFIG)
+
+target_link_libraries(FullControlX PRIVATE
+  json-c::json-c
   "-framework CoreFoundation"
   "-framework CoreGraphics"
   "-framework AppKit"
