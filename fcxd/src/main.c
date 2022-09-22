@@ -30,12 +30,15 @@ int main(int argc, char *argv[]) {
       return 1;
     }
 
+    log_request_error("DEBUG", req_obj);
+
     struct json_object *response = fcx_handle_request(req_obj);
 
     if (response != NULL) {
       const char *response_str =
           json_object_to_json_string_ext(response, JSON_C_TO_STRING_PLAIN);
       fputs(response_str, output);
+      fflush(output);
       json_object_put(response);
     }
 
