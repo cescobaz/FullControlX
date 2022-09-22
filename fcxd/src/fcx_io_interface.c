@@ -18,13 +18,10 @@ void __fcx_io_interface_handle_request_cb(struct json_object *response,
   }
 }
 
-void __fcx_io_interface_handle_request_wrapper(struct json_object *req_obj,
-                                               FILE *output, void *data) {
-  fcx_request_handler_t *handler =
-      fcx_io_interface_handle_request(req_obj, output);
-  if (handler) {
-    __log_request_error("TODO - DEBUG request not deallocated!\n", req_obj);
-  }
+void __fcx_io_interface_handle_request_wrapper(
+    fcx_request_handler_t *req_handler, struct json_object *req_obj,
+    FILE *output, void *data) {
+  fcx_io_interface_handle_request(req_handler, req_obj, output);
 }
 
 int fcx_io_interface_run(FILE *input, FILE *output) {
@@ -33,11 +30,13 @@ int fcx_io_interface_run(FILE *input, FILE *output) {
 }
 
 int fcx_io_interface_run_ex(FILE *input, FILE *output,
-                            void (*handle_request)(struct json_object *, FILE *,
+                            void (*handle_request)(fcx_request_handler_t *,
+                                                   struct json_object *, FILE *,
                                                    void *),
                             void *user_data) {
 
   struct json_tokener *tokener = json_tokener_new();
+  fcx_request_handler_t *req_handler = fcx_request_handler_create();
 
   while (1) {
     enum json_tokener_error jerr;
@@ -56,20 +55,20 @@ int fcx_io_interface_run_ex(FILE *input, FILE *output,
 
     __log_request_error("DEBUG", req_obj);
 
-    handle_request(req_obj, output, user_data);
+    handle_request(req_handler, req_obj, output, user_data);
+    json_object_put(req_obj);
   };
   json_tokener_free(tokener);
+  fcx_request_handler_free(req_handler);
 
   return 0;
 }
 
-fcx_request_handler_t *
-fcx_io_interface_handle_request(struct json_object *req_obj, FILE *output) {
-  fcx_request_handler_t *handler = fcx_request_handler_create(
+void fcx_io_interface_handle_request(fcx_request_handler_t *handler,
+                                     struct json_object *req_obj,
+                                     FILE *output) {
+  fcx_request_ctx_t *req_ctx = fcx_request_ctx_create(
       req_obj, &__fcx_io_interface_handle_request_cb, output);
-  fcx_handle_request(handler);
-  if (!fcx_request_handler_release(handler)) {
-    return handler;
-  }
-  return NULL;
+  fcx_handle_request(handler, req_ctx);
+  fcx_request_ctx_release(req_ctx);
 }
