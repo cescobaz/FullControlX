@@ -8,7 +8,7 @@ defmodule FullControlXWeb.MainLive do
 
   def render(assigns) do
     ~H"""
-    <div>ciao</div>
+    <h1>System info</h1>
     <%= for {key, value} <- @info do %>
       <div>
         <%= "#{key}: #{value}" %>
