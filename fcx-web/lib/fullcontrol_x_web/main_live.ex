@@ -3,7 +3,11 @@ defmodule FullControlXWeb.MainLive do
 
   def mount(_params, _session, socket) do
     info = FullControlX.Driver.system_info(FullControlX.Driver)
-    {:ok, assign(socket, :info, info)}
+    apps = FullControlX.Driver.ui_apps(FullControlX.Driver)
+
+    {:ok,
+     assign(socket, :info, info)
+     |> assign(:apps, apps)}
   end
 
   def render(assigns) do
@@ -12,6 +16,12 @@ defmodule FullControlXWeb.MainLive do
     <%= for {key, value} <- @info do %>
       <div>
         <%= "#{key}: #{value}" %>
+      </div>
+    <% end %>
+    <h2>Apps</h2>
+    <%= for app <- @apps do %>
+      <div>
+        <%= "#{Map.get(app, "localized_name")}" %>
       </div>
     <% end %>
     """

@@ -8,7 +8,8 @@ set(SOURCES
   "src/mac/fcx_apps.m"
   "src/stream_parser.c"
   "src/request_handler.c"
-  "src/main.c"
+  "src/fcx_io_interface.c"
+  "src/main.m"
 )
 
 add_executable(FullControlX ${SOURCES})

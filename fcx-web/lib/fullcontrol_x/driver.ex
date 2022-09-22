@@ -9,6 +9,10 @@ defmodule FullControlX.Driver do
     GenServer.call(driver, ["system_info"])
   end
 
+  def ui_apps(driver) do
+    GenServer.call(driver, ["ui_apps"])
+  end
+
   @impl true
   def init(:ok) do
     filename = "../fcxd/_build/FullControlX"
