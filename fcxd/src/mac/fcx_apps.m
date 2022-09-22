@@ -20,3 +20,40 @@ struct json_object *fcx_ui_apps() {
   }
   return result;
 }
+
+void __fcx_apps_delete_sub(struct json_object *obj, void *userdata) {
+  NSLog(@"[debug] __fcx_apps_delete_sub!");
+  NSWorkspace *workspace = [NSWorkspace sharedWorkspace];
+  NSNotificationCenter *notificationCenter = [workspace notificationCenter];
+  [notificationCenter removeObserver:userdata];
+}
+
+struct json_object *fcx_apps_observe(void (*callback)(struct json_object *apps,
+                                                      void *data),
+                                     void *data) {
+  NSWorkspace *workspace = [NSWorkspace sharedWorkspace];
+  NSNotificationCenter *notificationCenter = [workspace notificationCenter];
+  id block = ^(NSNotification *notification) {
+    callback(fcx_ui_apps(), data);
+  };
+  NSArray *names = @[
+    NSWorkspaceDidLaunchApplicationNotification,
+    NSWorkspaceDidTerminateApplicationNotification,
+    NSWorkspaceDidActivateApplicationNotification
+  ];
+
+  struct json_object *subscriptions = json_object_new_array();
+  for (NSString *name in names) {
+    void *subscription = [notificationCenter addObserverForName:name
+                                                         object:workspace
+                                                          queue:NULL
+                                                     usingBlock:block];
+
+    struct json_object *sub = json_object_new_object();
+    json_object_set_userdata(sub, subscription, &__fcx_apps_delete_sub);
+
+    json_object_array_add(subscriptions, sub);
+  }
+
+  return subscriptions;
+}

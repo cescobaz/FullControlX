@@ -3,6 +3,7 @@ defmodule FullControlXWeb.MainLive do
 
   def mount(_params, _session, socket) do
     info = FullControlX.Driver.system_info(FullControlX.Driver)
+    FullControlX.Driver.apps_observe(FullControlX.Driver)
     apps = FullControlX.Driver.ui_apps(FullControlX.Driver)
 
     {:ok,
@@ -22,6 +23,11 @@ defmodule FullControlXWeb.MainLive do
     <%= for app <- @apps do %>
       <div>
         <%= "#{Map.get(app, "localized_name")}" %>
+        <%= if Map.get(app, "focus") do %>
+          <div>
+            focus
+          </div>
+        <% end %>
       </div>
     <% end %>
     """

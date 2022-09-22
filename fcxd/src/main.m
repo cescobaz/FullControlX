@@ -10,12 +10,19 @@
 
 void handle_request(struct json_object *req_obj, FILE *output, void *data) {
   NSRunLoop *runLoop = (NSRunLoop *)data;
-  [runLoop performInModes:@[ NSDefaultRunLoopMode ]
-                    block:^{
-                      fputs("[debug] handle_request in runLoop\n", stderr);
-                      fcx_io_interface_handle_request(req_obj, output);
-                      json_object_put(req_obj);
-                    }];
+  [runLoop
+      performInModes:@[ NSDefaultRunLoopMode ]
+               block:^{
+                 fputs("[debug] handle_request in runLoop\n", stderr);
+                 fcx_request_handler_t *handler =
+                     fcx_io_interface_handle_request(req_obj, output);
+                 if (handler) {
+                   fputs("TODO - DEBUG request not deallocated! main.m 18\n",
+                         stderr);
+                 }
+
+                 json_object_put(req_obj);
+               }];
 }
 
 void *run_thread(void *data) {
