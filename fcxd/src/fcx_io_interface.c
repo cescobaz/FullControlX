@@ -1,6 +1,7 @@
 #include "fcx_io_interface.h"
 #include "request_handler.h"
 #include "stream_parser.h"
+#include <stdio.h>
 
 void log_request_error(char *message, struct json_object *req_obj) {
   const char *req = json_object_to_json_string(req_obj);
@@ -17,6 +18,11 @@ int fcx_io_interface_run_ex(FILE *input, FILE *output,
   while (1) {
     enum json_tokener_error jerr;
     struct json_object *req_obj = parse(tokener, &jerr, input);
+
+    if (jerr == json_tokener_error_parse_eof) {
+      fputs("[info] parse EOF\n", stderr);
+      return 0;
+    }
 
     if (jerr != json_tokener_success) {
       fprintf(stderr, "[error] json_tokener_parse_ex error %s\n",

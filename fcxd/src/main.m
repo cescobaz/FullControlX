@@ -2,28 +2,39 @@
 #include "src/fullcontrol_x_config.h"
 #include <CoreFoundation/CoreFoundation.h>
 #include <Foundation/Foundation.h>
+#include <MacTypes.h>
 #include <pthread.h>
+#include <stdint.h>
 #include <stdio.h>
-#include <sys/_pthread/_pthread_attr_t.h>
+#include <stdlib.h>
 
 void handle_request(struct json_object *req_obj, FILE *output, void *data) {
   NSRunLoop *runLoop = (NSRunLoop *)data;
-  [runLoop
-      performInModes:@[ NSDefaultRunLoopMode ]
-               block:^{
-                 NSLog(@"[debug] running in runLoop but triggered from thread");
-                 fcx_io_interface_handle_request(req_obj, output);
-                 json_object_put(req_obj);
-               }];
+  [runLoop performInModes:@[ NSDefaultRunLoopMode ]
+                    block:^{
+                      fputs("[debug] handle_request in runLoop\n", stderr);
+                      fcx_io_interface_handle_request(req_obj, output);
+                      json_object_put(req_obj);
+                    }];
 }
 
 void *run_thread(void *data) {
   FILE *input = stdin;
   FILE *output = stdout;
-  int err = fcx_io_interface_run_ex(input, output, &handle_request, data);
-  NSRunLoop *runLoop = (NSRunLoop *)data;
 
-  return NULL;
+  int64_t err = fcx_io_interface_run_ex(input, output, &handle_request, data);
+  fprintf(stderr,
+          "[info] fcx_io_interface_run_ex ends (%llu), stopping runLoop.\n",
+          err);
+
+  NSRunLoop *runLoop = (NSRunLoop *)data;
+  [runLoop performBlock:^{
+    exit(err);
+  }];
+
+  fputs("[info] thread is ending.\n", stderr);
+
+  return (void *)err;
 }
 
 int main(int argc, char *argv[]) {
@@ -53,7 +64,7 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "fail to pthread_join %d\n", err);
   }
 
-  fprintf(stderr, "thread exits with status %d\n", *(int *)status);
+  fprintf(stderr, "thread exits with status %llu\n", (int64_t)status);
 
   return 0;
 }
