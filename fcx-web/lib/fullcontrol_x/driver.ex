@@ -1,4 +1,5 @@
 defmodule FullControlX.Driver do
+  require Logger
   use GenServer
 
   def start_link(opts) do
@@ -21,7 +22,14 @@ defmodule FullControlX.Driver do
   def init(:ok) do
     filename = "../fcxd/_build/FullControlX"
     port = Port.open({:spawn_executable, filename}, [:binary, :stream, :hide])
-    {:ok, %{port: port, next_req_id: 1, awating: %{}}}
+
+    {:ok,
+     %{
+       port: port,
+       next_req_id: 1,
+       awating: %{},
+       data: <<>>
+     }}
   end
 
   @impl true
@@ -38,17 +46,18 @@ defmodule FullControlX.Driver do
 
   @impl true
   def handle_info({_port, {:data, data}}, state) do
-    message = Jason.decode(data)
-    IO.inspect(message: message)
+    {messages, state} = parse(data, state)
+    IO.inspect(messages_count: Enum.count(messages), messages: messages)
 
-    state =
-      with {:ok, %{"request" => [req_id | _]} = message} when not is_nil(req_id) <- message,
+    Enum.reduce(messages, state, fn message, state ->
+      with %{"request" => [req_id | _]} = message when not is_nil(req_id) <- message,
            %{awating: %{^req_id => from} = awating} <- state do
         GenServer.reply(from, Map.get(message, "response"))
         %{state | awating: Map.delete(awating, req_id)}
       else
         _ -> state
       end
+    end)
 
     {:noreply, state}
   end
@@ -56,6 +65,46 @@ defmodule FullControlX.Driver do
   def handle_info(message, state) do
     IO.inspect(handle_info_message: message)
     {:noreply, state}
+  end
+
+  defp parse(data, %{data: previous_data} = state) do
+    to_parse = previous_data <> data
+
+    case split_data(to_parse, <<>>, []) do
+      {message_data, remains} ->
+        messages =
+          Enum.map(message_data, fn message_data ->
+            with {:ok, message} <- Jason.decode(message_data) do
+              IO.inspect([remains: remains], binaries: :as_binaries)
+              message
+            else
+              _ ->
+                Logger.error(message_data: message_data, remains: remains)
+                nil
+            end
+          end)
+
+        {messages, %{state | data: remains}}
+
+      _ ->
+        {nil, state}
+    end
+  end
+
+  defp split_data(<<>>, _parsed, _list) do
+    :not_found
+  end
+
+  defp split_data(<<0::8>>, parsed, list) do
+    {List.insert_at(list, -1, parsed), <<>>}
+  end
+
+  defp split_data(<<0::8, rest::binary>>, parsed, list) do
+    split_data(rest, <<>>, List.insert_at(list, -1, parsed))
+  end
+
+  defp split_data(<<value, rest::binary>>, parsed, list) do
+    split_data(rest, parsed <> <<value>>, list)
   end
 
   defp send_request(request, %{port: port, next_req_id: req_id} = state)

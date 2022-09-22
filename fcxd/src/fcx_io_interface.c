@@ -14,6 +14,7 @@ void __fcx_io_interface_handle_request_cb(struct json_object *response,
     const char *response_str =
         json_object_to_json_string_ext(response, JSON_C_TO_STRING_PLAIN);
     fputs(response_str, output);
+    fputc('\0', output);
     fflush(output);
   }
 }
