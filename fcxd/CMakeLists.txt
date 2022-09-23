@@ -14,6 +14,8 @@ set(SOURCES
 
 add_executable(FullControlX ${SOURCES})
 
+#set_property(TARGET FullControlX PROPERTY OSX_ARCHITECTURES "x86_64;arm64")
+
 find_package(json-c CONFIG)
 
 target_link_libraries(FullControlX PRIVATE
