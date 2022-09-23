@@ -21,7 +21,7 @@ defmodule FullControlX.Driver do
   @impl true
   def init(:ok) do
     filename = "../fcxd/_build/FullControlX"
-    port = Port.open({:spawn_executable, filename}, [:binary, :stream, :hide])
+    port = Port.open({:spawn_executable, filename}, [:binary, :stream, :hide, :exit_status])
 
     {:ok,
      %{
@@ -58,6 +58,11 @@ defmodule FullControlX.Driver do
       end
     end)
 
+    {:noreply, state}
+  end
+
+  def handle_info({_port, {:exit_status, status}}, state) do
+    Logger.error(exit_status: status)
     {:noreply, state}
   end
 
