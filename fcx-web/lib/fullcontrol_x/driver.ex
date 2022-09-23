@@ -47,7 +47,6 @@ defmodule FullControlX.Driver do
   @impl true
   def handle_info({_port, {:data, data}}, state) do
     {messages, state} = parse(data, state)
-    IO.inspect(messages_count: Enum.count(messages), messages: messages)
 
     Enum.reduce(messages, state, fn message, state ->
       with %{"request" => [req_id | _]} = message when not is_nil(req_id) <- message,
@@ -75,7 +74,6 @@ defmodule FullControlX.Driver do
         messages =
           Enum.map(message_data, fn message_data ->
             with {:ok, message} <- Jason.decode(message_data) do
-              IO.inspect([remains: remains], binaries: :as_binaries)
               message
             else
               _ ->

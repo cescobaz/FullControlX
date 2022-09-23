@@ -2,9 +2,9 @@ defmodule FullControlXWeb.MainLive do
   use FullControlXWeb, :live_view
 
   def mount(_params, _session, socket) do
-    info = FullControlX.Driver.system_info(FullControlX.Driver)
+    info = FullControlX.system_info()
     FullControlX.Driver.apps_observe(FullControlX.Driver)
-    apps = FullControlX.Driver.ui_apps(FullControlX.Driver)
+    apps = FullControlX.apps_ui()
 
     {:ok,
      assign(socket, :info, info)
