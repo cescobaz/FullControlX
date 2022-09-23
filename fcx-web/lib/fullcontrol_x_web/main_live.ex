@@ -13,23 +13,27 @@ defmodule FullControlXWeb.MainLive do
 
   def render(assigns) do
     ~H"""
-    <h1>System info</h1>
+    <.header title="FullControlX" />
     <%= for {key, value} <- @info do %>
       <div>
         <%= "#{key}: #{value}" %>
       </div>
     <% end %>
-    <h2>Apps</h2>
-    <%= for app <- @apps do %>
-      <div>
-        <%= "#{Map.get(app, "localized_name")}" %>
-        <%= if Map.get(app, "focus") do %>
-          <div>
-            focus
-          </div>
-        <% end %>
-      </div>
-    <% end %>
+    <div class="grow">
+      
+    </div>
+    <ul class="flex gap-2 overflow-x-scroll scrollbar-hidden scroll-smooth">
+      <%= for app <- @apps do %>
+        <li class="text-center">
+          <%= "#{Map.get(app, "localized_name")}" %>
+          <%= if Map.get(app, "focus") do %>
+            <div>
+              focus
+            </div>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
     """
   end
 end

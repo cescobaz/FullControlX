@@ -45,7 +45,10 @@ defmodule FullControlXWeb do
   def live_view do
     quote do
       use Phoenix.LiveView,
-        layout: {FullControlXWeb.LayoutView, "live.html"}
+        layout: {FullControlXWeb.LayoutView, "live.html"},
+        container: {:div, class: "h-full flex flex-col justify-between items-stretch"}
+
+      import FullControlXWeb.Components
 
       unquote(view_helpers())
     end
@@ -54,6 +57,8 @@ defmodule FullControlXWeb do
   def live_component do
     quote do
       use Phoenix.LiveComponent
+
+      import FullControlXWeb.Components
 
       unquote(view_helpers())
     end

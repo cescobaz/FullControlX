@@ -1,4 +1,17 @@
-/* This file is for your main application CSS */
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+ /* Hide scrollbar for Chrome, Safari and Opera */
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.scrollbar-hidden {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
 
 /* Alerts and form errors used by phx.new */
 .alert {
@@ -117,3 +130,4 @@
   0% { opacity: 1; }
   100% { opacity: 0; }
 }
+

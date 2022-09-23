@@ -1,23 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
   <head>
     <meta charset="utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
     <meta name="csrf-token" content={csrf_token_value()}>
     <%= live_title_tag assigns[:page_title] || "FullControlX", suffix: " · FullControlX" %>
     <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/assets/app.css")}/>
     <script defer phx-track-static type="text/javascript" src={Routes.static_path(@conn, "/assets/app.js")}></script>
   </head>
-  <body>
-    <header>
-      <section>
-        <nav>
-          <ul>
-          </ul>
-        </nav>
-      </section>
-    </header>
+  <body class="select-none flex flex-col justify-between items-stretch w-full h-full bg-neutral-800 text-neutral-300">
     <%= @inner_content %>
+    <nav class="w-full bg-red-900">
+      <ul class="flex gap-4">
+        <li>Keyboard</li>
+        <li>Trackpad</li>
+        <li>Commands</li>
+        <li>Tools</li>
+      </ul>
+    </nav>
+      
   </body>
 </html>
