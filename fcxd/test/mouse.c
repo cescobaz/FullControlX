@@ -21,10 +21,10 @@ void test_mouse_move() {
   struct json_object *new_location = fcx_mouse_location();
   int dx =
       location_axis(new_location, axis_x) - location_axis(location, axis_x);
-  TEST_ASSERT_TRUE(abs(dx - mx) < 2);
+  TEST_ASSERT_INT_WITHIN(2, mx, dx);
   int dy =
       location_axis(new_location, axis_y) - location_axis(location, axis_y);
-  TEST_ASSERT_TRUE(abs(dy - my) < 2);
+  TEST_ASSERT_INT_WITHIN(2, my, dy);
 }
 
 int main() {
