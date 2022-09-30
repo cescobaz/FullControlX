@@ -1,2 +1,9 @@
+---
 CompileFlags:
-  Add: [-I/usr/local/include/unity, -I../_build]
+  Add: [-I../_build]
+---
+If:
+  PathMatch: test/.*\.(h|c)
+CompileFlags:
+  Add: [-I/usr/local/include/unity, -I../src]
+---

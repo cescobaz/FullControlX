@@ -1,43 +1,34 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.13)
 
-set(PROJECT_NAME "FullControlX")
-
-project(${PROJECT_NAME} VERSION 0.9)
+project("FullControlX" VERSION 0.9)
 configure_file(src/fullcontrol_x_config.h.in src/fullcontrol_x_config.h)
 
-set(SOURCES
-  "src/mac/fcx_system.m"
-  "src/mac/fcx_apps.m"
-  "src/stream_parser.c"
-  "src/request_handler.c"
-  "src/fcx_io_interface.c"
-  "src/main.m"
-)
+set(LIB_NAME "${PROJECT_NAME}_s")
 
-add_executable(${PROJECT_NAME} ${SOURCES})
+set(SOURCES "src/stream_parser.c" "src/request_handler.c"
+            "src/fcx_io_interface.c")
 
-#set_property(TARGET FullControlX PROPERTY OSX_ARCHITECTURES "x86_64;arm64")
+set(SOURCES_MAC "src/mac/fcx_mouse.c" "src/mac/fcx_system.m"
+                "src/mac/fcx_apps.m")
 
-find_package(json-c CONFIG)
+find_package(json-c CONFIG REQUIRED)
+set(LIBRARIES json-c::json-c "-framework CoreFoundation"
+              "-framework CoreGraphics" "-framework AppKit")
 
-target_link_libraries(${PROJECT_NAME} PRIVATE
-  json-c::json-c
-  "-framework CoreFoundation"
-  "-framework CoreGraphics"
-  "-framework AppKit"
-)
+# set_property(TARGET FullControlX PROPERTY OSX_ARCHITECTURES "x86_64;arm64")
+add_library(${LIB_NAME} STATIC ${SOURCES} ${SOURCES_MAC})
+target_link_libraries(${LIB_NAME} PRIVATE ${LIBRARIES})
 
-target_include_directories(${PROJECT_NAME} PUBLIC
-                           "${PROJECT_BINARY_DIR}"
-                           )
+add_executable(${PROJECT_NAME} "src/main.m")
+target_link_libraries(${PROJECT_NAME} PRIVATE ${LIB_NAME} json-c::json-c)
+target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_BINARY_DIR}")
 
 include(CTest)
+include_directories("src")
 find_package(Unity CONFIG REQUIRED)
-link_libraries(unity::framework)
+link_libraries(${LIB_NAME} unity::framework json-c::json-c)
 
-set(TESTS
-  mouse
-)
+set(TESTS mouse)
 
 foreach(T ${TESTS})
   add_executable(${T} test/${T}.c)

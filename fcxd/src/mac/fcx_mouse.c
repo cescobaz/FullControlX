@@ -1,3 +1,3 @@
 #include "../fcx_mouse.h"
 
-int move(int x, int y) { return 0; }
+int fcx_mouse_move(int x, int y) { return 0; }

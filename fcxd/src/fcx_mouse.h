@@ -1,3 +1,2 @@
-#include <json-c/json.h>
 
-int move(int x, int y);
+int fcx_mouse_move(int x, int y);
