@@ -9,11 +9,11 @@ set(SOURCES "src/stream_parser.c" "src/request_handler.c"
             "src/fcx_io_interface.c")
 
 set(SOURCES_MAC "src/mac/fcx_mouse.c" "src/mac/fcx_system.m"
-                "src/mac/fcx_apps.m")
+                "src/mac/fcx_apps.m" "src/mac/fcx_io_hid.c")
 
 find_package(json-c CONFIG REQUIRED)
 set(LIBRARIES json-c::json-c "-framework CoreFoundation"
-              "-framework CoreGraphics" "-framework AppKit")
+              "-framework CoreGraphics" "-framework AppKit" "-framework IOKit")
 
 # set_property(TARGET FullControlX PROPERTY OSX_ARCHITECTURES "x86_64;arm64")
 add_library(${LIB_NAME} STATIC ${SOURCES} ${SOURCES_MAC})
