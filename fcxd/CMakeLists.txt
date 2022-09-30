@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.13)
 
+set(CMAKE_OSX_DEPLOYMENT_TARGET
+    10.11
+    CACHE STRING "Code uses API at least compatible with this OSX version")
+
 project("FullControlX" VERSION 0.9)
 configure_file(src/fullcontrol_x_config.h.in src/fullcontrol_x_config.h)
 

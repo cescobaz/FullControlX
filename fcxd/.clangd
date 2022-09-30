@@ -1,6 +1,6 @@
 ---
 CompileFlags:
-  Add: [-I../_build]
+  Add: [-I../_build, -mmacosx-version-min=10.11]
 ---
 If:
   PathMatch: test/.*\.(h|c)
