@@ -24,7 +24,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${LIB_NAME} json-c::json-c)
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_BINARY_DIR}")
 
 include(CTest)
-include_directories("src")
 find_package(Unity CONFIG REQUIRED)
 link_libraries(${LIB_NAME} unity::framework json-c::json-c)
 
