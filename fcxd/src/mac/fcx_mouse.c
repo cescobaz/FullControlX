@@ -3,8 +3,11 @@
 #include <CoreGraphics/CoreGraphics.h>
 #include <IOKit/hidsystem/IOHIDLib.h>
 #include <MacTypes.h>
+#include <mach/kern_return.h>
 #include <math.h>
 #include <stdio.h>
+#include <sys/_select.h>
+#include <sys/_types/_timeval.h>
 #include <unistd.h>
 
 void _fcx_mouse_location(CGPoint *cg_location) {
@@ -24,18 +27,30 @@ struct json_object *fcx_mouse_location() {
 }
 
 int fcx_mouse_move(int x, int y) {
-  CGPoint current_location;
-  _fcx_mouse_location(&current_location);
   IOGPoint location;
-  location.x = (SInt32)roundf(current_location.x + (CGFloat)x);
-  location.y = (SInt32)roundf(current_location.y + (CGFloat)y);
+  location.x = (SInt16)x;
+  location.y = (SInt16)y;
 
   NXEventData event;
   memset(&event, 0, sizeof(NXEventData));
+  event.mouseMove.dx = location.x;
+  event.mouseMove.dy = location.y;
+  event.mouseMove.subType = NX_SUBTYPE_DEFAULT;
 
-  kern_return_t res = IOHIDPostEvent(
-      fcx_io_hid_connect(), NX_MOUSEMOVED, location, &event,
-      kNXEventDataVersion, kIOHIDSetGlobalEventFlags, kIOHIDSetCursorPosition);
+  location.x = 0;
+  location.y = 0;
+  kern_return_t res =
+      IOHIDPostEvent(fcx_io_hid_connect(), NX_MOUSEMOVED, location, &event,
+                     kNXEventDataVersion, kIOHIDSetGlobalEventFlags,
+                     kIOHIDSetRelativeCursorPosition);
+
+  if (res == KERN_SUCCESS) {
+    struct timeval tv;
+    tv.tv_sec = 0;
+    tv.tv_usec = 50 * 1000; // 30 doesn't work always, 40 could be ok, 50 is
+                            // "secure". At least on my machine
+    select(0, NULL, NULL, NULL, &tv);
+  }
 
   return res;
 }

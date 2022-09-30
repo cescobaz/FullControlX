@@ -18,7 +18,6 @@ void test_mouse_move() {
   int my = 7;
   struct json_object *location = fcx_mouse_location();
   TEST_ASSERT_TRUE(0 == fcx_mouse_move(mx, my));
-  sleep(1);
   struct json_object *new_location = fcx_mouse_location();
   int dx =
       location_axis(new_location, axis_x) - location_axis(location, axis_x);
