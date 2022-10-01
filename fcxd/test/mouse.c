@@ -13,11 +13,20 @@ int location_axis(struct json_object *location, axis axis) {
   return json_object_get_int64(json_object_array_get_idx(location, axis));
 }
 
+void wait_for_event_post() {
+  struct timeval tv;
+  tv.tv_sec = 0;
+  tv.tv_usec = 50 * 1000; // 30 doesn't work always, 40 could be ok, 50 is
+                          // "secure". At least on my machine
+  select(0, NULL, NULL, NULL, &tv);
+}
+
 void test_mouse_move() {
   int mx = 21;
   int my = 7;
   struct json_object *location = fcx_mouse_location();
   TEST_ASSERT_TRUE(0 == fcx_mouse_move(mx, my));
+  wait_for_event_post();
   struct json_object *new_location = fcx_mouse_location();
   int dx =
       location_axis(new_location, axis_x) - location_axis(location, axis_x);
