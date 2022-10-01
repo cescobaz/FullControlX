@@ -10,6 +10,10 @@ defmodule FullControlX.Driver do
     GenServer.call(driver, ["system_info"])
   end
 
+  def mouse_move(driver, dx, dy) do
+    GenServer.cast(driver, ["mouse_move", dx, dy])
+  end
+
   def ui_apps(driver) do
     GenServer.call(driver, ["ui_apps"])
   end

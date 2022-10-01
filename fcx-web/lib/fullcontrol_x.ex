@@ -7,11 +7,17 @@ defmodule FullControlX do
   if it comes from the database, an external API or others.
   """
 
+  alias FullControlX.Driver
+
   def system_info() do
-    FullControlX.Driver.system_info(FullControlX.Driver)
+    Driver.system_info(Driver)
+  end
+
+  def mouse_move(dx, dy) do
+    Driver.mouse_move(Driver, dx, dy)
   end
 
   def apps_ui() do
-    FullControlX.Driver.ui_apps(FullControlX.Driver)
+    Driver.ui_apps(Driver)
   end
 end
