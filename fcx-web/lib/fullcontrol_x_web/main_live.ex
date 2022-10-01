@@ -12,6 +12,16 @@ defmodule FullControlXWeb.MainLive do
      |> assign(:touches, %{})}
   end
 
+  @touch_width 128
+  @touch_height 128
+
+  defp style_for_touch(touch) do
+    %{"x" => left, "y" => top} = touch
+    left = left - @touch_width / 2
+    top = top - @touch_height / 2
+    "width:#{@touch_width};height:#{@touch_height};left:#{left}px;top:#{top}px;"
+  end
+
   def render(assigns) do
     ~H"""
     <.header title="FullControlX" />
@@ -20,17 +30,20 @@ defmodule FullControlXWeb.MainLive do
         <%= "#{key}: #{value}" %>
       </div>
     <% end %>
-    <div id="trackpad" class="relative bg-green-800 grow" phx-touchstart="touchstart" phx-touchmove="touchmove" phx-touchend="touchend" phx-touchcancel="touchcancel" phx-hook="Trackpad">
-      <h2>Trackpad</h2>
-      <p>Fingers <%= Enum.count(@touches) %></p>
-      <%= for {t_id, touch} <- @touches do %>
-        <div
-        id={"touch_#{t_id}"}
-        class="absolute rounded-full w-28 h-28 bg-blue-900"
-        style={"left: #{touch["x"]}px; top: #{touch["y"]}px;"}>
-        </div>
-      <% end %>
-      
+    <div id="view" class="relative grow">
+      <div class="w-full h-full flex flex-col items-center justify-center">
+        <h2>Trackpad</h2>
+        <p>Fingers <%= Enum.count(@touches) %></p>
+      </div>
+      <div id="trackpad" class="absolute left-0 top-0 h-full w-full border border-green-800" phx-touchstart="touchstart" phx-touchmove="touchmove" phx-touchend="touchend" phx-touchcancel="touchcancel" phx-hook="Trackpad">
+        <%= for {t_id, touch} <- @touches do %>
+          <div
+          id={"touch_#{t_id}"}
+          class="absolute rounded-full w-28 h-28 bg-blue-900"
+          style={style_for_touch(touch)}>
+          </div>
+        <% end %>
+      </div>
     </div>
     <ul class="flex gap-2 overflow-x-scroll scrollbar-hidden scroll-smooth">
       <%= for app <- @apps do %>
@@ -78,8 +91,24 @@ defmodule FullControlXWeb.MainLive do
     {dx_sum / count, dy_sum / count}
   end
 
+  defp add_touches(touches, touches_p, socket) do
+    Enum.reduce(touches, socket, fn %{"id" => id} = touch, socket ->
+      assign(socket, :touches, Map.put(touches_p, id, touch))
+    end)
+  end
+
+  defp delete_touches([], _touches_p, socket) do
+    assign(socket, :touches, %{})
+  end
+
+  defp delete_touches(touches, touches_p, socket) do
+    Enum.reduce(touches, socket, fn %{"id" => id}, socket ->
+      assign(socket, :touches, Map.delete(touches_p, id))
+    end)
+  end
+
   def handle_event(event, params, socket) do
-    IO.inspect(event: event, params: params)
+    #    IO.inspect(event: event, params: params)
 
     %{touches: touches_p} = socket.assigns
     touches = Map.get(params, "touches") || []
@@ -88,23 +117,16 @@ defmodule FullControlXWeb.MainLive do
     socket =
       case {event, touches} do
         {"touchstart", touches} ->
-          Enum.reduce(touches, socket, fn %{"id" => id} = touch, socket ->
-            assign(socket, :touches, Map.put(touches_p, id, touch))
-          end)
+          add_touches(touches, touches_p, socket)
 
         {"touchend", touches} ->
-          Enum.reduce(touches, socket, fn %{"id" => id}, socket ->
-            assign(socket, :touches, Map.delete(touches_p, id))
-          end)
+          delete_touches(touches, touches_p, socket)
 
         {"touchcancel", touches} ->
-          Enum.reduce(touches, socket, fn %{"id" => id}, socket ->
-            assign(socket, :touches, Map.delete(touches_p, id))
-          end)
+          delete_touches(touches, touches_p, socket)
 
         {"touchmove", touches} ->
           {dx, dy} = compute_max_delta(touches, touches_p)
-          IO.inspect(dx: dx, dy: dy)
 
           case Enum.count(touches_p) do
             1 ->
@@ -114,9 +136,7 @@ defmodule FullControlXWeb.MainLive do
               IO.inspect("ignore")
           end
 
-          Enum.reduce(touches, socket, fn %{"id" => id} = touch, socket ->
-            assign(socket, :touches, Map.put(touches_p, id, touch))
-          end)
+          add_touches(touches, touches_p, socket)
 
         _ ->
           socket
