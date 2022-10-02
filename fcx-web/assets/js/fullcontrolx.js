@@ -10,10 +10,12 @@ const handleTouchEvent = function (event) {
         elemRect = el.getBoundingClientRect(),
         offsetY   = elemRect.top - bodyRect.top,
         offsetX   = elemRect.left - bodyRect.left;
+  const ts = Date.now()
   const touches = []
   for (const touch of event.changedTouches) {
     touches.push({
       id: touch.identifier,
+      ts,
       x: touch.clientX - offsetX, y: touch.clientY - offsetY
     })
   }
