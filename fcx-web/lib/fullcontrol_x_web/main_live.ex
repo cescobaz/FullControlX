@@ -15,16 +15,6 @@ defmodule FullControlXWeb.MainLive do
      |> assign(:timer, nil)}
   end
 
-  @touch_width 128
-  @touch_height 128
-
-  defp style_for_touch(touch) do
-    %{"x" => left, "y" => top} = touch
-    left = left - @touch_width / 2
-    top = top - @touch_height / 2
-    "width:#{@touch_width};height:#{@touch_height};left:#{left}px;top:#{top}px;"
-  end
-
   def render(assigns) do
     ~H"""
     <.header title="FullControlX" />
@@ -35,15 +25,7 @@ defmodule FullControlXWeb.MainLive do
     <% end %>
     <div id="view" class="relative grow">
       <div id="placeholder" class="w-full h-full flex flex-col items-center justify-center">
-        <%= for {t_id, touch} <- @touches do %>
-          <div
-          id={"touch_#{t_id}"}
-          class="absolute rounded-full w-28 h-28 bg-blue-900"
-          style={style_for_touch(touch)}>
-          </div>
-        <% end %>
         <h2>Trackpad</h2>
-        <p>Fingers <%= Enum.count(@touches) %></p>
       </div>
       <div id="trackpad" class="absolute left-0 top-0 h-full w-full border border-green-800" phx-touchstart="touchstart" phx-touchmove="touchmove" phx-touchend="touchend" phx-touchcancel="touchcancel" phx-hook="Trackpad">
       </div>
