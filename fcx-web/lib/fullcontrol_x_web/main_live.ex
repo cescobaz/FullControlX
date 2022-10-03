@@ -134,6 +134,7 @@ defmodule FullControlXWeb.MainLive do
         {2, 2, nil} ->
           if touch_in_time?(touches, still_touches) do
             IO.inspect(action: :right_click)
+            FullControlX.mouse_right_click()
           end
 
           socket
@@ -148,6 +149,7 @@ defmodule FullControlXWeb.MainLive do
         {1, 1, :right_click} ->
           if touch_in_time?(touches, still_touches) do
             IO.inspect(action: :right_click)
+            FullControlX.mouse_right_click()
           end
 
           assign(socket, :delayed_action, nil)
@@ -165,6 +167,7 @@ defmodule FullControlXWeb.MainLive do
         {1, 1, :left_click} ->
           if touch_in_time?(touches, still_touches) do
             IO.inspect(action: :double_click)
+            FullControlX.mouse_double_click()
 
             with %{timer: timer} when not is_nil(timer) <- socket.assigns do
               Process.cancel_timer(timer)

@@ -21,6 +21,14 @@ defmodule FullControlX do
     Driver.mouse_left_click(Driver)
   end
 
+  def mouse_right_click() do
+    Driver.mouse_right_click(Driver)
+  end
+
+  def mouse_double_click() do
+    Driver.mouse_double_click(Driver)
+  end
+
   def apps_ui() do
     Driver.ui_apps(Driver)
   end

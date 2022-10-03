@@ -24,18 +24,14 @@ struct json_object *fcx_mouse_location() {
 }
 
 int fcx_mouse_move(int x, int y) {
-  IOGPoint location;
-  location.x = (SInt16)x;
-  location.y = (SInt16)y;
+  IOGPoint location = {0, 0};
 
   NXEventData event;
   memset(&event, 0, sizeof(NXEventData));
-  event.mouseMove.dx = location.x;
-  event.mouseMove.dy = location.y;
+  event.mouseMove.dx = (SInt32)x;
+  event.mouseMove.dy = (SInt32)y;
   event.mouseMove.subType = NX_SUBTYPE_DEFAULT;
 
-  location.x = 0;
-  location.y = 0;
   return IOHIDPostEvent(fcx_io_hid_connect(), NX_MOUSEMOVED, location, &event,
                         kNXEventDataVersion, kIOHIDSetGlobalEventFlags,
                         kIOHIDSetRelativeCursorPosition);
@@ -68,9 +64,42 @@ int fcx_mouse_left_up() {
 }
 
 int fcx_mouse_left_click() {
-  int r = fcx_mouse_left_down();
-  if (r == KERN_SUCCESS) {
-    return fcx_mouse_left_up();
-  }
-  return r;
+  fcx_mouse_left_down();
+  return fcx_mouse_left_up();
+}
+
+int fcx_mouse_right_down() {
+
+  NXEventData event;
+  memset(&event, 0, sizeof(NXEventData));
+  event.mouse.subType = NX_SUBTYPE_DEFAULT;
+
+  IOGPoint location = {0, 0};
+
+  return IOHIDPostEvent(fcx_io_hid_connect(), NX_RMOUSEDOWN, location, &event,
+                        kNXEventDataVersion, kIOHIDSetGlobalEventFlags,
+                        kIOHIDPostHIDManagerEvent);
+}
+
+int fcx_mouse_right_up() {
+
+  NXEventData event;
+  memset(&event, 0, sizeof(NXEventData));
+  event.mouse.subType = NX_SUBTYPE_DEFAULT;
+
+  IOGPoint location = {0, 0};
+
+  return IOHIDPostEvent(fcx_io_hid_connect(), NX_RMOUSEUP, location, &event,
+                        kNXEventDataVersion, kIOHIDSetGlobalEventFlags,
+                        kIOHIDPostHIDManagerEvent);
+}
+
+int fcx_mouse_right_click() {
+  fcx_mouse_right_down();
+  return fcx_mouse_right_up();
+}
+
+int fcx_mouse_double_click() {
+  fcx_mouse_left_click();
+  return fcx_mouse_left_click();
 }

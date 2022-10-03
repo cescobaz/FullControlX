@@ -94,6 +94,10 @@ int fcx_handle_request(fcx_request_handler_t *handler,
     result = json_object_new_int(r);
   } else if (strcmp(function, fcx_req_mouse_left_click) == 0) {
     result = json_object_new_int(fcx_mouse_left_click());
+  } else if (strcmp(function, fcx_req_mouse_right_click) == 0) {
+    result = json_object_new_int(fcx_mouse_right_click());
+  } else if (strcmp(function, fcx_req_mouse_double_click) == 0) {
+    result = json_object_new_int(fcx_mouse_double_click());
   } else if (strcmp(function, fcx_req_system_info) == 0) {
     result = fcx_system_info();
   } else if (strcmp(function, fcx_req_ui_apps) == 0) {
