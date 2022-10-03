@@ -29,6 +29,10 @@ defmodule FullControlX do
     Driver.mouse_double_click(Driver)
   end
 
+  def mouse_scroll_wheel(dx, dy) do
+    Driver.mouse_scroll_wheel(Driver, dx, dy)
+  end
+
   def apps_ui() do
     Driver.ui_apps(Driver)
   end

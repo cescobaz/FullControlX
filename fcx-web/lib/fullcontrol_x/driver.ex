@@ -26,6 +26,10 @@ defmodule FullControlX.Driver do
     GenServer.cast(driver, ["mouse_double_click"])
   end
 
+  def mouse_scroll_wheel(driver, dx, dy) do
+    GenServer.cast(driver, ["mouse_scroll_wheel", dx, dy])
+  end
+
   def ui_apps(driver) do
     GenServer.call(driver, ["ui_apps"])
   end

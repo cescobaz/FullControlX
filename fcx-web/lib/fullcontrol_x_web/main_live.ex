@@ -192,11 +192,18 @@ defmodule FullControlXWeb.MainLive do
   end
 
   defp handle_touch(socket, "touchmove", touches, touches_p) do
-    {dx, dy} = compute_max_delta(touches, touches_p)
+    {dx, dy} = compute_avg_delta(touches, touches_p)
 
     case Enum.count(touches_p) do
       1 ->
         FullControlX.mouse_move(dx, dy)
+
+      2 ->
+        IO.inspect(scroll: {dx, dy})
+        FullControlX.mouse_scroll_wheel(dx, dy)
+
+      3 ->
+        IO.inspect(drag: {dx, dy})
 
       _ ->
         IO.inspect("ignore")

@@ -24,6 +24,10 @@ struct json_object *fcx_mouse_location() {
 }
 
 int fcx_mouse_move(int x, int y) {
+  if (x == 0 && y == 0) {
+    return 0;
+  }
+
   IOGPoint location = {0, 0};
 
   NXEventData event;
@@ -102,4 +106,30 @@ int fcx_mouse_right_click() {
 int fcx_mouse_double_click() {
   fcx_mouse_left_click();
   return fcx_mouse_left_click();
+}
+
+int fcx_mouse_scroll_wheel(int x, int y) {
+  if (x == 0 && y == 0) {
+    return 0;
+  }
+
+  NXEventData event;
+  memset(&event, 0, sizeof(NXEventData));
+
+  if (x > 0) {
+    event.scrollWheel.deltaAxis2 = -1;
+  } else {
+    event.scrollWheel.deltaAxis2 = 1;
+  }
+  if (y > 0) {
+    event.scrollWheel.deltaAxis1 = -1;
+  } else {
+    event.scrollWheel.deltaAxis1 = 1;
+  }
+
+  IOGPoint location = {0, 0};
+
+  return IOHIDPostEvent(fcx_io_hid_connect(), NX_SCROLLWHEELMOVED, location,
+                        &event, kNXEventDataVersion, kIOHIDSetGlobalEventFlags,
+                        kIOHIDPostHIDManagerEvent);
 }

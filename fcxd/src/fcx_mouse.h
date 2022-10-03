@@ -12,3 +12,5 @@ int fcx_mouse_right_up();
 int fcx_mouse_right_click();
 
 int fcx_mouse_double_click();
+
+int fcx_mouse_scroll_wheel(int x, int y);
