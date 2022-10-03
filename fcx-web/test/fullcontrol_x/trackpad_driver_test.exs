@@ -112,38 +112,43 @@ defmodule FullControlX.TrackpadDriverTest do
     |> assert_action(:right_click)
   end
 
+  defp generate_moving_touch(id, ts) do
+    state = %{"id" => id, "x" => 100, "y" => 200, "ts" => ts, "touches" => []}
+
+    Enum.reduce(
+      1..20,
+      state,
+      fn _i, state ->
+        state
+        |> Map.update!("touches", fn touches ->
+          List.insert_at(touches, -1, Map.delete(state, "touches"))
+        end)
+        |> Map.update!("x", fn x -> x + 10 end)
+        |> Map.update!("y", fn y -> y + 15 end)
+        |> Map.update!("ts", fn ts -> ts + 50 end)
+      end
+    )
+    |> Map.get("touches")
+  end
+
+  defp only_move(state, touches) do
+    Enum.reduce(touches, state, fn touch, state ->
+      state
+      |> TrackpadDriver.handle_touch("touchmove", [touch])
+      |> assert_action({:move, 10, 15})
+    end)
+  end
+
   defp move_test(state, id, ts) do
-    %{"touches" => touches} =
-      Enum.reduce(
-        1..20,
-        %{"id" => id, "x" => 100, "y" => 200, "ts" => ts, "touches" => []},
-        fn _i, state ->
-          state
-          |> Map.update!("touches", fn touches ->
-            List.insert_at(touches, -1, Map.delete(state, "touches"))
-          end)
-          |> Map.update!("x", fn x -> x + 10 end)
-          |> Map.update!("y", fn y -> y + 15 end)
-          |> Map.update!("ts", fn ts -> ts + 50 end)
-        end
-      )
+    touches = generate_moving_touch(id, ts)
 
     {touch_start, touches} = List.pop_at(touches, 0)
     {touch_end, touches} = List.pop_at(touches, -1)
 
-    state =
-      state
-      |> TrackpadDriver.handle_touch("touchstart", [touch_start])
-      |> assert_action(nil)
-
-    state =
-      Enum.reduce(touches, state, fn touch, state ->
-        state
-        |> TrackpadDriver.handle_touch("touchmove", [touch])
-        |> assert_action({:move, 10, 15})
-      end)
-
     state
+    |> TrackpadDriver.handle_touch("touchstart", [touch_start])
+    |> assert_action(nil)
+    |> only_move(touches)
     |> TrackpadDriver.handle_touch("touchend", [touch_end])
     |> assert_action(nil)
   end
