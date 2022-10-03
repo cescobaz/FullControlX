@@ -10,6 +10,12 @@ defmodule FullControlX.TrackpadDriver do
     }
   end
 
+  defp reset(state) do
+    state
+    |> Map.put(:action, nil)
+    |> Map.put(:name, :init)
+  end
+
   def handle_touch(%{name: :init} = state, "touchstart", touches) do
     name =
       case Enum.count(touches) do
@@ -85,26 +91,62 @@ defmodule FullControlX.TrackpadDriver do
   def handle_touch(%{name: :two_touches_down} = state, "touchend", touches) do
     %{touches: touches_s} = state
 
-    if Enum.count(touches) == 2 and touch_in_time?(touches, touches_s) do
-      state
-      |> Map.put(:action, :right_click)
-      |> Map.put(:name, :init)
-    else
-      state
+    case {Enum.count(touches), touch_in_time?(touches, touches_s)} do
+      {2, true} ->
+        state
+        |> Map.put(:action, :right_click)
+        |> Map.put(:name, :init)
+
+      {1, true} ->
+        state
+        |> Map.put(:name, :one_tap_and_one_touch_down)
+
+      _ ->
+        state
+    end
+    |> delete_touches(touches)
+  end
+
+  def handle_touch(%{name: :one_tap_and_one_touch_down} = state, "touchend", touches) do
+    %{touches: touches_s} = state
+
+    case {Enum.count(touches), touch_in_time?(touches, touches_s)} do
+      {1, true} ->
+        state
+        |> Map.put(:action, :right_click)
+        |> Map.put(:name, :init)
+
+      _ ->
+        state
+        |> reset()
     end
     |> delete_touches(touches)
   end
 
   def handle_touch(state, "touchend", touches) do
     delete_touches(state, touches)
+    |> reset()
   end
 
   def handle_touch(state, "touchcancel", touches) do
     delete_touches(state, touches)
+    |> reset()
   end
 
-  def handle_touch(state, "touchmove", _touches) do
+  def handle_touch(%{name: name} = state, "touchmove", [touch] = touches)
+      when name in [:one_touch_down_moved, :one_touch_down] do
+    %{touches: touches_s} = state
+    {dx, dy} = compute_delta(touch, touches_s)
+
     state
+    |> Map.put(:action, {:move, dx, dy})
+    |> Map.put(:name, :one_touch_down_moved)
+    |> put_touches(touches)
+  end
+
+  def handle_touch(state, "touchmove", touches) do
+    state
+    |> put_touches(touches)
   end
 
   def handle_info(state, action) do
