@@ -77,4 +77,20 @@ defmodule FullControlX.TrackpadDriverTest do
     |> TrackpadDriver.handle_touch("touchend", touches_end)
     |> assert_action(:right_click)
   end
+
+  test "Two fingers tap (async start) does right click" do
+    touches_start_1 = %{"id" => 1, "ts" => 0, "x" => 100, "y" => 200}
+    touches_start_2 = %{"id" => 2, "ts" => 50, "x" => 100, "y" => 200}
+
+    touches_end =
+      Enum.map([touches_start_1, touches_start_2], fn touch -> Map.put(touch, "ts", 100) end)
+
+    TrackpadDriver.init()
+    |> TrackpadDriver.handle_touch("touchstart", [touches_start_1])
+    |> assert_action(nil)
+    |> TrackpadDriver.handle_touch("touchstart", [touches_start_2])
+    |> assert_action(nil)
+    |> TrackpadDriver.handle_touch("touchend", touches_end)
+    |> assert_action(:right_click)
+  end
 end

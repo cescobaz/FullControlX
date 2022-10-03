@@ -10,82 +10,97 @@ defmodule FullControlX.TrackpadDriver do
     }
   end
 
-  def handle_touch(state, "touchstart", touches) do
-    %{name: name, touches: touches_s} = state
+  def handle_touch(%{name: :init} = state, "touchstart", touches) do
+    name =
+      case Enum.count(touches) do
+        1 -> :one_touch_down
+        2 -> :two_touches_down
+        3 -> :three_touches_down
+        _ -> :many_touches_down
+      end
 
-    case name do
-      :init ->
-        name =
-          case Enum.count(touches) do
-            1 -> :one_touch_down
-            2 -> :two_touches_down
-            3 -> :three_touches_down
-            _ -> :many_touches_down
-          end
+    state
+    |> Map.put(:action, nil)
+    |> Map.put(:name, name)
+    |> put_touches(touches)
+  end
 
+  def handle_touch(%{name: :one_touch_down} = state, "touchstart", touches) do
+    name =
+      case Enum.count(touches) do
+        1 -> :two_touches_down
+        2 -> :three_touches_down
+        _ -> :many_touches_down
+      end
+
+    state
+    |> Map.put(:action, nil)
+    |> Map.put(:name, name)
+    |> put_touches(touches)
+  end
+
+  def handle_touch(%{name: :will_left_click} = state, "touchstart", touches) do
+    case Enum.count(touches) do
+      1 ->
         state
-        |> Map.put(:action, nil)
-        |> Map.put(:name, name)
-
-      :will_left_click ->
-        case Enum.count(touches) do
-          1 ->
-            state
-            |> Map.put(:action, {:cancel_timer, :left_click})
-            |> Map.put(:name, :one_tap_dragging)
-
-          _ ->
-            state
-        end
+        |> Map.put(:action, {:cancel_timer, :left_click})
+        |> Map.put(:name, :one_tap_dragging)
 
       _ ->
         state
     end
-    |> Map.put(:touches, put_touches(touches_s, touches))
+    |> put_touches(touches)
+  end
+
+  def handle_touch(state, "touchstart", touches) do
+    put_touches(state, touches)
+  end
+
+  def handle_touch(%{name: :one_touch_down} = state, "touchend", touches) do
+    %{touches: touches_s} = state
+
+    if touch_in_time?(touches, touches_s) do
+      state
+      |> Map.put(:action, {:set_timer, :left_click, 200})
+      |> Map.put(:name, :will_left_click)
+    else
+      state
+    end
+    |> delete_touches(touches)
+  end
+
+  def handle_touch(%{name: :one_tap_dragging} = state, "touchend", touches) do
+    %{touches: touches_s} = state
+
+    if touch_in_time?(touches, touches_s) do
+      state
+      |> Map.put(:action, :double_click)
+      |> Map.put(:name, :init)
+    else
+      state
+    end
+    |> delete_touches(touches)
+  end
+
+  def handle_touch(%{name: :two_touches_down} = state, "touchend", touches) do
+    %{touches: touches_s} = state
+
+    if Enum.count(touches) == 2 and touch_in_time?(touches, touches_s) do
+      state
+      |> Map.put(:action, :right_click)
+      |> Map.put(:name, :init)
+    else
+      state
+    end
+    |> delete_touches(touches)
   end
 
   def handle_touch(state, "touchend", touches) do
-    %{name: name, touches: touches_s} = state
-
-    case name do
-      :one_touch_down ->
-        if touch_in_time?(touches, touches_s) do
-          state
-          |> Map.put(:action, {:set_timer, :left_click, 200})
-          |> Map.put(:name, :will_left_click)
-        else
-          state
-        end
-
-      :one_tap_dragging ->
-        if touch_in_time?(touches, touches_s) do
-          state
-          |> Map.put(:action, :double_click)
-          |> Map.put(:name, :init)
-        else
-          state
-        end
-
-      :two_touches_down ->
-        if Enum.count(touches) == 2 and touch_in_time?(touches, touches_s) do
-          state
-          |> Map.put(:action, :right_click)
-          |> Map.put(:name, :init)
-        else
-          state
-        end
-
-      _ ->
-        state
-    end
-    |> Map.put(:touches, delete_touches(touches_s, touches))
+    delete_touches(state, touches)
   end
 
   def handle_touch(state, "touchcancel", touches) do
-    %{touches: touches_s} = state
-
-    state
-    |> Map.put(:touches, delete_touches(touches_s, touches))
+    delete_touches(state, touches)
   end
 
   def handle_touch(state, "touchmove", _touches) do
@@ -172,10 +187,18 @@ defmodule FullControlX.TrackpadDriver do
     :math.sqrt(:math.pow(x_b - x_a, 2) + :math.pow(y_b - y_a, 2)) < 10
   end
 
+  defp put_touches(%{touches: touches_p} = state, touches) do
+    Map.put(state, :touches, put_touches(touches_p, touches))
+  end
+
   defp put_touches(touches_p, touches) do
     Enum.reduce(touches, touches_p, fn %{"id" => id} = touch, touches_p ->
       Map.put(touches_p, id, touch)
     end)
+  end
+
+  defp delete_touches(%{touches: touches_p} = state, touches) do
+    Map.put(state, :touches, delete_touches(touches_p, touches))
   end
 
   defp delete_touches(touches_p, touches) do
