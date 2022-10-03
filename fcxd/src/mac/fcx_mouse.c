@@ -3,6 +3,7 @@
 #include <CoreGraphics/CoreGraphics.h>
 #include <IOKit/hidsystem/IOHIDLib.h>
 #include <MacTypes.h>
+#include <mach/kern_return.h>
 #include <stdio.h>
 #include <unistd.h>
 
@@ -38,4 +39,38 @@ int fcx_mouse_move(int x, int y) {
   return IOHIDPostEvent(fcx_io_hid_connect(), NX_MOUSEMOVED, location, &event,
                         kNXEventDataVersion, kIOHIDSetGlobalEventFlags,
                         kIOHIDSetRelativeCursorPosition);
+}
+
+int fcx_mouse_left_down() {
+
+  NXEventData event;
+  memset(&event, 0, sizeof(NXEventData));
+  event.mouse.subType = NX_SUBTYPE_DEFAULT;
+
+  IOGPoint location = {0, 0};
+
+  return IOHIDPostEvent(fcx_io_hid_connect(), NX_LMOUSEDOWN, location, &event,
+                        kNXEventDataVersion, kIOHIDSetGlobalEventFlags,
+                        kIOHIDPostHIDManagerEvent);
+}
+
+int fcx_mouse_left_up() {
+
+  NXEventData event;
+  memset(&event, 0, sizeof(NXEventData));
+  event.mouse.subType = NX_SUBTYPE_DEFAULT;
+
+  IOGPoint location = {0, 0};
+
+  return IOHIDPostEvent(fcx_io_hid_connect(), NX_LMOUSEUP, location, &event,
+                        kNXEventDataVersion, kIOHIDSetGlobalEventFlags,
+                        kIOHIDPostHIDManagerEvent);
+}
+
+int fcx_mouse_left_click() {
+  int r = fcx_mouse_left_down();
+  if (r == KERN_SUCCESS) {
+    return fcx_mouse_left_up();
+  }
+  return r;
 }

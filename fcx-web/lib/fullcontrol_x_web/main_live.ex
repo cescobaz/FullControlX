@@ -205,6 +205,7 @@ defmodule FullControlXWeb.MainLive do
 
   def handle_info(action, socket) do
     IO.inspect(action: action)
+    FullControlX.mouse_left_click()
 
     with %{delayed_action: ^action} <- socket.assigns do
       {:noreply, assign(socket, :delayed_action, nil)}

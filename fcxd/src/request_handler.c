@@ -8,6 +8,9 @@
 
 const char fcx_req_system_info[] = "system_info";
 const char fcx_req_mouse_move[] = "mouse_move";
+const char fcx_req_mouse_left_click[] = "mouse_left_click";
+const char fcx_req_mouse_right_click[] = "mouse_right_click";
+const char fcx_req_mouse_double_click[] = "mouse_double_click";
 const char fcx_req_ui_apps[] = "ui_apps";
 const char fcx_req_apps_observe[] = "apps_observe";
 const char fcx_req_ignore_all[] = "ignore_all";
@@ -89,6 +92,8 @@ int fcx_handle_request(fcx_request_handler_t *handler,
     int y = json_object_get_int(json_object_array_get_idx(req_ctx->request, 3));
     int r = fcx_mouse_move(x, y);
     result = json_object_new_int(r);
+  } else if (strcmp(function, fcx_req_mouse_left_click) == 0) {
+    result = json_object_new_int(fcx_mouse_left_click());
   } else if (strcmp(function, fcx_req_system_info) == 0) {
     result = fcx_system_info();
   } else if (strcmp(function, fcx_req_ui_apps) == 0) {
