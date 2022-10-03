@@ -107,6 +107,12 @@ defmodule FullControlXWeb.MainLive do
     {dx_sum / count, dy_sum / count}
   end
 
+  defp touches_close?(touch_a, touch_b) do
+    %{"x" => x_a, "y" => y_a} = touch_a
+    %{"x" => x_b, "y" => y_b} = touch_b
+    :math.sqrt(:math.pow(x_b - x_a, 2) + :math.pow(y_b - y_a, 2)) < 10
+  end
+
   defp put_touches(touches_p, touches) do
     Enum.reduce(touches, touches_p, fn %{"id" => id} = touch, touches_p ->
       Map.put(touches_p, id, touch)
@@ -119,10 +125,34 @@ defmodule FullControlXWeb.MainLive do
     end)
   end
 
+  defp touch_start_dragging(socket, touches, touches_p) do
+    with 0 <- Enum.count(touches_p),
+         [%{"ts" => touch_ts}] <- touches,
+         %{delayed_action: {:left_click, %{"ts" => ts} = touch}} when not is_nil(ts) <-
+           socket.assigns,
+         dt <- touch_ts - ts,
+         true <- dt < @click_max_time do
+      cancel_timer(socket)
+      |> assign(:delayed_action, {:start_dragging, touch})
+    else
+      _ -> socket
+    end
+  end
+
+  defp touch_start_cancel_dragging(socket) do
+    with %{delayed_action: {:start_dragging, _}} <- socket.assigns do
+      assign(socket, :delayed_action, nil)
+    else
+      _ -> socket
+    end
+  end
+
   defp handle_touch(socket, "touchstart", touches, touches_p) do
     %{still_touches: still_touches} = socket.assigns
 
-    assign(socket, :touches, put_touches(touches_p, touches))
+    touch_start_cancel_dragging(socket)
+    |> touch_start_dragging(touches, touches_p)
+    |> assign(:touches, put_touches(touches_p, touches))
     |> assign(:still_touches, put_touches(still_touches, touches))
   end
 
@@ -141,12 +171,12 @@ defmodule FullControlXWeb.MainLive do
 
         {2, 1, nil} ->
           if touch_in_time?(touches, still_touches) do
-            assign(socket, :delayed_action, :right_click)
+            assign(socket, :delayed_action, {:right_click, nil})
           else
             socket
           end
 
-        {1, 1, :right_click} ->
+        {1, 1, {:right_click, _}} ->
           if touch_in_time?(touches, still_touches) do
             IO.inspect(action: :right_click)
             FullControlX.mouse_right_click()
@@ -158,28 +188,23 @@ defmodule FullControlXWeb.MainLive do
           if touch_in_time?(touches, still_touches) do
             timer = Process.send_after(self(), :left_click, @action_delay)
 
-            assign(socket, :delayed_action, :left_click)
+            touch = List.first(touches)
+
+            assign(socket, :delayed_action, {:left_click, touch})
             |> assign(:timer, timer)
           else
             socket
           end
 
-        {1, 1, :left_click} ->
+        {1, 1, {:start_dragging, _}} ->
           if touch_in_time?(touches, still_touches) do
-            IO.inspect(action: :double_click)
             FullControlX.mouse_double_click()
-
-            with %{timer: timer} when not is_nil(timer) <- socket.assigns do
-              Process.cancel_timer(timer)
-            end
-
-            assign(socket, :delayed_action, nil)
-          else
-            socket
           end
 
+          assign(socket, :delayed_action, nil)
+
         _ ->
-          socket
+          assign(socket, :delayed_action, nil)
       end
 
     assign(socket, :touches, delete_touches(touches_p, touches))
@@ -187,37 +212,53 @@ defmodule FullControlXWeb.MainLive do
   end
 
   defp handle_touch(socket, "touchcancel", touches, touches_p) do
-    assign(socket, :touches, delete_touches(touches_p, touches))
+    cancel_timer(socket)
+    |> assign(:touches, delete_touches(touches_p, touches))
     |> assign(:still_touches, %{})
+    |> assign(:delayed_action, nil)
   end
 
   defp handle_touch(socket, "touchmove", touches, touches_p) do
+    %{delayed_action: delayed_action} = socket.assigns
     {dx, dy} = compute_avg_delta(touches, touches_p)
 
-    case Enum.count(touches_p) do
-      1 ->
+    case {Enum.count(touches_p), delayed_action} do
+      {1, {:start_dragging, _}} ->
+        IO.inspect(drag: {:one_finger, dx, dy})
+
+      {1, nil} ->
         FullControlX.mouse_move(dx, dy)
 
-      2 ->
+      {2, _} ->
         IO.inspect(scroll: {dx, dy})
         FullControlX.mouse_scroll_wheel(dx, dy)
 
-      3 ->
-        IO.inspect(drag: {dx, dy})
+      {3, _} ->
+        IO.inspect(drag: {:three_fingers, dx, dy})
 
       _ ->
         IO.inspect("ignore")
     end
 
-    assign(socket, :touches, put_touches(touches_p, touches))
+    cancel_timer(socket)
+    |> assign(:touches, put_touches(touches_p, touches))
     |> assign(:still_touches, %{})
+  end
+
+  defp cancel_timer(socket) do
+    with %{timer: timer} when not is_nil(timer) <- socket.assigns do
+      Process.cancel_timer(timer)
+      assign(socket, :timer, nil)
+    else
+      _ -> socket
+    end
   end
 
   def handle_info(action, socket) do
     IO.inspect(action: action)
     FullControlX.mouse_left_click()
 
-    with %{delayed_action: ^action} <- socket.assigns do
+    with %{delayed_action: {^action, _}} <- socket.assigns do
       {:noreply, assign(socket, :delayed_action, nil)}
     else
       _ ->
