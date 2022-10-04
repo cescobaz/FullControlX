@@ -1,6 +1,8 @@
 defmodule FullControlXWeb.MainLive do
   use FullControlXWeb, :live_view
 
+  alias FullControlX.TrackpadDriver
+
   def mount(_params, _session, socket) do
     info = FullControlX.system_info()
     FullControlX.Driver.apps_observe(FullControlX.Driver)
@@ -9,9 +11,7 @@ defmodule FullControlXWeb.MainLive do
     {:ok,
      assign(socket, :info, info)
      |> assign(:apps, apps)
-     |> assign(:touches, %{})
-     |> assign(:still_touches, %{})
-     |> assign(:delayed_action, nil)
+     |> assign(:trackpad, TrackpadDriver.init())
      |> assign(:timer, nil)}
   end
 
@@ -45,204 +45,24 @@ defmodule FullControlXWeb.MainLive do
     """
   end
 
-  defp compute_time_delta(touch, touches_p) do
-    %{"id" => id, "ts" => ts} = touch
+  def handle_info(message, socket) do
+    %{trackpad: trackpad} = socket.assigns
+    %{action: action} = trackpad = TrackpadDriver.handle_info(trackpad, message)
 
-    with %{"ts" => ts_p} <- Map.get(touches_p, id) do
-      ts - ts_p
-    else
-      _ -> nil
-    end
+    {:noreply,
+     execute_trackpad_action(socket, action)
+     |> assign(:trackpad, trackpad)}
   end
 
-  defp compute_max_time_delta(touches, touches_p) do
-    Enum.reduce(touches, 0, fn touch, dt_max ->
-      with true <- dt_max != nil,
-           dt when not is_nil(dt) <- compute_time_delta(touch, touches_p) do
-        max(dt, dt_max)
-      else
-        _ -> nil
-      end
-    end)
-  end
+  @touch_events ["touchstart", "touchend", "touchcancel", "touchmove"]
+  def handle_event(event, params, socket) when event in @touch_events do
+    %{trackpad: trackpad} = socket.assigns
+    touches = Map.get(params, "touches") || []
+    %{action: action} = trackpad = TrackpadDriver.handle_touch(trackpad, event, touches)
 
-  @action_delay 300
-  @click_max_time 250
-  defp touch_in_time?(touches, still_touches) do
-    with dt when not is_nil(dt) <- compute_max_time_delta(touches, still_touches) do
-      dt < @click_max_time
-    else
-      _ -> false
-    end
-  end
-
-  def compute_delta(touch, touches_p) do
-    %{"id" => id, "x" => x, "y" => y} = touch
-    %{"x" => x_p, "y" => y_p} = Map.get(touches_p, id) || touch
-    {x - x_p, y - y_p}
-  end
-
-  def compute_max_delta(touches, touches_p) do
-    Enum.reduce(touches, {0, 0}, fn touch, {dx_max, dy_max} ->
-      {dx, dy} = compute_delta(touch, touches_p)
-
-      {
-        if(abs(dx) > abs(dx_max), do: dx, else: dx_max),
-        if(abs(dy) > abs(dy_max), do: dy, else: dy_max)
-      }
-    end)
-  end
-
-  def compute_avg_delta([], _touches_p) do
-    {0, 0}
-  end
-
-  def compute_avg_delta(touches, touches_p) do
-    {count, dx_sum, dy_sum} =
-      Enum.reduce(touches, {0, 0, 0}, fn touch, {count, dx_sum, dy_sum} ->
-        {dx, dy} = compute_delta(touch, touches_p)
-        {count + 1, dx_sum + dx, dy_sum + dy}
-      end)
-
-    {dx_sum / count, dy_sum / count}
-  end
-
-  defp touches_close?(touch_a, touch_b) do
-    %{"x" => x_a, "y" => y_a} = touch_a
-    %{"x" => x_b, "y" => y_b} = touch_b
-    :math.sqrt(:math.pow(x_b - x_a, 2) + :math.pow(y_b - y_a, 2)) < 10
-  end
-
-  defp put_touches(touches_p, touches) do
-    Enum.reduce(touches, touches_p, fn %{"id" => id} = touch, touches_p ->
-      Map.put(touches_p, id, touch)
-    end)
-  end
-
-  defp delete_touches(touches_p, touches) do
-    Enum.reduce(touches, touches_p, fn %{"id" => id}, touches_p ->
-      Map.delete(touches_p, id)
-    end)
-  end
-
-  defp touch_start_dragging(socket, touches, touches_p) do
-    with 0 <- Enum.count(touches_p),
-         [%{"ts" => touch_ts}] <- touches,
-         %{delayed_action: {:left_click, %{"ts" => ts} = touch}} when not is_nil(ts) <-
-           socket.assigns,
-         dt <- touch_ts - ts,
-         true <- dt < @click_max_time do
-      cancel_timer(socket)
-      |> assign(:delayed_action, {:start_dragging, touch})
-    else
-      _ -> socket
-    end
-  end
-
-  defp touch_start_cancel_dragging(socket) do
-    with %{delayed_action: {:start_dragging, _}} <- socket.assigns do
-      assign(socket, :delayed_action, nil)
-    else
-      _ -> socket
-    end
-  end
-
-  defp handle_touch(socket, "touchstart", touches, touches_p) do
-    %{still_touches: still_touches} = socket.assigns
-
-    touch_start_cancel_dragging(socket)
-    |> touch_start_dragging(touches, touches_p)
-    |> assign(:touches, put_touches(touches_p, touches))
-    |> assign(:still_touches, put_touches(still_touches, touches))
-  end
-
-  defp handle_touch(socket, "touchend", touches, touches_p) do
-    %{still_touches: still_touches, delayed_action: delayed_action} = socket.assigns
-
-    socket =
-      case {Enum.count(still_touches), Enum.count(touches), delayed_action} do
-        {2, 2, nil} ->
-          if touch_in_time?(touches, still_touches) do
-            IO.inspect(action: :right_click)
-            FullControlX.mouse_right_click()
-          end
-
-          socket
-
-        {2, 1, nil} ->
-          if touch_in_time?(touches, still_touches) do
-            assign(socket, :delayed_action, {:right_click, nil})
-          else
-            socket
-          end
-
-        {1, 1, {:right_click, _}} ->
-          if touch_in_time?(touches, still_touches) do
-            IO.inspect(action: :right_click)
-            FullControlX.mouse_right_click()
-          end
-
-          assign(socket, :delayed_action, nil)
-
-        {1, 1, nil} ->
-          if touch_in_time?(touches, still_touches) do
-            timer = Process.send_after(self(), :left_click, @action_delay)
-
-            touch = List.first(touches)
-
-            assign(socket, :delayed_action, {:left_click, touch})
-            |> assign(:timer, timer)
-          else
-            socket
-          end
-
-        {1, 1, {:start_dragging, _}} ->
-          if touch_in_time?(touches, still_touches) do
-            FullControlX.mouse_double_click()
-          end
-
-          assign(socket, :delayed_action, nil)
-
-        _ ->
-          assign(socket, :delayed_action, nil)
-      end
-
-    assign(socket, :touches, delete_touches(touches_p, touches))
-    |> assign(:still_touches, delete_touches(still_touches, touches))
-  end
-
-  defp handle_touch(socket, "touchcancel", touches, touches_p) do
-    cancel_timer(socket)
-    |> assign(:touches, delete_touches(touches_p, touches))
-    |> assign(:still_touches, %{})
-    |> assign(:delayed_action, nil)
-  end
-
-  defp handle_touch(socket, "touchmove", touches, touches_p) do
-    %{delayed_action: delayed_action} = socket.assigns
-    {dx, dy} = compute_avg_delta(touches, touches_p)
-
-    case {Enum.count(touches_p), delayed_action} do
-      {1, {:start_dragging, _}} ->
-        IO.inspect(drag: {:one_finger, dx, dy})
-
-      {1, nil} ->
-        FullControlX.mouse_move(dx, dy)
-
-      {2, _} ->
-        IO.inspect(scroll: {dx, dy})
-        FullControlX.mouse_scroll_wheel(dx, dy)
-
-      {3, _} ->
-        IO.inspect(drag: {:three_fingers, dx, dy})
-
-      _ ->
-        IO.inspect("ignore")
-    end
-
-    cancel_timer(socket)
-    |> assign(:touches, put_touches(touches_p, touches))
-    |> assign(:still_touches, %{})
+    {:noreply,
+     execute_trackpad_action(socket, action)
+     |> assign(:trackpad, trackpad)}
   end
 
   defp cancel_timer(socket) do
@@ -254,23 +74,36 @@ defmodule FullControlXWeb.MainLive do
     end
   end
 
-  def handle_info(action, socket) do
-    IO.inspect(action: action)
-    FullControlX.mouse_left_click()
+  defp execute_trackpad_action(socket, action) do
+    case action do
+      {:move, dx, dy} ->
+        FullControlX.mouse_move(dx, dy)
 
-    with %{delayed_action: {^action, _}} <- socket.assigns do
-      {:noreply, assign(socket, :delayed_action, nil)}
-    else
+      {:scroll, dx, dy} ->
+        FullControlX.mouse_scroll_wheel(dx, dy)
+
+      :left_click ->
+        FullControlX.mouse_left_click()
+
+      :double_click ->
+        FullControlX.mouse_double_click()
+
+      :right_click ->
+        FullControlX.mouse_right_click()
+
       _ ->
-        {:noreply, socket}
+        nil
     end
-  end
 
-  @touch_events ["touchstart", "touchend", "touchcancel", "touchmove"]
-  def handle_event(event, params, socket) when event in @touch_events do
-    %{touches: touches_p} = socket.assigns
-    touches = Map.get(params, "touches") || []
+    case action do
+      {:cancel_timer, _} ->
+        cancel_timer(socket)
 
-    {:noreply, handle_touch(socket, event, touches, touches_p)}
+      {:set_timer, message, time} ->
+        assign(socket, :timer, Process.send_after(self(), message, time))
+
+      _ ->
+        socket
+    end
   end
 end

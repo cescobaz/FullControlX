@@ -153,6 +153,7 @@ defmodule FullControlX.TrackpadDriver do
         1 -> :move
         2 -> :scroll
         3 -> :drag
+        _ -> :move
       end
 
     state
