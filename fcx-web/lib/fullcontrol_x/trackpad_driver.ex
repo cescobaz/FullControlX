@@ -133,19 +133,31 @@ defmodule FullControlX.TrackpadDriver do
     |> reset()
   end
 
-  def handle_touch(%{name: name} = state, "touchmove", [touch] = touches)
-      when name in [:one_touch_down_moved, :one_touch_down] do
+  def handle_touch(%{name: name} = state, "touchmove", [_] = touches)
+      when name in [:one_tap_dragged, :one_tap_dragging] do
     %{touches: touches_s} = state
-    {dx, dy} = compute_delta(touch, touches_s)
+    {dx, dy} = compute_avg_delta(touches, touches_s)
 
     state
-    |> Map.put(:action, {:move, dx, dy})
-    |> Map.put(:name, :one_touch_down_moved)
+    |> Map.put(:action, {:drag, dx, dy})
+    |> Map.put(:name, :one_tap_dragged)
     |> put_touches(touches)
   end
 
   def handle_touch(state, "touchmove", touches) do
+    %{touches: touches_s} = state
+    {dx, dy} = compute_avg_delta(touches, touches_s)
+
+    action_name =
+      case Enum.count(touches_s) do
+        1 -> :move
+        2 -> :scroll
+        3 -> :drag
+      end
+
     state
+    |> Map.put(:action, {action_name, dx, dy})
+    |> Map.put(:name, :moved)
     |> put_touches(touches)
   end
 
@@ -220,7 +232,7 @@ defmodule FullControlX.TrackpadDriver do
         {count + 1, dx_sum + dx, dy_sum + dy}
       end)
 
-    {dx_sum / count, dy_sum / count}
+    {Kernel.trunc(dx_sum / count), Kernel.trunc(dy_sum / count)}
   end
 
   def touches_close?(touch_a, touch_b) do

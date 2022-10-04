@@ -112,49 +112,150 @@ defmodule FullControlX.TrackpadDriverTest do
     |> assert_action(:right_click)
   end
 
-  defp generate_moving_touch(id, ts) do
-    state = %{"id" => id, "x" => 100, "y" => 200, "ts" => ts, "touches" => []}
-
-    Enum.reduce(
-      1..20,
-      state,
-      fn _i, state ->
-        state
-        |> Map.update!("touches", fn touches ->
-          List.insert_at(touches, -1, Map.delete(state, "touches"))
-        end)
-        |> Map.update!("x", fn x -> x + 10 end)
-        |> Map.update!("y", fn y -> y + 15 end)
-        |> Map.update!("ts", fn ts -> ts + 50 end)
-      end
-    )
-    |> Map.get("touches")
-  end
-
-  defp only_move(state, touches) do
-    Enum.reduce(touches, state, fn touch, state ->
-      state
-      |> TrackpadDriver.handle_touch("touchmove", [touch])
-      |> assert_action({:move, 10, 15})
-    end)
-  end
-
   defp move_test(state, id, ts) do
-    touches = generate_moving_touch(id, ts)
-
-    {touch_start, touches} = List.pop_at(touches, 0)
-    {touch_end, touches} = List.pop_at(touches, -1)
-
     state
-    |> TrackpadDriver.handle_touch("touchstart", [touch_start])
+    |> TrackpadDriver.handle_touch("touchstart", [%{"id" => id, "x" => 0, "y" => 0, "ts" => ts}])
     |> assert_action(nil)
-    |> only_move(touches)
-    |> TrackpadDriver.handle_touch("touchend", [touch_end])
+    |> TrackpadDriver.handle_touch("touchmove", [
+      %{"id" => id, "x" => 10, "y" => 40, "ts" => ts + 20}
+    ])
+    |> assert_action({:move, 10, 40})
+    |> TrackpadDriver.handle_touch("touchmove", [
+      %{"id" => id, "x" => 5, "y" => 100, "ts" => ts + 40}
+    ])
+    |> assert_action({:move, -5, 60})
+    |> TrackpadDriver.handle_touch("touchend", [
+      %{"id" => id, "x" => 10, "y" => 102, "ts" => ts + 400}
+    ])
     |> assert_action(nil)
   end
 
   test "Move" do
     TrackpadDriver.init()
     |> move_test(1, 0)
+  end
+
+  defp scroll_test(state, id_1, id_2, ts) do
+    state
+    |> TrackpadDriver.handle_touch("touchstart", [
+      %{"id" => id_1, "x" => 0, "y" => 0, "ts" => ts + 0},
+      %{"id" => id_2, "x" => 10, "y" => 0, "ts" => ts + 0}
+    ])
+    |> assert_action(nil)
+    |> TrackpadDriver.handle_touch("touchmove", [
+      %{"id" => id_1, "x" => 0, "y" => 30, "ts" => ts + 20},
+      %{"id" => id_2, "x" => 10, "y" => 30, "ts" => ts + 20}
+    ])
+    |> assert_action({:scroll, 0, 30})
+    |> TrackpadDriver.handle_touch("touchmove", [
+      %{"id" => id_1, "x" => 10, "y" => 50, "ts" => ts + 60},
+      %{"id" => id_2, "x" => 10, "y" => 50, "ts" => ts + 60}
+    ])
+    |> assert_action({:scroll, 5, 20})
+    |> TrackpadDriver.handle_touch("touchend", [
+      %{"id" => id_1, "x" => 10, "y" => 50, "ts" => ts + 70},
+      %{"id" => id_2, "x" => 10, "y" => 50, "ts" => ts + 70}
+    ])
+    |> assert_action(nil)
+  end
+
+  test "Scroll" do
+    TrackpadDriver.init()
+    |> scroll_test(1, 2, 0)
+  end
+
+  test "Scroll with one finger fixed" do
+    TrackpadDriver.init()
+    |> TrackpadDriver.handle_touch("touchstart", [
+      %{"id" => 1, "x" => 0, "y" => 0, "ts" => 0},
+      %{"id" => 2, "x" => 10, "y" => 1, "ts" => 0}
+    ])
+    |> assert_action(nil)
+    |> TrackpadDriver.handle_touch("touchmove", [
+      %{"id" => 1, "x" => 10, "y" => 30, "ts" => 20}
+    ])
+    |> assert_action({:scroll, 10, 30})
+    |> TrackpadDriver.handle_touch("touchmove", [
+      %{"id" => 1, "x" => 20, "y" => 40, "ts" => 40}
+    ])
+    |> assert_action({:scroll, 10, 10})
+    |> TrackpadDriver.handle_touch("touchmove", [
+      %{"id" => 2, "x" => 0, "y" => 40, "ts" => 200}
+    ])
+    |> assert_action({:scroll, -10, 39})
+    |> TrackpadDriver.handle_touch("touchend", [
+      %{"id" => 1, "x" => 20, "y" => 40, "ts" => 300},
+      %{"id" => 2, "x" => 0, "y" => 40, "ts" => 300}
+    ])
+  end
+
+  defp drag_with_one_finger_test(state, id, ts) do
+    state
+    |> TrackpadDriver.handle_touch("touchstart", [
+      %{"id" => id, "x" => 100, "y" => 350, "ts" => ts + 0}
+    ])
+    |> assert_action(nil)
+    |> TrackpadDriver.handle_touch("touchend", [
+      %{"id" => id, "x" => 100, "y" => 350, "ts" => ts + 20}
+    ])
+    |> assert_action({:set_timer, :left_click, 200})
+    |> TrackpadDriver.handle_touch("touchstart", [
+      %{"id" => id, "x" => 150, "y" => 350, "ts" => ts + 90}
+    ])
+    |> assert_action({:cancel_timer, :left_click})
+    |> TrackpadDriver.handle_touch("touchmove", [
+      %{"id" => id, "x" => 200, "y" => 400, "ts" => ts + 800}
+    ])
+    |> assert_action({:drag, 50, 50})
+    |> TrackpadDriver.handle_touch("touchmove", [
+      %{"id" => id, "x" => 100, "y" => 530, "ts" => ts + 900}
+    ])
+    |> assert_action({:drag, -100, 130})
+    |> TrackpadDriver.handle_touch("touchend", [
+      %{"id" => id, "x" => 100, "y" => 530, "ts" => ts + 950}
+    ])
+    |> assert_action(nil)
+  end
+
+  test "Drag with one finger" do
+    TrackpadDriver.init()
+    |> drag_with_one_finger_test(1, 0)
+  end
+
+  defp drag_with_three_fingers(state, id_1, id_2, id_3, ts) do
+    state
+    |> TrackpadDriver.handle_touch("touchstart", [
+      %{"id" => id_1, "x" => 0, "y" => 0, "ts" => ts}
+    ])
+    |> assert_action(nil)
+    |> TrackpadDriver.handle_touch("touchstart", [
+      %{"id" => id_2, "x" => 10, "y" => 20, "ts" => ts + 10}
+    ])
+    |> assert_action(nil)
+    |> TrackpadDriver.handle_touch("touchstart", [
+      %{"id" => id_3, "x" => 50, "y" => 0, "ts" => ts + 15}
+    ])
+    |> assert_action(nil)
+    |> TrackpadDriver.handle_touch("touchmove", [
+      %{"id" => id_1, "x" => 50, "y" => -40, "ts" => ts + 30},
+      %{"id" => id_2, "x" => 60, "y" => -20, "ts" => ts + 30},
+      %{"id" => id_3, "x" => 100, "y" => -40, "ts" => ts + 30}
+    ])
+    |> assert_action({:drag, 50, -40})
+    |> TrackpadDriver.handle_touch("touchmove", [
+      %{"id" => id_1, "x" => 50, "y" => -30, "ts" => ts + 60}
+    ])
+    |> assert_action({:drag, 0, 10})
+    |> TrackpadDriver.handle_touch("touchend", [
+      %{"id" => id_1, "x" => 50, "y" => -30, "ts" => ts + 70},
+      %{"id" => id_2, "x" => 60, "y" => -20, "ts" => ts + 70},
+      %{"id" => id_3, "x" => 100, "y" => -40, "ts" => ts + 70}
+    ])
+    |> assert_action(nil)
+  end
+
+  test "Drag with three fingers" do
+    TrackpadDriver.init()
+    |> drag_with_three_fingers(1, 2, 3, 0)
   end
 end
