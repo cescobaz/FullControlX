@@ -44,6 +44,23 @@ defmodule FullControlX.TrackpadDriverTest do
     |> assert_action(:double_click)
   end
 
+  test "Double click with timer cancellation fail" do
+    touch = %{"id" => 1, "ts" => 0, "x" => 100, "y" => 200}
+    touch_2 = %{"id" => 2, "ts" => 300, "x" => 100, "y" => 200}
+
+    TrackpadDriver.init()
+    |> TrackpadDriver.handle_touch("touchstart", [touch])
+    |> assert_action(nil)
+    |> TrackpadDriver.handle_touch("touchend", [Map.put(touch, "ts", 200)])
+    |> assert_action({:set_timer, :left_click, 200})
+    |> TrackpadDriver.handle_touch("touchstart", [touch_2])
+    |> assert_action({:cancel_timer, :left_click})
+    |> TrackpadDriver.handle_info(:left_click)
+    |> assert_action({:cancel_timer, :left_click})
+    |> TrackpadDriver.handle_touch("touchend", [Map.put(touch_2, "ts", 400)])
+    |> assert_action(:double_click)
+  end
+
   test "Slow double tap does two left click" do
     touch = %{"id" => 1, "ts" => 0, "x" => 100, "y" => 200}
     touch_2 = %{"id" => 2, "ts" => 500, "x" => 100, "y" => 200}

@@ -4,7 +4,7 @@ defmodule FullControlX.TrackpadDriver do
   def init() do
     %{
       touches: %{},
-      touches_down: [],
+      waiting_for_timer: false,
       name: :init,
       action: nil
     }
@@ -13,6 +13,7 @@ defmodule FullControlX.TrackpadDriver do
   defp reset(state) do
     state
     |> Map.put(:action, nil)
+    |> Map.put(:waiting_for_timer, false)
     |> Map.put(:name, :init)
   end
 
@@ -50,6 +51,7 @@ defmodule FullControlX.TrackpadDriver do
       1 ->
         state
         |> Map.put(:action, {:cancel_timer, :left_click})
+        |> Map.put(:waiting_for_timer, false)
         |> Map.put(:name, :one_tap_dragging)
 
       _ ->
@@ -68,6 +70,7 @@ defmodule FullControlX.TrackpadDriver do
     if touch_in_time?(touches, touches_s) do
       state
       |> Map.put(:action, {:set_timer, :left_click, 200})
+      |> Map.put(:waiting_for_timer, :left_click)
       |> Map.put(:name, :will_left_click)
     else
       state
@@ -196,14 +199,10 @@ defmodule FullControlX.TrackpadDriver do
   end
 
   def handle_info(state, action) do
-    Map.put(state, :action, action)
-    |> Map.put(:name, :init)
-  end
-
-  def cancel_timer(state) do
-    with %{timer: timer} when not is_nil(timer) <- state do
-      Process.cancel_timer(timer)
-      Map.put(state, :timer, nil)
+    with %{waiting_for_timer: waiting_action} when waiting_action == action <- state do
+      Map.put(state, :action, action)
+      |> Map.put(:waiting_for_timer, false)
+      |> Map.put(:name, :init)
     else
       _ -> state
     end
@@ -238,28 +237,17 @@ defmodule FullControlX.TrackpadDriver do
     end
   end
 
-  def compute_delta(touch, touches_p) do
+  defp compute_delta(touch, touches_p) do
     %{"id" => id, "x" => x, "y" => y} = touch
     %{"x" => x_p, "y" => y_p} = Map.get(touches_p, id) || touch
     {x - x_p, y - y_p}
   end
 
-  def compute_max_delta(touches, touches_p) do
-    Enum.reduce(touches, {0, 0}, fn touch, {dx_max, dy_max} ->
-      {dx, dy} = compute_delta(touch, touches_p)
-
-      {
-        if(abs(dx) > abs(dx_max), do: dx, else: dx_max),
-        if(abs(dy) > abs(dy_max), do: dy, else: dy_max)
-      }
-    end)
-  end
-
-  def compute_avg_delta([], _touches_p) do
+  defp compute_avg_delta([], _touches_p) do
     {0, 0}
   end
 
-  def compute_avg_delta(touches, touches_p) do
+  defp compute_avg_delta(touches, touches_p) do
     {count, dx_sum, dy_sum} =
       Enum.reduce(touches, {0, 0, 0}, fn touch, {count, dx_sum, dy_sum} ->
         {dx, dy} = compute_delta(touch, touches_p)
@@ -267,12 +255,6 @@ defmodule FullControlX.TrackpadDriver do
       end)
 
     {Kernel.trunc(dx_sum / count), Kernel.trunc(dy_sum / count)}
-  end
-
-  def touches_close?(touch_a, touch_b) do
-    %{"x" => x_a, "y" => y_a} = touch_a
-    %{"x" => x_b, "y" => y_b} = touch_b
-    :math.sqrt(:math.pow(x_b - x_a, 2) + :math.pow(y_b - y_a, 2)) < 10
   end
 
   defp put_touches(%{touches: touches_p} = state, touches) do
