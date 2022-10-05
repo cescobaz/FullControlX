@@ -4,7 +4,9 @@
 #include <IOKit/hidsystem/IOHIDLib.h>
 #include <MacTypes.h>
 #include <mach/kern_return.h>
+#include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 void _fcx_mouse_location(CGPoint *cg_location) {
@@ -116,15 +118,18 @@ int fcx_mouse_scroll_wheel(int x, int y) {
   NXEventData event;
   memset(&event, 0, sizeof(NXEventData));
 
-  if (x > 0) {
-    event.scrollWheel.deltaAxis2 = -1;
+  if (abs(x) > abs(y)) {
+    if (x > 0) {
+      event.scrollWheel.deltaAxis2 = -1;
+    } else {
+      event.scrollWheel.deltaAxis2 = 1;
+    }
   } else {
-    event.scrollWheel.deltaAxis2 = 1;
-  }
-  if (y > 0) {
-    event.scrollWheel.deltaAxis1 = -1;
-  } else {
-    event.scrollWheel.deltaAxis1 = 1;
+    if (y > 0) {
+      event.scrollWheel.deltaAxis1 = -1;
+    } else {
+      event.scrollWheel.deltaAxis1 = 1;
+    }
   }
 
   IOGPoint location = {0, 0};
