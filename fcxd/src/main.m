@@ -14,7 +14,6 @@ void handle_request(fcx_request_handler_t *req_handler,
   json_object_get(req_obj);
   NSRunLoop *runLoop = (NSRunLoop *)data;
   [runLoop performBlock:^{
-    fputs("[debug] handle_request in runLoop\n", stderr);
     fcx_io_interface_handle_request(req_handler, req_obj, output);
     json_object_put(req_obj);
   }];

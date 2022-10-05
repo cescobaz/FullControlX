@@ -1,3 +1,27 @@
+import topbar from "../vendor/topbar"
+
+const lib = {}
+
+lib.installTopBar = function () {
+  const color = "#29d"
+  const delay = 200
+
+  topbar.config({barColors: {0: color}, shadowColor: "rgba(0, 0, 0, .3)"})
+  let topBarScheduled = undefined
+  
+  window.addEventListener("phx:page-loading-start", () => {
+    if(!topBarScheduled) {
+      topBarScheduled = setTimeout(() => topbar.show(), delay)
+    }
+  })
+  
+  window.addEventListener("phx:page-loading-stop", () => {
+    clearTimeout(topBarScheduled)
+    topBarScheduled = undefined
+    topbar.hide()
+  })
+}
+
 const touch_el_width = 128
 const touch_el_height = 128
 
@@ -83,4 +107,4 @@ hooks.Trackpad = {
   }
 }
 
-module.exports = { hooks }
+module.exports = { hooks, lib }

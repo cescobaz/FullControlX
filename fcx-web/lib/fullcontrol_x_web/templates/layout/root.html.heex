@@ -11,12 +11,12 @@
   </head>
   <body class="select-none flex flex-col justify-between items-stretch w-full h-full bg-neutral-800 text-neutral-300">
     <%= @inner_content %>
-    <nav class="w-full bg-red-900">
-      <ul class="flex gap-4">
+    <nav class="w-full p-2 border-t border-neutral-700">
+      <ul class="flex justify-center gap-4">
         <li>Keyboard</li>
-        <li>Trackpad</li>
-        <li>Commands</li>
-        <li>Tools</li>
+        <li><%= live_redirect "Trackpad", to: Routes.live_path(@conn, FullControlXWeb.TrackpadLive) %></li>
+        <li><%= live_redirect "Commands", to: Routes.live_path(@conn, FullControlXWeb.CommandsLive) %></li>
+        <li><%= live_redirect "Tools", to: Routes.live_path(@conn, FullControlXWeb.ToolsLive) %></li>
       </ul>
     </nav>
       
