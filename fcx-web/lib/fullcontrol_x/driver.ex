@@ -14,6 +14,14 @@ defmodule FullControlX.Driver do
     GenServer.cast(driver, ["mouse_move", dx, dy])
   end
 
+  def mouse_left_down(driver) do
+    GenServer.cast(driver, ["mouse_left_down"])
+  end
+
+  def mouse_left_up(driver) do
+    GenServer.cast(driver, ["mouse_left_up"])
+  end
+
   def mouse_left_click(driver) do
     GenServer.cast(driver, ["mouse_left_click"])
   end
@@ -28,6 +36,10 @@ defmodule FullControlX.Driver do
 
   def mouse_scroll_wheel(driver, dx, dy) do
     GenServer.cast(driver, ["mouse_scroll_wheel", dx, dy])
+  end
+
+  def mouse_drag(driver, dx, dy) do
+    GenServer.cast(driver, ["mouse_drag", dx, dy])
   end
 
   def ui_apps(driver) do

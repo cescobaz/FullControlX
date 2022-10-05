@@ -79,6 +79,9 @@ defmodule FullControlXWeb.MainLive do
       {:move, dx, dy} ->
         FullControlX.mouse_move(dx, dy)
 
+      {:drag, dx, dy} ->
+        FullControlX.mouse_drag(dx, dy)
+
       {:scroll, dx, dy} ->
         FullControlX.mouse_scroll_wheel(dx, dy)
 
@@ -91,6 +94,12 @@ defmodule FullControlXWeb.MainLive do
       :right_click ->
         FullControlX.mouse_right_click()
 
+      :start_dragging ->
+        FullControlX.mouse_left_down()
+
+      :stop_dragging ->
+        FullControlX.mouse_left_up()
+
       _ ->
         nil
     end
@@ -101,6 +110,10 @@ defmodule FullControlXWeb.MainLive do
 
       {:set_timer, message, time} ->
         assign(socket, :timer, Process.send_after(self(), message, time))
+
+      [action | actions] ->
+        execute_trackpad_action(socket, action)
+        |> execute_trackpad_action(actions)
 
       _ ->
         socket

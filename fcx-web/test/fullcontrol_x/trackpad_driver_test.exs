@@ -206,7 +206,7 @@ defmodule FullControlX.TrackpadDriverTest do
     |> TrackpadDriver.handle_touch("touchmove", [
       %{"id" => id, "x" => 200, "y" => 400, "ts" => ts + 800}
     ])
-    |> assert_action({:drag, 50, 50})
+    |> assert_action([:start_dragging, {:drag, 50, 50}])
     |> TrackpadDriver.handle_touch("touchmove", [
       %{"id" => id, "x" => 100, "y" => 530, "ts" => ts + 900}
     ])
@@ -214,7 +214,7 @@ defmodule FullControlX.TrackpadDriverTest do
     |> TrackpadDriver.handle_touch("touchend", [
       %{"id" => id, "x" => 100, "y" => 530, "ts" => ts + 950}
     ])
-    |> assert_action(nil)
+    |> assert_action(:stop_dragging)
   end
 
   test "Drag with one finger" do
@@ -241,7 +241,7 @@ defmodule FullControlX.TrackpadDriverTest do
       %{"id" => id_2, "x" => 60, "y" => -20, "ts" => ts + 30},
       %{"id" => id_3, "x" => 100, "y" => -40, "ts" => ts + 30}
     ])
-    |> assert_action({:drag, 50, -40})
+    |> assert_action([:start_dragging, {:drag, 50, -40}])
     |> TrackpadDriver.handle_touch("touchmove", [
       %{"id" => id_1, "x" => 50, "y" => -30, "ts" => ts + 60}
     ])
@@ -251,7 +251,7 @@ defmodule FullControlX.TrackpadDriverTest do
       %{"id" => id_2, "x" => 60, "y" => -20, "ts" => ts + 70},
       %{"id" => id_3, "x" => 100, "y" => -40, "ts" => ts + 70}
     ])
-    |> assert_action(nil)
+    |> assert_action(:stop_dragging)
   end
 
   test "Drag with three fingers" do

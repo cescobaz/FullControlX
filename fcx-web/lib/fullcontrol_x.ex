@@ -17,6 +17,14 @@ defmodule FullControlX do
     Driver.mouse_move(Driver, dx, dy)
   end
 
+  def mouse_left_down() do
+    Driver.mouse_left_down(Driver)
+  end
+
+  def mouse_left_up() do
+    Driver.mouse_left_up(Driver)
+  end
+
   def mouse_left_click() do
     Driver.mouse_left_click(Driver)
   end
@@ -31,6 +39,10 @@ defmodule FullControlX do
 
   def mouse_scroll_wheel(dx, dy) do
     Driver.mouse_scroll_wheel(Driver, dx, dy)
+  end
+
+  def mouse_drag(dx, dy) do
+    Driver.mouse_drag(Driver, dx, dy)
   end
 
   def apps_ui() do

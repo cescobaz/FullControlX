@@ -133,3 +133,21 @@ int fcx_mouse_scroll_wheel(int x, int y) {
                         &event, kNXEventDataVersion, kIOHIDSetGlobalEventFlags,
                         kIOHIDPostHIDManagerEvent);
 }
+
+int fcx_mouse_drag(int x, int y) {
+  if (x == 0 && y == 0) {
+    return 0;
+  }
+
+  IOGPoint location = {0, 0};
+
+  NXEventData event;
+  memset(&event, 0, sizeof(NXEventData));
+  event.mouseMove.dx = (SInt32)x;
+  event.mouseMove.dy = (SInt32)y;
+  event.mouseMove.subType = NX_SUBTYPE_DEFAULT;
+
+  return IOHIDPostEvent(fcx_io_hid_connect(), NX_LMOUSEDRAGGED, location,
+                        &event, kNXEventDataVersion, kIOHIDSetGlobalEventFlags,
+                        kIOHIDSetRelativeCursorPosition);
+}
