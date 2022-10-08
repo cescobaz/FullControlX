@@ -4,11 +4,14 @@
 #include <string.h>
 #include <unistd.h>
 
-fcx_app *fcx_app_init(int input, int output) {
-  fcx_app *app = calloc(1, sizeof(fcx_app));
+#define BUFFER_SIZE 2048
+
+fcx_app_t *fcx_app_init(int input, int output) {
+  fcx_app_t *app = calloc(1, sizeof(fcx_app_t));
   app->input = input;
   app->output = output;
   app->buffer = malloc(BUFFER_SIZE);
+  app->buffer_size = BUFFER_SIZE;
   app->tokener = json_tokener_new();
   app->request_handler = fcx_request_handler_create();
   return app;
@@ -20,7 +23,7 @@ void __log_request_error(char *message, struct json_object *req_obj) {
 }
 
 void __fcx_app_handle_request_cb(struct json_object *response, void *ctx) {
-  fcx_app *app = (fcx_app *)ctx;
+  fcx_app_t *app = (fcx_app_t *)ctx;
 
   if (response != NULL) {
     const char *response_str =
@@ -30,7 +33,7 @@ void __fcx_app_handle_request_cb(struct json_object *response, void *ctx) {
   }
 }
 
-int fcx_app_handle_data(fcx_app *app, void *buffer, size_t size) {
+int fcx_app_handle_data(fcx_app_t *app, void *buffer, size_t size) {
   struct json_object *req_obj =
       json_tokener_parse_ex(app->tokener, app->buffer, size);
   app->error = json_tokener_get_error(app->tokener);
