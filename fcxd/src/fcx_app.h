@@ -1,0 +1,18 @@
+#include "request_handler.h"
+#include <json-c/json.h>
+#include <stddef.h>
+
+#define BUFFER_SIZE 2048
+
+typedef struct {
+  int input;
+  int output;
+  void *buffer;
+  struct json_tokener *tokener;
+  enum json_tokener_error error;
+  fcx_request_handler_t *request_handler;
+} fcx_app;
+
+fcx_app *fcx_app_init(int input, int output);
+
+int fcx_app_handle_data(fcx_app *app, void *buffer, size_t size);

@@ -9,8 +9,7 @@ configure_file(src/fullcontrol_x_config.h.in src/fullcontrol_x_config.h)
 
 set(LIB_NAME "${PROJECT_NAME}_s")
 
-set(SOURCES "src/stream_parser.c" "src/request_handler.c"
-            "src/fcx_io_interface.c")
+set(SOURCES "src/stream_parser.c" "src/request_handler.c" "src/fcx_app.c")
 
 set(SOURCES_MAC "src/mac/fcx_mouse.c" "src/mac/fcx_system.m"
                 "src/mac/fcx_apps.m" "src/mac/fcx_io_hid.c")
