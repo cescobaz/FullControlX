@@ -19,10 +19,13 @@ struct fcx_mouse *_fcx_mouse_init() {
   /* enable mouse button left and relative events */
   ioctl(fd, UI_SET_EVBIT, EV_KEY);
   ioctl(fd, UI_SET_KEYBIT, BTN_LEFT);
+  ioctl(fd, UI_SET_KEYBIT, BTN_RIGHT);
 
   ioctl(fd, UI_SET_EVBIT, EV_REL);
   ioctl(fd, UI_SET_RELBIT, REL_X);
   ioctl(fd, UI_SET_RELBIT, REL_Y);
+  ioctl(fd, UI_SET_RELBIT, REL_HWHEEL);
+  ioctl(fd, UI_SET_RELBIT, REL_WHEEL);
 
   memset(&mouse->usetup, 0, sizeof(mouse->usetup));
   mouse->usetup.id.bustype = BUS_USB;
@@ -70,16 +73,65 @@ int fcx_mouse_move(int x, int y) {
   return 0;
 }
 
-int fcx_mouse_left_down() { return 0; }
-int fcx_mouse_left_up() { return 0; }
-int fcx_mouse_left_click() { return 0; }
+int fcx_mouse_left_down() {
+  struct fcx_mouse *mouse = _fcx_mouse_get();
+  emit(mouse->fd, EV_KEY, BTN_LEFT, 1);
+  emit(mouse->fd, EV_SYN, SYN_REPORT, 0);
+  return 0;
+}
+int fcx_mouse_left_up() {
+  struct fcx_mouse *mouse = _fcx_mouse_get();
+  emit(mouse->fd, EV_KEY, BTN_LEFT, 0);
+  emit(mouse->fd, EV_SYN, SYN_REPORT, 0);
+  return 0;
+}
+int fcx_mouse_left_click() {
+  fcx_mouse_left_down();
+  fcx_mouse_left_up();
+  return 0;
+}
 
-int fcx_mouse_right_down() { return 0; }
-int fcx_mouse_right_up() { return 0; }
-int fcx_mouse_right_click() { return 0; }
+int fcx_mouse_right_down() {
+  struct fcx_mouse *mouse = _fcx_mouse_get();
+  emit(mouse->fd, EV_KEY, BTN_RIGHT, 1);
+  emit(mouse->fd, EV_SYN, SYN_REPORT, 0);
+  return 0;
+}
+int fcx_mouse_right_up() {
+  struct fcx_mouse *mouse = _fcx_mouse_get();
+  emit(mouse->fd, EV_KEY, BTN_RIGHT, 0);
+  emit(mouse->fd, EV_SYN, SYN_REPORT, 0);
+  return 0;
+}
+int fcx_mouse_right_click() {
+  fcx_mouse_right_down();
+  fcx_mouse_right_up();
+  return 0;
+}
 
-int fcx_mouse_double_click() { return 0; }
+int fcx_mouse_double_click() {
+  fcx_mouse_left_click();
+  fcx_mouse_left_click();
+  return 0;
+}
 
-int fcx_mouse_scroll_wheel(int x, int y) { return 0; }
+int fcx_mouse_scroll_wheel(int x, int y) {
+  struct fcx_mouse *mouse = _fcx_mouse_get();
+  if (abs(x) > abs(y)) {
+    if (x > 0) {
+      emit(mouse->fd, EV_REL, REL_HWHEEL, -1);
+    } else {
+      emit(mouse->fd, EV_REL, REL_HWHEEL, 1);
+    }
+  } else {
+    if (y > 0) {
+      emit(mouse->fd, EV_REL, REL_WHEEL, -1);
+    } else {
+      emit(mouse->fd, EV_REL, REL_WHEEL, 1);
+    }
+  }
+  emit(mouse->fd, EV_SYN, SYN_REPORT, 0);
+  return 0;
+}
 
-int fcx_mouse_drag(int x, int y) { return 0; }
+int fcx_mouse_drag(int x, int y) { return fcx_mouse_move(x, y); }
