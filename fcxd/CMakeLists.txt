@@ -9,26 +9,40 @@ configure_file(src/fullcontrol_x_config.h.in src/fullcontrol_x_config.h)
 
 set(LIB_NAME "${PROJECT_NAME}_s")
 
-set(SOURCES "src/fcx_request_handler.c" "src/fcx_app.c")
-
-set(SOURCES_MAC "src/mac/fcx_mouse.c" "src/mac/fcx_system.m"
-                "src/mac/fcx_apps.m" "src/mac/fcx_io_hid.c")
-
 find_package(json-c CONFIG REQUIRED)
-set(LIBRARIES json-c::json-c "-framework CoreFoundation"
-              "-framework CoreGraphics" "-framework AppKit" "-framework IOKit")
 
-# set_property(TARGET FullControlX PROPERTY OSX_ARCHITECTURES "x86_64;arm64")
-add_library(${LIB_NAME} STATIC ${SOURCES} ${SOURCES_MAC})
+set(SOURCES "src/fcx_request_handler.c" "src/fcx_app.c")
+set(LIBRARIES json-c::json-c)
+
+if(APPLE)
+  # set_property(TARGET FullControlX PROPERTY OSX_ARCHITECTURES "x86_64;arm64")
+  set(SOURCES ${SOURCES} "src/mac/fcx_mouse.c" "src/mac/fcx_system.m"
+              "src/mac/fcx_apps.m" "src/mac/fcx_io_hid.c")
+
+  set(LIBRARIES
+      ${LIBRARIES} "-framework CoreFoundation" "-framework CoreGraphics"
+      "-framework AppKit" "-framework IOKit")
+else()
+  set(SOURCES ${SOURCES} "src/linux/fcx_mouse.c" "src/linux/fcx_system.c"
+              "src/linux/fcx_apps.c")
+endif()
+
+add_library(${LIB_NAME} STATIC ${SOURCES})
 target_link_libraries(${LIB_NAME} PRIVATE ${LIBRARIES})
 
-add_executable(${PROJECT_NAME} "src/main.m")
+if(APPLE)
+  add_executable(${PROJECT_NAME} "src/main.m")
+else()
+  add_executable(${PROJECT_NAME} "src/main.c")
+endif()
+
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LIB_NAME} json-c::json-c)
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_BINARY_DIR}")
 
 include(CTest)
-find_package(Unity CONFIG REQUIRED)
-link_libraries(${LIB_NAME} unity::framework json-c::json-c)
+# find_package(cunit CONFIG REQUIRED)
+find_library(CUNIT_LIBRARY NAMES cunit libcunit cunitlib)
+link_libraries(${LIB_NAME} ${CUNIT_LIBRARY} json-c::json-c)
 
 set(TESTS mouse)
 

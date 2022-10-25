@@ -1,11 +1,11 @@
 #include "../src/fcx_mouse.h"
+#include <CUnit/Basic.h>
 #include <json-c/json.h>
 #include <unistd.h>
-#include <unity.h>
 
-void setUp() {}
+int init_suite() { return 0; }
 
-void tearDown() {}
+int clean_suite() { return 0; }
 
 typedef enum { axis_x = 0, axis_y = 1 } axis;
 
@@ -25,19 +25,42 @@ void test_mouse_move() {
   int mx = 21;
   int my = 7;
   struct json_object *location = fcx_mouse_location();
-  TEST_ASSERT_TRUE(0 == fcx_mouse_move(mx, my));
+  CU_ASSERT_TRUE(0 == fcx_mouse_move(mx, my));
   wait_for_event_post();
   struct json_object *new_location = fcx_mouse_location();
   int dx =
       location_axis(new_location, axis_x) - location_axis(location, axis_x);
-  TEST_ASSERT_INT_WITHIN(2, mx, dx);
+  CU_ASSERT_TRUE(dx <= mx + 2);
+  CU_ASSERT_TRUE(dx >= mx - 2);
   int dy =
       location_axis(new_location, axis_y) - location_axis(location, axis_y);
-  TEST_ASSERT_INT_WITHIN(2, my, dy);
+  CU_ASSERT_TRUE(dy <= my + 2);
+  CU_ASSERT_TRUE(dy >= my - 2);
 }
 
 int main() {
-  UNITY_BEGIN();
-  RUN_TEST(test_mouse_move);
-  return UNITY_END();
+  CU_pSuite pSuite = NULL;
+
+  /* initialize the CUnit test registry */
+  if (CUE_SUCCESS != CU_initialize_registry())
+    return CU_get_error();
+
+  /* add a suite to the registry */
+  pSuite = CU_add_suite("Suite_1", init_suite, clean_suite);
+  if (NULL == pSuite) {
+    CU_cleanup_registry();
+    return CU_get_error();
+  }
+
+  /* add the tests to the suite */
+  if ((NULL == CU_add_test(pSuite, "test mouse move", test_mouse_move))) {
+    CU_cleanup_registry();
+    return CU_get_error();
+  }
+
+  /* Run all tests using the CUnit Basic interface */
+  CU_basic_set_mode(CU_BRM_VERBOSE);
+  CU_basic_run_tests();
+  CU_cleanup_registry();
+  return CU_get_error();
 }
