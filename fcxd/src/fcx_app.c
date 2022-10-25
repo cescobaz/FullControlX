@@ -34,20 +34,25 @@ void __fcx_app_handle_request_cb(struct json_object *response, void *ctx) {
 }
 
 int fcx_app_handle_data(fcx_app_t *app, void *buffer, size_t size) {
-  struct json_object *req_obj =
-      json_tokener_parse_ex(app->tokener, app->buffer, size);
-  app->error = json_tokener_get_error(app->tokener);
-  if (app->error == json_tokener_continue) {
-    return 0;
+  size_t buffer_start = 0;
+  while (buffer_start < size) {
+    struct json_object *req_obj = json_tokener_parse_ex(
+        app->tokener, &(app->buffer)[buffer_start], size - buffer_start);
+    buffer_start += json_tokener_get_parse_end(app->tokener);
+    app->error = json_tokener_get_error(app->tokener);
+    if (app->error == json_tokener_continue) {
+      return 0;
+    }
+    if (app->error != json_tokener_success) {
+      return 1;
+    }
+
+    __log_request_error("[DEBUG]", req_obj);
+    fcx_request_ctx_t *req_ctx =
+        fcx_request_ctx_create(req_obj, &__fcx_app_handle_request_cb, app);
+    fcx_handle_request(app->request_handler, req_ctx);
+    fcx_request_ctx_release(req_ctx);
+    json_object_put(req_obj);
   }
-  if (app->error != json_tokener_success) {
-    return 1;
-  }
-  __log_request_error("[DEBUG]", req_obj);
-  fcx_request_ctx_t *req_ctx =
-      fcx_request_ctx_create(req_obj, &__fcx_app_handle_request_cb, app);
-  fcx_handle_request(app->request_handler, req_ctx);
-  fcx_request_ctx_release(req_ctx);
-  json_object_put(req_obj);
   return 0;
 }

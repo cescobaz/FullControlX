@@ -1,10 +1,11 @@
 #include "fcx_request_handler.h"
 #include <json-c/json.h>
+#include <stdint.h>
 
 typedef struct {
   int input;
   int output;
-  void *buffer;
+  char *buffer;
   size_t buffer_size;
   struct json_tokener *tokener;
   enum json_tokener_error error;
