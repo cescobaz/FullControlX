@@ -1,14 +1,19 @@
 #include "../fcx_mouse.h"
+#include <bits/time.h>
 #include <fcntl.h>
 #include <linux/input-event-codes.h>
 #include <linux/uinput.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/param.h>
+#include <time.h>
 #include <unistd.h>
 
 struct fcx_mouse {
   struct uinput_setup usetup;
   int fd;
+  struct timespec last_wheel_ts;
 };
 
 struct fcx_mouse *_fcx_mouse_init() {
@@ -37,6 +42,8 @@ struct fcx_mouse *_fcx_mouse_init() {
   ioctl(fd, UI_DEV_CREATE);
 
   mouse->fd = fd;
+  mouse->last_wheel_ts.tv_sec = 0;
+  mouse->last_wheel_ts.tv_nsec = 0;
   return mouse;
 }
 
@@ -116,20 +123,40 @@ int fcx_mouse_double_click() {
 }
 
 int fcx_mouse_scroll_wheel(int x, int y) {
+  if (x == 0 && y == 0) {
+    return 0;
+  }
   struct fcx_mouse *mouse = _fcx_mouse_get();
+  struct timespec ts;
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts);
+  long ndiff = ts.tv_nsec - mouse->last_wheel_ts.tv_nsec;
+  int amax = MAX(abs(x), abs(y));
+  int limit = MAX(1, MIN(4, amax * 10 / 20));
+  fprintf(stderr, "[debug] ndiff %ld amx %d limit %d\n", ndiff, amax,
+          400000 / limit);
+  if (ndiff < (400000 / limit)) {
+    // wait next event
+    return 0;
+  }
+  mouse->last_wheel_ts = ts;
+  int event_code;
+  int event_val;
   if (abs(x) > abs(y)) {
+    event_code = REL_HWHEEL;
     if (x > 0) {
-      _fcx_mouse_emit(mouse->fd, EV_REL, REL_HWHEEL, -1);
+      event_val = -1;
     } else {
-      _fcx_mouse_emit(mouse->fd, EV_REL, REL_HWHEEL, 1);
+      event_val = 1;
     }
   } else {
+    event_code = REL_WHEEL;
     if (y > 0) {
-      _fcx_mouse_emit(mouse->fd, EV_REL, REL_WHEEL, 1);
+      event_val = 1;
     } else {
-      _fcx_mouse_emit(mouse->fd, EV_REL, REL_WHEEL, -1);
+      event_val = -1;
     }
   }
+  _fcx_mouse_emit(mouse->fd, EV_REL, event_code, event_val);
   _fcx_mouse_emit(mouse->fd, EV_SYN, SYN_REPORT, 0);
   return 0;
 }
