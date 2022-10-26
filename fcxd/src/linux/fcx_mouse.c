@@ -51,7 +51,7 @@ struct fcx_mouse *_fcx_mouse_get() {
   return _fcx_mouse;
 }
 
-int emit(int fd, int type, int code, int val) {
+int _fcx_mouse_emit(int fd, int type, int code, int val) {
   struct input_event ie;
   ie.type = type;
   ie.code = code;
@@ -67,22 +67,22 @@ struct json_object *fcx_mouse_location() {
 
 int fcx_mouse_move(int x, int y) {
   struct fcx_mouse *mouse = _fcx_mouse_get();
-  emit(mouse->fd, EV_REL, REL_X, x);
-  emit(mouse->fd, EV_REL, REL_Y, y);
-  emit(mouse->fd, EV_SYN, SYN_REPORT, 0);
+  _fcx_mouse_emit(mouse->fd, EV_REL, REL_X, x);
+  _fcx_mouse_emit(mouse->fd, EV_REL, REL_Y, y);
+  _fcx_mouse_emit(mouse->fd, EV_SYN, SYN_REPORT, 0);
   return 0;
 }
 
 int fcx_mouse_left_down() {
   struct fcx_mouse *mouse = _fcx_mouse_get();
-  emit(mouse->fd, EV_KEY, BTN_LEFT, 1);
-  emit(mouse->fd, EV_SYN, SYN_REPORT, 0);
+  _fcx_mouse_emit(mouse->fd, EV_KEY, BTN_LEFT, 1);
+  _fcx_mouse_emit(mouse->fd, EV_SYN, SYN_REPORT, 0);
   return 0;
 }
 int fcx_mouse_left_up() {
   struct fcx_mouse *mouse = _fcx_mouse_get();
-  emit(mouse->fd, EV_KEY, BTN_LEFT, 0);
-  emit(mouse->fd, EV_SYN, SYN_REPORT, 0);
+  _fcx_mouse_emit(mouse->fd, EV_KEY, BTN_LEFT, 0);
+  _fcx_mouse_emit(mouse->fd, EV_SYN, SYN_REPORT, 0);
   return 0;
 }
 int fcx_mouse_left_click() {
@@ -93,14 +93,14 @@ int fcx_mouse_left_click() {
 
 int fcx_mouse_right_down() {
   struct fcx_mouse *mouse = _fcx_mouse_get();
-  emit(mouse->fd, EV_KEY, BTN_RIGHT, 1);
-  emit(mouse->fd, EV_SYN, SYN_REPORT, 0);
+  _fcx_mouse_emit(mouse->fd, EV_KEY, BTN_RIGHT, 1);
+  _fcx_mouse_emit(mouse->fd, EV_SYN, SYN_REPORT, 0);
   return 0;
 }
 int fcx_mouse_right_up() {
   struct fcx_mouse *mouse = _fcx_mouse_get();
-  emit(mouse->fd, EV_KEY, BTN_RIGHT, 0);
-  emit(mouse->fd, EV_SYN, SYN_REPORT, 0);
+  _fcx_mouse_emit(mouse->fd, EV_KEY, BTN_RIGHT, 0);
+  _fcx_mouse_emit(mouse->fd, EV_SYN, SYN_REPORT, 0);
   return 0;
 }
 int fcx_mouse_right_click() {
@@ -119,18 +119,18 @@ int fcx_mouse_scroll_wheel(int x, int y) {
   struct fcx_mouse *mouse = _fcx_mouse_get();
   if (abs(x) > abs(y)) {
     if (x > 0) {
-      emit(mouse->fd, EV_REL, REL_HWHEEL, -1);
+      _fcx_mouse_emit(mouse->fd, EV_REL, REL_HWHEEL, -1);
     } else {
-      emit(mouse->fd, EV_REL, REL_HWHEEL, 1);
+      _fcx_mouse_emit(mouse->fd, EV_REL, REL_HWHEEL, 1);
     }
   } else {
     if (y > 0) {
-      emit(mouse->fd, EV_REL, REL_WHEEL, -1);
+      _fcx_mouse_emit(mouse->fd, EV_REL, REL_WHEEL, -1);
     } else {
-      emit(mouse->fd, EV_REL, REL_WHEEL, 1);
+      _fcx_mouse_emit(mouse->fd, EV_REL, REL_WHEEL, 1);
     }
   }
-  emit(mouse->fd, EV_SYN, SYN_REPORT, 0);
+  _fcx_mouse_emit(mouse->fd, EV_SYN, SYN_REPORT, 0);
   return 0;
 }
 

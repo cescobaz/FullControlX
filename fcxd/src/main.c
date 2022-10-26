@@ -1,11 +1,12 @@
 #include "fcx_app.h"
+#include "fcx_keyboard.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
 int main(int argc, char *argv[]) {
-  printf("Hello linux\n");
+  fprintf(stderr, "Hello linux\n");
 
   fcx_app_t *app = fcx_app_init(STDIN_FILENO, STDOUT_FILENO);
 
