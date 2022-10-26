@@ -125,9 +125,9 @@ int fcx_mouse_scroll_wheel(int x, int y) {
     }
   } else {
     if (y > 0) {
-      _fcx_mouse_emit(mouse->fd, EV_REL, REL_WHEEL, -1);
-    } else {
       _fcx_mouse_emit(mouse->fd, EV_REL, REL_WHEEL, 1);
+    } else {
+      _fcx_mouse_emit(mouse->fd, EV_REL, REL_WHEEL, -1);
     }
   }
   _fcx_mouse_emit(mouse->fd, EV_SYN, SYN_REPORT, 0);
