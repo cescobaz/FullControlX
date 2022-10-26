@@ -14,8 +14,9 @@ fcx_app_t *fcx_app_init(int argc, char *argv[]) {
   app->buffer = malloc(BUFFER_SIZE);
   app->buffer_size = BUFFER_SIZE;
   app->tokener = json_tokener_new();
-  app->request_handler = fcx_request_handler_create();
   app->keyboard = fcx_keyboard_create("us");
+  app->request_handler = fcx_request_handler_create();
+  app->request_handler->keyboard = app->keyboard;
   return app;
 }
 
