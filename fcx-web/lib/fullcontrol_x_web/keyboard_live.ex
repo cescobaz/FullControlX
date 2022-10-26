@@ -9,9 +9,11 @@ defmodule FullControlXWeb.KeyboardLive do
     ~H"""
     <.header title="Keyboard" />
     <div class="grow">
-      <.form for={:keyboard} phx-change="change" phx-submit="submit" let={f}>
-       <%= textarea f, :text %> 
-       <%= submit "Send" %>
+      <.form id="keyboard_textarea" for={:keyboard} phx-change="change" phx-submit="submit" let={f}>
+        <div class="flex flex-col items-stretch gap-4 p-4">
+          <%= textarea f, :text %> 
+          <%= submit "Send" %>
+        </div>
       </.form>
     </div>
     """
