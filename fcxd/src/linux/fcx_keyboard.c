@@ -1,10 +1,12 @@
 #include "../fcx_keyboard.h"
+#include <ctype.h>
 #include <fcntl.h>
 #include <kbdfile.h>
 #include <keymap/common.h>
 #include <keymap/context.h>
 #include <keymap/dump.h>
 #include <keymap/kmap.h>
+#include <limits.h>
 #include <linux/input-event-codes.h>
 #include <linux/kd.h>
 #include <linux/uinput.h>
@@ -54,6 +56,8 @@ int fcx_load_keymap(struct fcx_keyboard *keyboard, const char *keymap_name) {
     return rc;
   }
   struct lk_ctx *ctx = lk_init();
+  // lk_set_parser_flags(ctx, LK_FLAG_CLEAR_COMPOSE);
+  lk_set_parser_flags(ctx, LK_FLAG_PREFER_UNICODE);
   rc = lk_parse_keymap(ctx, fp);
   kbdfile_free(fp);
 
@@ -64,19 +68,32 @@ int fcx_load_keymap(struct fcx_keyboard *keyboard, const char *keymap_name) {
 
 struct kbentry _fcx_keyboard_kbentry_from_unicode(fcx_keyboard_t *kb,
                                                   int unicode) {
-  struct kbentry kbe = {0, 0, -1};
+  struct kbentry kbe = {0, 0, USHRT_MAX};
   struct lk_ctx *ctx = ((struct fcx_keyboard *)kb)->lkctx;
-  for (int table = K_NORMTAB; table <= K_ALTSHIFTTAB; table++) {
+  for (int table = 0; table <= 256; table++) {
+    if (!lk_map_exists(ctx, table)) {
+      // fprintf(stderr, "[DEBUG] fcx_keyboard map not exists %d\n", table);
+      continue;
+    }
     int totalKeys = lk_get_keys_total(ctx, table);
-    for (int keycode = 0; keycode < totalKeys; keycode++) {
+    for (int keycode = 0; keycode < 256; keycode++) {
       if (!lk_key_exists(ctx, table, keycode)) {
+        // fprintf(stderr, "[DEBUG] fcx_keyboard keycode not exists %d %d\n",
+        //         table, keycode);
         continue;
       }
-      int ucode = lk_get_key(ctx, table, keycode);
-      if (ucode == unicode) {
+      int value = lk_get_key(ctx, table, keycode);
+      if (value < 0 || value >= USHRT_MAX) {
+        continue;
+      }
+      if (value == unicode) {
         kbe.kb_table = table;
         kbe.kb_index = keycode;
-        kbe.kb_value = unicode;
+        kbe.kb_value = value;
+        fprintf(stderr,
+                "[DEBUG] _fcx_keyboard_kbentry_from_unicode %C -> {%d, %d, %d "
+                "(%C)}\n",
+                unicode, table, keycode, value, value);
         return kbe;
       }
     }
@@ -152,19 +169,35 @@ int fcx_keyboard_type_text(fcx_keyboard_t *keyboard, const char *text) {
   char ksym[4] = {0, 0, 0, 0};
   for (int i = 0; i < len; i++) {
     ksym[0] = text[i];
-    // int unicode = lk_ksym_to_unicode(kb->lkctx, ksym);
+    // int ucode = lk_ksym_to_unicode(kb->lkctx, ksym);
     int unicode = text[i];
     if (unicode <= 0) {
       fprintf(stderr, "[error] lk_ksym_to_unicode returns %d, skip\n", unicode);
       continue;
     }
     struct kbentry kbe = _fcx_keyboard_kbentry_from_unicode(keyboard, unicode);
-    if (kbe.kb_value != unicode) {
-      fprintf(stderr,
-              "[error] _fcx_keyboard_kbentry_from_unicode unicode %C (%d) not "
-              "found, skip\n",
-              unicode, unicode);
-      continue;
+    if (kbe.kb_value == USHRT_MAX) {
+      /* as `man keymaps` says at the end of chapeter 'COMPLETE KEYCODE
+       * DEFINITION': 'a-z' and 'A-Z' could have implicit meaning. Lets
+       * implement it.
+       */
+      if (unicode >= 'A' && unicode <= 'Z') {
+        unicode = tolower(unicode);
+        kbe = _fcx_keyboard_kbentry_from_unicode(keyboard, unicode);
+        kbe.kb_table = K_SHIFTTAB;
+      } else if (unicode >= 'a' && unicode <= 'z') {
+        unicode = toupper(unicode);
+        kbe = _fcx_keyboard_kbentry_from_unicode(keyboard, unicode);
+        kbe.kb_table = K_SHIFTTAB;
+      }
+      if (kbe.kb_value == USHRT_MAX) {
+        fprintf(
+            stderr,
+            "[error] _fcx_keyboard_kbentry_from_unicode unicode %C (%d) not "
+            "found, skip\n",
+            unicode, unicode);
+        continue;
+      }
     }
     switch (kbe.kb_table) {
     case K_NORMTAB:
