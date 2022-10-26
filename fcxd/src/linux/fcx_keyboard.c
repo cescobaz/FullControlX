@@ -113,7 +113,7 @@ fcx_keyboard_t *fcx_keyboard_create(const char *keymap_name) {
   keyboard->fd = open("/dev/uinput", O_WRONLY | O_NONBLOCK);
 
   ioctl(keyboard->fd, UI_SET_EVBIT, EV_KEY);
-  for (int i = 1; i <= 68; i++) {
+  for (int i = 1; i <= 256; i++) {
     ioctl(keyboard->fd, UI_SET_KEYBIT, i);
   }
 
