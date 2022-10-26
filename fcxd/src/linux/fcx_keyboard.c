@@ -39,10 +39,15 @@ static const char *const dirpath1[] = {"", DATADIR "/" KEYMAPDIR "/**",
                                        KERNDIR "/", NULL};
 static const char *const suffixes[] = {"", ".kmap", ".map", NULL};
 
-int fcx_load_keymap(struct fcx_keyboard *keyboard, char *keymap_name) {
+int fcx_load_keymap(struct fcx_keyboard *keyboard, const char *keymap_name) {
   struct kbdfile_ctx *file_ctx = kbdfile_context_new();
   struct kbdfile *fp = kbdfile_new(file_ctx);
-  int rc = kbdfile_find(keymap_name, dirpath1, suffixes, fp);
+  int rc;
+  if (keymap_name == NULL) {
+    rc = kbdfile_find(DEFMAP, dirpath1, suffixes, fp);
+  } else {
+    rc = kbdfile_find(keymap_name, dirpath1, suffixes, fp);
+  }
   if (rc != 0) {
     kbdfile_free(fp);
     kbdfile_context_free(file_ctx);
@@ -85,9 +90,9 @@ void fcx_free_keymap(fcx_keyboard_t *keyboard) {
   kbdfile_context_free(kb->kfctx);
 }
 
-fcx_keyboard_t *fcx_keyboard_create() {
+fcx_keyboard_t *fcx_keyboard_create(const char *keymap_name) {
   struct fcx_keyboard *keyboard = malloc(sizeof(struct fcx_keyboard));
-  fcx_load_keymap(keyboard, "us");
+  fcx_load_keymap(keyboard, keymap_name);
   keyboard->fd = open("/dev/uinput", O_WRONLY | O_NONBLOCK);
 
   ioctl(keyboard->fd, UI_SET_EVBIT, EV_KEY);
@@ -107,7 +112,7 @@ fcx_keyboard_t *fcx_keyboard_create() {
   return keyboard;
 }
 
-void fcx_keyboard_destroy(fcx_keyboard_t *keyboard) {
+void fcx_keyboard_free(fcx_keyboard_t *keyboard) {
   struct fcx_keyboard *kb = keyboard;
   ioctl(kb->fd, UI_DEV_DESTROY);
   close(kb->fd);
