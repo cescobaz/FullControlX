@@ -3,6 +3,9 @@
 @import "tailwindcss/utilities";
 
 @layer utilities {
+  button, .button {
+    @apply block bg-neutral-700 px-2 py-1 rounded;
+  }
   textarea {
     @apply bg-black;
   }
