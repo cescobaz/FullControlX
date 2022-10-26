@@ -3,7 +3,7 @@ defmodule FullControlXWeb.CommandsLive do
 
   def mount(_params, _session, socket) do
     # FullControlX.Driver.apps_observe(FullControlX.Driver)
-    apps = FullControlX.apps_ui()
+    apps = FullControlX.apps_ui() || []
 
     {:ok, assign(socket, :apps, apps)}
   end

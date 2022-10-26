@@ -45,6 +45,10 @@ defmodule FullControlX do
     Driver.mouse_drag(Driver, dx, dy)
   end
 
+  def keyboard_type(text) do
+    Driver.keyboard_type(Driver, text)
+  end
+
   def apps_ui() do
     Driver.ui_apps(Driver)
   end

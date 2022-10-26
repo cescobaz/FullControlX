@@ -2,7 +2,7 @@ defmodule FullControlXWeb.ToolsLive do
   use FullControlXWeb, :live_view
 
   def mount(_params, _session, socket) do
-    info = FullControlX.system_info()
+    info = FullControlX.system_info() || %{}
 
     {:ok, assign(socket, :info, info)}
   end

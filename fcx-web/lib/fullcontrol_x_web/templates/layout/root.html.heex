@@ -13,7 +13,7 @@
     <%= @inner_content %>
     <nav class="w-full p-2 border-t border-neutral-700">
       <ul class="flex justify-center gap-4">
-        <li>Keyboard</li>
+        <li><%= live_redirect "Keyboard", to: Routes.live_path(@conn, FullControlXWeb.KeyboardLive) %></li>
         <li><%= live_redirect "Trackpad", to: Routes.live_path(@conn, FullControlXWeb.TrackpadLive) %></li>
         <li><%= live_redirect "Commands", to: Routes.live_path(@conn, FullControlXWeb.CommandsLive) %></li>
         <li><%= live_redirect "Tools", to: Routes.live_path(@conn, FullControlXWeb.ToolsLive) %></li>
