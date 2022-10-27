@@ -18,6 +18,47 @@ defmodule FullControlXWeb.ToolsLive do
       }
     ]
 
+    media_buttons = [
+      %{
+        title: "Back",
+        value: "back",
+        src: Routes.static_path(socket, "/images/Back.png")
+      },
+      %{
+        title: "Play/Pause",
+        value: "playpause",
+        src: Routes.static_path(socket, "/images/PlayPause.png")
+      },
+      %{
+        title: "Forward",
+        value: "forward",
+        src: Routes.static_path(socket, "/images/Forward.png")
+      }
+    ]
+
+    arrows_buttons = [
+      %{
+        title: "Left",
+        value: "left",
+        src: Routes.static_path(socket, "/images/LeftArrow.png")
+      },
+      %{
+        title: "Down",
+        value: "down",
+        src: Routes.static_path(socket, "/images/DownArrow2.png")
+      },
+      %{
+        title: "Up",
+        value: "up",
+        src: Routes.static_path(socket, "/images/UpArrow.png")
+      },
+      %{
+        title: "Right",
+        value: "right",
+        src: Routes.static_path(socket, "/images/RightArrow.png")
+      }
+    ]
+
     brightness_buttons = [
       %{
         title: "Brightness Down",
@@ -34,27 +75,43 @@ defmodule FullControlXWeb.ToolsLive do
     {:ok,
      assign(socket, :info, info)
      |> assign(:audio_buttons, audio_buttons)
+     |> assign(:media_buttons, media_buttons)
+     |> assign(:arrows_buttons, arrows_buttons)
      |> assign(:brightness_buttons, brightness_buttons)}
   end
 
   def render(assigns) do
     ~H"""
     <.header title="Tools" />
-    <%= for {key, value} <- @info do %>
+    <div class="overflow-scroll">
       <div>
-        <%= "#{key}: #{value}" %>
-      </div>
-    <% end %>
-    <div class="grow flex flex-col justify-end gap-4 pb-4">
-      <div class="flex justify-center gap-4">
-        <%= for button <- @brightness_buttons do %>
-          <._button title={button.title} value={button.value} src={button.src} />
+        <%= for {key, value} <- @info do %>
+          <div>
+            <%= "#{key}: #{value}" %>
+          </div>
         <% end %>
       </div>
-      <div class="flex justify-center gap-4">
-        <%= for button <- @audio_buttons do %>
-          <._button title={button.title} value={button.value} src={button.src} />
-        <% end %>
+      <div class="flex flex-col justify-end gap-4 pb-4">
+        <div class="flex justify-center gap-4">
+          <%= for button <- @brightness_buttons do %>
+            <._button title={button.title} value={button.value} src={button.src} />
+          <% end %>
+        </div>
+        <div class="flex justify-center gap-4">
+          <%= for button <- @arrows_buttons do %>
+            <._button title={button.title} value={button.value} src={button.src} />
+          <% end %>
+        </div>
+        <div class="flex justify-center gap-4">
+          <%= for button <- @media_buttons do %>
+            <._button title={button.title} value={button.value} src={button.src} />
+          <% end %>
+        </div>
+        <div class="flex justify-center gap-4">
+          <%= for button <- @audio_buttons do %>
+            <._button title={button.title} value={button.value} src={button.src} />
+          <% end %>
+        </div>
       </div>
     </div>
     """
