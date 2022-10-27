@@ -4,7 +4,37 @@ defmodule FullControlXWeb.ToolsLive do
   def mount(_params, _session, socket) do
     info = FullControlX.system_info() || %{}
 
-    {:ok, assign(socket, :info, info)}
+    audio_buttons = [
+      %{
+        title: "Volume Down",
+        value: "volumedown",
+        src: Routes.static_path(socket, "/images/VolumeDown.png")
+      },
+      %{title: "Mute", value: "mute", src: Routes.static_path(socket, "/images/Mute.png")},
+      %{
+        title: "Volume Up",
+        value: "volumeup",
+        src: Routes.static_path(socket, "/images/VolumeUp.png")
+      }
+    ]
+
+    brightness_buttons = [
+      %{
+        title: "Brightness Down",
+        value: "brightnessdown",
+        src: Routes.static_path(socket, "/images/BrightnessDown@2x.png")
+      },
+      %{
+        title: "Brightness Up",
+        value: "brightnessup",
+        src: Routes.static_path(socket, "/images/BrightnessUp@2x.png")
+      }
+    ]
+
+    {:ok,
+     assign(socket, :info, info)
+     |> assign(:audio_buttons, audio_buttons)
+     |> assign(:brightness_buttons, brightness_buttons)}
   end
 
   def render(assigns) do
@@ -17,15 +47,24 @@ defmodule FullControlXWeb.ToolsLive do
     <% end %>
     <div class="grow flex flex-col justify-end gap-4 pb-4">
       <div class="flex justify-center gap-4">
-        <button phx-click="keyboard" value="brightnessup">Brightness Up</button>
-        <button phx-click="keyboard" value="brightnessdown">Brightness Down</button>
+        <%= for button <- @brightness_buttons do %>
+          <._button title={button.title} value={button.value} src={button.src} />
+        <% end %>
       </div>
       <div class="flex justify-center gap-4">
-        <button phx-click="keyboard" value="volumeup">Volume Up</button>
-        <button phx-click="keyboard" value="volumedown">Volume Down</button>
-        <button phx-click="keyboard" value="mute">Mute</button>
+        <%= for button <- @audio_buttons do %>
+          <._button title={button.title} value={button.value} src={button.src} />
+        <% end %>
       </div>
     </div>
+    """
+  end
+
+  def _button(assigns) do
+    ~H"""
+    <button phx-click="keyboard" value={@value} title={@title}>
+      <img src={@src} />
+    </button>
     """
   end
 
