@@ -24,8 +24,10 @@ if(APPLE)
       ${LIBRARIES} "-framework CoreFoundation" "-framework CoreGraphics"
       "-framework AppKit" "-framework IOKit")
 else()
-  set(SOURCES ${SOURCES} "src/linux/fcx_mouse.c" "src/linux/fcx_system.c"
-              "src/linux/fcx_keyboard.c" "src/linux/fcx_apps.c")
+  set(SOURCES
+      ${SOURCES} "src/linux/fcx_mouse.c" "src/linux/fcx_system.c"
+      "src/linux/fcx_keyboard_map.c" "src/linux/fcx_keyboard.c"
+      "src/linux/fcx_apps.c")
   find_library(KEYMAP_LIBRARY keymap)
   find_library(KBDFILE_LIBRARY kbdfile)
   set(LIBRARIES ${LIBRARIES} ${KEYMAP_LIBRARY} ${KBDFILE_LIBRARY})

@@ -17,7 +17,9 @@ const char fcx_req_mouse_left_click[] = "mouse_left_click";
 const char fcx_req_mouse_right_click[] = "mouse_right_click";
 const char fcx_req_mouse_double_click[] = "mouse_double_click";
 const char fcx_req_mouse_scroll_wheel[] = "mouse_scroll_wheel";
+const char fcx_req_keyboard_prefix[] = "keyboard_";
 const char fcx_req_keyboard_type_text[] = "keyboard_type_text";
+const char fcx_req_keyboard_type_symbol[] = "keyboard_type_symbol";
 const char fcx_req_ui_apps[] = "ui_apps";
 const char fcx_req_apps_observe[] = "apps_observe";
 const char fcx_req_ignore_all[] = "ignore_all";
@@ -120,15 +122,22 @@ int fcx_handle_request(fcx_request_handler_t *handler,
     int x = json_object_get_int(json_object_array_get_idx(req_ctx->request, 2));
     int y = json_object_get_int(json_object_array_get_idx(req_ctx->request, 3));
     result = json_object_new_int(fcx_mouse_scroll_wheel(x, y));
-  } else if (strcmp(function, fcx_req_keyboard_type_text) == 0) {
+  } else if (strncmp(function, fcx_req_keyboard_prefix,
+                     strlen(fcx_req_keyboard_prefix)) == 0) {
     fcx_keyboard_t *kb = handler->keyboard;
     if (!kb) {
       FCX_LOG_ERR("fcx_request_handler keyboard == NULL");
       result = NULL;
     } else {
-      const char *text = json_object_get_string(
-          json_object_array_get_idx(req_ctx->request, 2));
-      result = json_object_new_int(fcx_keyboard_type_text(kb, text));
+      if (strcmp(function, fcx_req_keyboard_type_text) == 0) {
+        const char *text = json_object_get_string(
+            json_object_array_get_idx(req_ctx->request, 2));
+        result = json_object_new_int(fcx_keyboard_type_text(kb, text));
+      } else if (strcmp(function, fcx_req_keyboard_type_symbol) == 0) {
+        const char *symbol = json_object_get_string(
+            json_object_array_get_idx(req_ctx->request, 2));
+        result = json_object_new_int(fcx_keyboard_type_symbol(kb, symbol));
+      }
     }
   } else if (strcmp(function, fcx_req_system_info) == 0) {
     result = fcx_system_info();

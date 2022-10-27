@@ -1,5 +1,6 @@
 #include "../fcx_keyboard.h"
 #include "../logger.h"
+#include "fcx_keyboard_map.h"
 #include <ctype.h>
 #include <fcntl.h>
 #include <kbdfile.h>
@@ -226,4 +227,16 @@ int fcx_keyboard_type_text(fcx_keyboard_t *keyboard, const char *text) {
   }
 
   return 0;
+}
+
+int fcx_keyboard_type_symbol(fcx_keyboard_t *keyboard, const char *symbol) {
+  char **symbols = fcx_keyboard_map_symbols();
+  int size = fcx_keyboard_map_symbols_size();
+  for (int i = 0; i < size; i++) {
+    char *s = symbols[i];
+    if (s != 0 && strcmp(symbol, s) == 0) {
+      return fcx_keyboard_type_keycode(keyboard, i);
+    }
+  }
+  return 1;
 }
