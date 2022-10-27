@@ -10,14 +10,16 @@ struct json_object *fcx_system_info() {
   struct json_object *info = json_object_new_object();
 
   struct utsname utsname;
-  uname(&utsname);
-
-  char os_version[_UTSNAME_SYSNAME_LENGTH + _UTSNAME_RELEASE_LENGTH + 2];
-  sprintf(os_version, "%s %s", utsname.sysname, utsname.release);
-  json_object_object_add(info, "os_version",
-                         json_object_new_string(os_version));
-  json_object_object_add(info, "hostname",
-                         json_object_new_string(utsname.nodename));
+  if (uname(&utsname) == 0) {
+    int len = strlen(utsname.sysname) + strlen(utsname.release) + 2;
+    char *os_version = malloc(len);
+    sprintf(os_version, "%s %s", utsname.sysname, utsname.release);
+    json_object_object_add(info, "os_version",
+                           json_object_new_string(os_version));
+    json_object_object_add(info, "hostname",
+                           json_object_new_string(utsname.nodename));
+    free(os_version);
+  }
 
   uid_t uid = getuid();
   struct passwd *pw = getpwuid(uid);
