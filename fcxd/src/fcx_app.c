@@ -1,4 +1,5 @@
 #include "fcx_app.h"
+#include "logger.h"
 #include <json-c/json_tokener.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,11 +29,6 @@ void fcx_app_free(fcx_app_t *app) {
   free(app);
 }
 
-void __log_request_error(char *message, struct json_object *req_obj) {
-  const char *req = json_object_to_json_string(req_obj);
-  fprintf(stderr, "[error] %s. -> %s <-\n", message, req);
-}
-
 void __fcx_app_handle_request_cb(struct json_object *response, void *ctx) {
   fcx_app_t *app = (fcx_app_t *)ctx;
 
@@ -58,7 +54,8 @@ int fcx_app_handle_data(fcx_app_t *app, size_t size) {
       return 1;
     }
 
-    __log_request_error("[DEBUG]", req_obj);
+    FCX_LOG_DEBUG("request: %s", json_object_to_json_string(req_obj));
+
     fcx_request_ctx_t *req_ctx =
         fcx_request_ctx_create(req_obj, &__fcx_app_handle_request_cb, app);
     fcx_handle_request(app->request_handler, req_ctx);

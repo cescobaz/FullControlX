@@ -1,4 +1,5 @@
 #include "../fcx_keyboard.h"
+#include "../logger.h"
 #include <ctype.h>
 #include <fcntl.h>
 #include <kbdfile.h>
@@ -72,14 +73,13 @@ struct kbentry _fcx_keyboard_kbentry_from_unicode(fcx_keyboard_t *kb,
   struct lk_ctx *ctx = ((struct fcx_keyboard *)kb)->lkctx;
   for (int table = 0; table <= 256; table++) {
     if (!lk_map_exists(ctx, table)) {
-      // fprintf(stderr, "[DEBUG] fcx_keyboard map not exists %d\n", table);
+      FCX_LOG_DEBUG("fcx_keyboard map not exists %d", table);
       continue;
     }
     int totalKeys = lk_get_keys_total(ctx, table);
     for (int keycode = 0; keycode < 256; keycode++) {
       if (!lk_key_exists(ctx, table, keycode)) {
-        // fprintf(stderr, "[DEBUG] fcx_keyboard keycode not exists %d %d\n",
-        //         table, keycode);
+        FCX_LOG_DEBUG("fcx_keyboard keycode not exists %d %d", table, keycode);
         continue;
       }
       int value = lk_get_key(ctx, table, keycode);
@@ -90,10 +90,9 @@ struct kbentry _fcx_keyboard_kbentry_from_unicode(fcx_keyboard_t *kb,
         kbe.kb_table = table;
         kbe.kb_index = keycode;
         kbe.kb_value = value;
-        fprintf(stderr,
-                "[DEBUG] _fcx_keyboard_kbentry_from_unicode %C -> {%d, %d, %d "
-                "(%C)}\n",
-                unicode, table, keycode, value, value);
+        FCX_LOG_DEBUG(
+            "_fcx_keyboard_kbentry_from_unicode %C -> {%d, %d, %d (%C)}",
+            unicode, table, keycode, value, value);
         return kbe;
       }
     }
@@ -172,7 +171,7 @@ int fcx_keyboard_type_text(fcx_keyboard_t *keyboard, const char *text) {
     // int ucode = lk_ksym_to_unicode(kb->lkctx, ksym);
     int unicode = text[i];
     if (unicode <= 0) {
-      fprintf(stderr, "[error] lk_ksym_to_unicode returns %d, skip\n", unicode);
+      FCX_LOG_ERR("lk_ksym_to_unicode returns %d, skip", unicode);
       continue;
     }
     struct kbentry kbe = _fcx_keyboard_kbentry_from_unicode(keyboard, unicode);
@@ -221,7 +220,7 @@ int fcx_keyboard_type_text(fcx_keyboard_t *keyboard, const char *text) {
       fcx_keyboard_type_keycode_up(keyboard, KEY_LEFTSHIFT);
     } break;
     default:
-      fprintf(stderr, "[error] fcx_keyboard unknown kb_table %d", kbe.kb_table);
+      FCX_LOG_ERR("fcx_keyboard unknown kb_table %d", kbe.kb_table);
       break;
     }
   }

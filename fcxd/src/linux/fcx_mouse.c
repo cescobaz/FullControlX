@@ -1,4 +1,5 @@
 #include "../fcx_mouse.h"
+#include "../logger.h"
 #include <bits/time.h>
 #include <fcntl.h>
 #include <linux/input-event-codes.h>
@@ -132,8 +133,7 @@ int fcx_mouse_scroll_wheel(int x, int y) {
   long ndiff = ts.tv_nsec - mouse->last_wheel_ts.tv_nsec;
   int amax = MAX(abs(x), abs(y));
   int limit = MAX(1, MIN(4, amax * 10 / 20));
-  fprintf(stderr, "[debug] ndiff %ld amx %d limit %d\n", ndiff, amax,
-          400000 / limit);
+  FCX_LOG_DEBUG("ndiff %ld amx %d limit %d", ndiff, amax, 400000 / limit);
   if (ndiff < (400000 / limit)) {
     // wait next event
     return 0;

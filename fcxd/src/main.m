@@ -1,4 +1,5 @@
 #include "fcx_app.h"
+#include "logger.h"
 #include "src/fullcontrol_x_config.h"
 #include <Foundation/Foundation.h>
 #include <stdlib.h>
@@ -21,8 +22,8 @@ int main(int argc, char *argv[]) {
       return;
     }
     if (fcx_app_handle_data(app, app->buffer, r) != 0) {
-      fprintf(stderr, "[error] json_tokener_parse_ex error %s\n",
-              json_tokener_error_desc(app->error));
+      FCX_LOG_ERR("json_tokener_parse_ex error %s",
+                  json_tokener_error_desc(app->error));
       exit(1);
       return;
     }
@@ -32,7 +33,7 @@ int main(int argc, char *argv[]) {
 
   [[NSRunLoop currentRunLoop] run];
 
-  fprintf(stderr, "[info] main NSRunLoop ends.\n");
+  FCX_LOG_INFO("main NSRunLoop ends.");
 
   return 0;
 }

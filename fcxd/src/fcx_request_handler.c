@@ -2,6 +2,7 @@
 #include "fcx_apps.h"
 #include "fcx_mouse.h"
 #include "fcx_system.h"
+#include "logger.h"
 #include <json-c/json_object.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -77,7 +78,7 @@ void fcx_handle_request_result(struct json_object *result, void *data) {
 
 void __fcx_request_ctx_delete(struct json_object *obj, void *userdata) {
   int is_free = fcx_request_ctx_release(userdata);
-  fprintf(stderr, "[debug] released req_ctx %d\n", is_free);
+  FCX_LOG_DEBUG("released req_ctx %d", is_free);
 }
 
 int fcx_handle_request(fcx_request_handler_t *handler,
@@ -122,7 +123,7 @@ int fcx_handle_request(fcx_request_handler_t *handler,
   } else if (strcmp(function, fcx_req_keyboard_type_text) == 0) {
     fcx_keyboard_t *kb = handler->keyboard;
     if (!kb) {
-      fprintf(stderr, "[error] fcx_request_handler keyboard == NULL\n");
+      FCX_LOG_ERR("fcx_request_handler keyboard == NULL");
       result = NULL;
     } else {
       const char *text = json_object_get_string(
@@ -148,7 +149,7 @@ int fcx_handle_request(fcx_request_handler_t *handler,
     json_object_array_del_idx(handler->requests_ctxs, 0, len);
     result = json_object_new_string("ok");
   } else {
-    fprintf(stderr, "[error] fcx_request_handler unknown request\n");
+    FCX_LOG_ERR("fcx_request_handler unknown request");
     result = NULL;
   }
 

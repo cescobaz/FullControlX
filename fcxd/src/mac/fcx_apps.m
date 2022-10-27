@@ -1,4 +1,5 @@
 #include "../fcx_apps.h"
+#include "../logger.h"
 #include <AppKit/AppKit.h>
 
 struct json_object *fcx_ui_apps() {
@@ -22,7 +23,7 @@ struct json_object *fcx_ui_apps() {
 }
 
 void __fcx_apps_delete_sub(struct json_object *obj, void *userdata) {
-  NSLog(@"[debug] __fcx_apps_delete_sub!");
+  FCX_LOG_DEBUG("__fcx_apps_delete_sub!");
   NSWorkspace *workspace = [NSWorkspace sharedWorkspace];
   NSNotificationCenter *notificationCenter = [workspace notificationCenter];
   [notificationCenter removeObserver:userdata];

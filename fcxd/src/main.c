@@ -1,4 +1,5 @@
 #include "fcx_app.h"
+#include "logger.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,12 +12,13 @@ int main(int argc, char *argv[]) {
   while (1) {
     int r = read(STDIN_FILENO, app->buffer, app->buffer_size);
     if (r == 0) {
+      FCX_LOG_INFO("input ends, terminating");
       break;
     }
     rc = fcx_app_handle_data(app, r);
     if (rc != 0) {
-      fprintf(stderr, "[error] json_tokener_parse_ex error %s\n",
-              json_tokener_error_desc(app->error));
+      FCX_LOG_ERR("json_tokener_parse_ex error %s",
+                  json_tokener_error_desc(app->error));
       break;
     }
   }

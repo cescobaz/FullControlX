@@ -11,7 +11,7 @@ set(LIB_NAME "${PROJECT_NAME}_s")
 
 find_package(json-c CONFIG REQUIRED)
 
-set(SOURCES "src/fcx_request_handler.c" "src/fcx_app.c")
+set(SOURCES "src/logger.c" "src/fcx_request_handler.c" "src/fcx_app.c")
 set(LIBRARIES json-c::json-c)
 
 if(APPLE)
