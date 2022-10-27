@@ -42,6 +42,10 @@ defmodule FullControlX.Driver do
     GenServer.cast(driver, ["mouse_drag", dx, dy])
   end
 
+  def keyboard_type(driver, text) do
+    GenServer.cast(driver, ["keyboard_type_text", text])
+  end
+
   def ui_apps(driver) do
     GenServer.call(driver, ["ui_apps"])
   end

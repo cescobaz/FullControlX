@@ -2,6 +2,8 @@
 #include "fcx_apps.h"
 #include "fcx_mouse.h"
 #include "fcx_system.h"
+#include "logger.h"
+#include <json-c/json_object.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,17 +17,21 @@ const char fcx_req_mouse_left_click[] = "mouse_left_click";
 const char fcx_req_mouse_right_click[] = "mouse_right_click";
 const char fcx_req_mouse_double_click[] = "mouse_double_click";
 const char fcx_req_mouse_scroll_wheel[] = "mouse_scroll_wheel";
+const char fcx_req_keyboard_type_text[] = "keyboard_type_text";
 const char fcx_req_ui_apps[] = "ui_apps";
 const char fcx_req_apps_observe[] = "apps_observe";
 const char fcx_req_ignore_all[] = "ignore_all";
 const char fcx_req_ignore[] = "ignore";
 
 fcx_request_handler_t *fcx_request_handler_create() {
-  return json_object_new_array();
+  fcx_request_handler_t *handler = calloc(1, sizeof(fcx_request_handler_t));
+  handler->requests_ctxs = json_object_new_array();
+  return handler;
 }
 
 void fcx_request_handler_free(fcx_request_handler_t *handler) {
-  json_object_put(handler);
+  json_object_put(handler->requests_ctxs);
+  free(handler);
 }
 
 fcx_request_ctx_t *fcx_request_ctx_create(struct json_object *req,
@@ -72,7 +78,7 @@ void fcx_handle_request_result(struct json_object *result, void *data) {
 
 void __fcx_request_ctx_delete(struct json_object *obj, void *userdata) {
   int is_free = fcx_request_ctx_release(userdata);
-  fprintf(stderr, "[debug] released req_ctx %d\n", is_free);
+  FCX_LOG_DEBUG("released req_ctx %d", is_free);
 }
 
 int fcx_handle_request(fcx_request_handler_t *handler,
@@ -114,6 +120,16 @@ int fcx_handle_request(fcx_request_handler_t *handler,
     int x = json_object_get_int(json_object_array_get_idx(req_ctx->request, 2));
     int y = json_object_get_int(json_object_array_get_idx(req_ctx->request, 3));
     result = json_object_new_int(fcx_mouse_scroll_wheel(x, y));
+  } else if (strcmp(function, fcx_req_keyboard_type_text) == 0) {
+    fcx_keyboard_t *kb = handler->keyboard;
+    if (!kb) {
+      FCX_LOG_ERR("fcx_request_handler keyboard == NULL");
+      result = NULL;
+    } else {
+      const char *text = json_object_get_string(
+          json_object_array_get_idx(req_ctx->request, 2));
+      result = json_object_new_int(fcx_keyboard_type_text(kb, text));
+    }
   } else if (strcmp(function, fcx_req_system_info) == 0) {
     result = fcx_system_info();
   } else if (strcmp(function, fcx_req_ui_apps) == 0) {
@@ -125,14 +141,15 @@ int fcx_handle_request(fcx_request_handler_t *handler,
     fcx_request_ctx_retain(req_ctx);
     struct json_object *j_req_ctx = json_object_new_object();
     json_object_set_userdata(j_req_ctx, req_ctx, &__fcx_request_ctx_delete);
-    json_object_array_add(handler, j_req_ctx);
+    json_object_array_add(handler->requests_ctxs, j_req_ctx);
 
     result = json_object_new_string("subscription");
   } else if (strcmp(function, fcx_req_ignore_all) == 0) {
-    int len = json_object_array_length(handler);
-    json_object_array_del_idx(handler, 0, len);
+    int len = json_object_array_length(handler->requests_ctxs);
+    json_object_array_del_idx(handler->requests_ctxs, 0, len);
     result = json_object_new_string("ok");
   } else {
+    FCX_LOG_ERR("fcx_request_handler unknown request");
     result = NULL;
   }
 

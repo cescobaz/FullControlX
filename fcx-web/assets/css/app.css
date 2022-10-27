@@ -2,6 +2,15 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
+@layer utilities {
+  button, .button {
+    @apply block bg-neutral-700 px-2 py-1 rounded;
+  }
+  textarea {
+    @apply bg-black;
+  }
+}
+
 .switch {
   position: relative;
   display: inline-block;
@@ -60,6 +69,7 @@
 .switch > .slider:before {
   border-radius: 50%;
 }
+
  /* Hide scrollbar for Chrome, Safari and Opera */
 .scrollbar-hidden::-webkit-scrollbar {
   display: none;
