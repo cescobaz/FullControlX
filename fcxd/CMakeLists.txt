@@ -16,8 +16,9 @@ set(LIBRARIES json-c::json-c)
 
 if(APPLE)
   # set_property(TARGET FullControlX PROPERTY OSX_ARCHITECTURES "x86_64;arm64")
-  set(SOURCES ${SOURCES} "src/mac/fcx_mouse.c" "src/mac/fcx_system.m"
-              "src/mac/fcx_apps.m" "src/mac/fcx_io_hid.c")
+  set(SOURCES
+      ${SOURCES} "src/mac/fcx_mouse.c" "src/mac/fcx_system.m"
+      "src/mac/fcx_keyboard.c" "src/mac/fcx_apps.m" "src/mac/fcx_io_hid.c")
 
   set(LIBRARIES
       ${LIBRARIES} "-framework CoreFoundation" "-framework CoreGraphics"
