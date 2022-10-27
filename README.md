@@ -5,6 +5,8 @@ It is a web remote controller for you PC/Mac, it works, at the moment, for Linux
 
 ## Features
 
+* Linux support via `uinput`, so it works on every display server: vconsole, Wayland and Xorg/X11
+* MacOS support via `HID API`, starting from MacOS 10.11
 * Keyboard based on a configured layout
 * Mouse with multitouch support for movement, click, double click, right click, scroll and drag
 * Special keyboard command: volume up/down, mute, play/pause, back, forward, brightness up/down and arrows
