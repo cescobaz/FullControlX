@@ -8,4 +8,13 @@ defmodule FullControlXWeb.Components do
     </div>
     """
   end
+
+  def switch(assigns) do
+    ~H"""
+    <label class="switch">
+      <input type="checkbox" checked>
+      <span class="slider"></span>
+    </label>
+    """
+  end
 end
