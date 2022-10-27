@@ -23,8 +23,9 @@ config :fullcontrol_x, FullControlXWeb.Endpoint,
   secret_key_base: "4DbQZs24/UYKQBeM1+NBDK9oOcmovnogjePeflPWMhKnoXadElE8mk0bQIQ5iqxP",
   watchers: [
     # Start the esbuild watcher by calling Esbuild.install_and_run(:default, args)
-    esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]},
-    tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]}
+    esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]}
+    # tailwind disabled because of dandling process: https://github.com/phoenixframework/tailwind/issues/46
+    # tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]}
   ]
 
 # ## SSL Support

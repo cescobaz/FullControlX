@@ -19,6 +19,7 @@ defmodule FullControlXWeb.Router do
 
     live_session :live do
       live "/", TrackpadLive
+      live "/info", InfoLive
       live "/keyboard", KeyboardLive
       live "/trackpad", TrackpadLive
       live "/tools", ToolsLive

@@ -2,8 +2,6 @@ defmodule FullControlXWeb.ToolsLive do
   use FullControlXWeb, :live_view
 
   def mount(_params, _session, socket) do
-    info = FullControlX.system_info() || %{}
-
     audio_buttons = [
       %{
         title: "Volume Down",
@@ -73,7 +71,7 @@ defmodule FullControlXWeb.ToolsLive do
     ]
 
     {:ok,
-     assign(socket, :info, info)
+     socket
      |> assign(:audio_buttons, audio_buttons)
      |> assign(:media_buttons, media_buttons)
      |> assign(:arrows_buttons, arrows_buttons)
@@ -84,13 +82,6 @@ defmodule FullControlXWeb.ToolsLive do
     ~H"""
     <.header title="Tools" />
     <div class="overflow-scroll">
-      <div>
-        <%= for {key, value} <- @info do %>
-          <div>
-            <%= "#{key}: #{value}" %>
-          </div>
-        <% end %>
-      </div>
       <div class="flex flex-col justify-end gap-4 pb-4">
         <div class="flex justify-center gap-4">
           <%= for button <- @brightness_buttons do %>

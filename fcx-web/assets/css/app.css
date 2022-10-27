@@ -1,13 +1,19 @@
-@import "tailwindcss/base";
-@import "tailwindcss/components";
-@import "tailwindcss/utilities";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@layer utilities {
-  button, .button {
+@layer components {
+  h2 {
+    @apply text-xl font-semibold;
+  }
+  a, a:link, a:visited, a:hover, a:active {
+    @apply underline text-yellow-500;
+  }
+  [type='submit'], [type='button'], button, .button {
     @apply block bg-neutral-700 px-2 py-1 rounded;
   }
   textarea {
-    @apply bg-black;
+    @apply bg-neutral-900 rounded;
   }
 }
 
