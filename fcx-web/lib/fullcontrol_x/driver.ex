@@ -42,8 +42,12 @@ defmodule FullControlX.Driver do
     GenServer.cast(driver, ["mouse_drag", dx, dy])
   end
 
-  def keyboard_type(driver, text) do
+  def keyboard_type_text(driver, text) when is_binary(text) do
     GenServer.cast(driver, ["keyboard_type_text", text])
+  end
+
+  def keyboard_type_symbol(driver, symbol) when is_binary(symbol) do
+    GenServer.cast(driver, ["keyboard_type_symbol", symbol])
   end
 
   def ui_apps(driver) do

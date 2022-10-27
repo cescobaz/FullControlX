@@ -1,0 +1,281 @@
+#include <linux/input-event-codes.h>
+
+#define SYMBOLS_COUNT (KEY_MICMUTE + 1)
+
+static char *_fcx_keyboard_map_symbols[SYMBOLS_COUNT];
+
+int fcx_keyboard_map_symbols_size() { return SYMBOLS_COUNT; }
+
+static int _fcx_keyboard_map_symbols_initialized = 0;
+
+char **fcx_keyboard_map_symbols() {
+  if (_fcx_keyboard_map_symbols_initialized) {
+    return _fcx_keyboard_map_symbols;
+  }
+  for (int i = 0; i < SYMBOLS_COUNT; i++) {
+    _fcx_keyboard_map_symbols[i] = 0;
+  }
+  _fcx_keyboard_map_symbols_initialized = 1;
+  _fcx_keyboard_map_symbols[KEY_ESC] = "esc";
+  _fcx_keyboard_map_symbols[KEY_1] = "1";
+  _fcx_keyboard_map_symbols[KEY_2] = "2";
+  _fcx_keyboard_map_symbols[KEY_3] = "3";
+  _fcx_keyboard_map_symbols[KEY_4] = "4";
+  _fcx_keyboard_map_symbols[KEY_5] = "5";
+  _fcx_keyboard_map_symbols[KEY_6] = "6";
+  _fcx_keyboard_map_symbols[KEY_7] = "7";
+  _fcx_keyboard_map_symbols[KEY_8] = "8";
+  _fcx_keyboard_map_symbols[KEY_9] = "9";
+  _fcx_keyboard_map_symbols[KEY_0] = "0";
+  _fcx_keyboard_map_symbols[KEY_MINUS] = "minus";
+  _fcx_keyboard_map_symbols[KEY_EQUAL] = "equal";
+  _fcx_keyboard_map_symbols[KEY_BACKSPACE] = "backspace";
+  _fcx_keyboard_map_symbols[KEY_TAB] = "tab";
+  _fcx_keyboard_map_symbols[KEY_Q] = "q";
+  _fcx_keyboard_map_symbols[KEY_W] = "w";
+  _fcx_keyboard_map_symbols[KEY_E] = "e";
+  _fcx_keyboard_map_symbols[KEY_R] = "r";
+  _fcx_keyboard_map_symbols[KEY_T] = "t";
+  _fcx_keyboard_map_symbols[KEY_Y] = "y";
+  _fcx_keyboard_map_symbols[KEY_U] = "u";
+  _fcx_keyboard_map_symbols[KEY_I] = "i";
+  _fcx_keyboard_map_symbols[KEY_O] = "o";
+  _fcx_keyboard_map_symbols[KEY_P] = "p";
+  _fcx_keyboard_map_symbols[KEY_LEFTBRACE] = "leftbrace";
+  _fcx_keyboard_map_symbols[KEY_RIGHTBRACE] = "rightbrace";
+  _fcx_keyboard_map_symbols[KEY_ENTER] = "enter";
+  _fcx_keyboard_map_symbols[KEY_LEFTCTRL] = "leftctrl";
+  _fcx_keyboard_map_symbols[KEY_A] = "a";
+  _fcx_keyboard_map_symbols[KEY_S] = "s";
+  _fcx_keyboard_map_symbols[KEY_D] = "d";
+  _fcx_keyboard_map_symbols[KEY_F] = "f";
+  _fcx_keyboard_map_symbols[KEY_G] = "g";
+  _fcx_keyboard_map_symbols[KEY_H] = "h";
+  _fcx_keyboard_map_symbols[KEY_J] = "j";
+  _fcx_keyboard_map_symbols[KEY_K] = "k";
+  _fcx_keyboard_map_symbols[KEY_L] = "l";
+  _fcx_keyboard_map_symbols[KEY_SEMICOLON] = "semicolon";
+  _fcx_keyboard_map_symbols[KEY_APOSTROPHE] = "apostrophe";
+  _fcx_keyboard_map_symbols[KEY_GRAVE] = "grave";
+  _fcx_keyboard_map_symbols[KEY_LEFTSHIFT] = "leftshift";
+  _fcx_keyboard_map_symbols[KEY_BACKSLASH] = "backslash";
+  _fcx_keyboard_map_symbols[KEY_Z] = "z";
+  _fcx_keyboard_map_symbols[KEY_X] = "x";
+  _fcx_keyboard_map_symbols[KEY_C] = "c";
+  _fcx_keyboard_map_symbols[KEY_V] = "v";
+  _fcx_keyboard_map_symbols[KEY_B] = "b";
+  _fcx_keyboard_map_symbols[KEY_N] = "n";
+  _fcx_keyboard_map_symbols[KEY_M] = "m";
+  _fcx_keyboard_map_symbols[KEY_COMMA] = "comma";
+  _fcx_keyboard_map_symbols[KEY_DOT] = "dot";
+  _fcx_keyboard_map_symbols[KEY_SLASH] = "slash";
+  _fcx_keyboard_map_symbols[KEY_RIGHTSHIFT] = "rightshift";
+  _fcx_keyboard_map_symbols[KEY_KPASTERISK] = "kpasterisk";
+  _fcx_keyboard_map_symbols[KEY_LEFTALT] = "leftalt";
+  _fcx_keyboard_map_symbols[KEY_SPACE] = "space";
+  _fcx_keyboard_map_symbols[KEY_CAPSLOCK] = "capslock";
+  _fcx_keyboard_map_symbols[KEY_F1] = "f1";
+  _fcx_keyboard_map_symbols[KEY_F2] = "f2";
+  _fcx_keyboard_map_symbols[KEY_F3] = "f3";
+  _fcx_keyboard_map_symbols[KEY_F4] = "f4";
+  _fcx_keyboard_map_symbols[KEY_F5] = "f5";
+  _fcx_keyboard_map_symbols[KEY_F6] = "f6";
+  _fcx_keyboard_map_symbols[KEY_F7] = "f7";
+  _fcx_keyboard_map_symbols[KEY_F8] = "f8";
+  _fcx_keyboard_map_symbols[KEY_F9] = "f9";
+  _fcx_keyboard_map_symbols[KEY_F10] = "f10";
+  _fcx_keyboard_map_symbols[KEY_NUMLOCK] = "numlock";
+  _fcx_keyboard_map_symbols[KEY_SCROLLLOCK] = "scrolllock";
+  _fcx_keyboard_map_symbols[KEY_KP7] = "kp7";
+  _fcx_keyboard_map_symbols[KEY_KP8] = "kp8";
+  _fcx_keyboard_map_symbols[KEY_KP9] = "kp9";
+  _fcx_keyboard_map_symbols[KEY_KPMINUS] = "kpminus";
+  _fcx_keyboard_map_symbols[KEY_KP4] = "kp4";
+  _fcx_keyboard_map_symbols[KEY_KP5] = "kp5";
+  _fcx_keyboard_map_symbols[KEY_KP6] = "kp6";
+  _fcx_keyboard_map_symbols[KEY_KPPLUS] = "kpplus";
+  _fcx_keyboard_map_symbols[KEY_KP1] = "kp1";
+  _fcx_keyboard_map_symbols[KEY_KP2] = "kp2";
+  _fcx_keyboard_map_symbols[KEY_KP3] = "kp3";
+  _fcx_keyboard_map_symbols[KEY_KP0] = "kp0";
+  _fcx_keyboard_map_symbols[KEY_KPDOT] = "kpdot";
+
+  _fcx_keyboard_map_symbols[KEY_ZENKAKUHANKAKU] = "zenkakuhankaku";
+  _fcx_keyboard_map_symbols[KEY_102ND] = "102nd";
+  _fcx_keyboard_map_symbols[KEY_F11] = "f11";
+  _fcx_keyboard_map_symbols[KEY_F12] = "f12";
+  _fcx_keyboard_map_symbols[KEY_RO] = "ro";
+  _fcx_keyboard_map_symbols[KEY_KATAKANA] = "katakana";
+  _fcx_keyboard_map_symbols[KEY_HIRAGANA] = "hiragana";
+  _fcx_keyboard_map_symbols[KEY_HENKAN] = "henkan";
+  _fcx_keyboard_map_symbols[KEY_KATAKANAHIRAGANA] = "katakanahiragana";
+  _fcx_keyboard_map_symbols[KEY_MUHENKAN] = "muhenkan";
+  _fcx_keyboard_map_symbols[KEY_KPJPCOMMA] = "kpjpcomma";
+  _fcx_keyboard_map_symbols[KEY_KPENTER] = "kpenter";
+  _fcx_keyboard_map_symbols[KEY_RIGHTCTRL] = "rightctrl";
+  _fcx_keyboard_map_symbols[KEY_KPSLASH] = "kpslash";
+  _fcx_keyboard_map_symbols[KEY_SYSRQ] = "sysrq";
+  _fcx_keyboard_map_symbols[KEY_RIGHTALT] = "rightalt";
+  _fcx_keyboard_map_symbols[KEY_LINEFEED] = "linefeed";
+  _fcx_keyboard_map_symbols[KEY_HOME] = "home";
+  _fcx_keyboard_map_symbols[KEY_UP] = "up";
+  _fcx_keyboard_map_symbols[KEY_PAGEUP] = "pageup";
+  _fcx_keyboard_map_symbols[KEY_LEFT] = "left";
+  _fcx_keyboard_map_symbols[KEY_RIGHT] = "right";
+  _fcx_keyboard_map_symbols[KEY_END] = "end";
+  _fcx_keyboard_map_symbols[KEY_DOWN] = "down";
+  _fcx_keyboard_map_symbols[KEY_PAGEDOWN] = "pagedown";
+  _fcx_keyboard_map_symbols[KEY_INSERT] = "insert";
+  _fcx_keyboard_map_symbols[KEY_DELETE] = "delete";
+  _fcx_keyboard_map_symbols[KEY_MACRO] = "macro";
+  _fcx_keyboard_map_symbols[KEY_MUTE] = "mute";
+  _fcx_keyboard_map_symbols[KEY_VOLUMEDOWN] = "volumedown";
+  _fcx_keyboard_map_symbols[KEY_VOLUMEUP] = "volumeup";
+  _fcx_keyboard_map_symbols[KEY_POWER] = "power";
+  _fcx_keyboard_map_symbols[KEY_KPEQUAL] = "kpequal";
+  _fcx_keyboard_map_symbols[KEY_KPPLUSMINUS] = "kpplusminus";
+  _fcx_keyboard_map_symbols[KEY_PAUSE] = "pause";
+  _fcx_keyboard_map_symbols[KEY_SCALE] = "scale";
+
+  _fcx_keyboard_map_symbols[KEY_KPCOMMA] = "kpcomma";
+  _fcx_keyboard_map_symbols[KEY_HANGEUL] = "hangeul";
+  _fcx_keyboard_map_symbols[KEY_HANGUEL] = "hanguel";
+  _fcx_keyboard_map_symbols[KEY_HANJA] = "hanja";
+  _fcx_keyboard_map_symbols[KEY_YEN] = "yen";
+  _fcx_keyboard_map_symbols[KEY_LEFTMETA] = "leftmeta";
+  _fcx_keyboard_map_symbols[KEY_RIGHTMETA] = "rightmeta";
+  _fcx_keyboard_map_symbols[KEY_COMPOSE] = "compose";
+
+  _fcx_keyboard_map_symbols[KEY_STOP] = "stop";
+  _fcx_keyboard_map_symbols[KEY_AGAIN] = "again";
+  _fcx_keyboard_map_symbols[KEY_PROPS] = "props";
+  _fcx_keyboard_map_symbols[KEY_UNDO] = "undo";
+  _fcx_keyboard_map_symbols[KEY_FRONT] = "front";
+  _fcx_keyboard_map_symbols[KEY_COPY] = "copy";
+  _fcx_keyboard_map_symbols[KEY_OPEN] = "open";
+  _fcx_keyboard_map_symbols[KEY_PASTE] = "paste";
+  _fcx_keyboard_map_symbols[KEY_FIND] = "find";
+  _fcx_keyboard_map_symbols[KEY_CUT] = "cut";
+  _fcx_keyboard_map_symbols[KEY_HELP] = "help";
+  _fcx_keyboard_map_symbols[KEY_MENU] = "menu";
+  _fcx_keyboard_map_symbols[KEY_CALC] = "calc";
+  _fcx_keyboard_map_symbols[KEY_SETUP] = "setup";
+  _fcx_keyboard_map_symbols[KEY_SLEEP] = "sleep";
+  _fcx_keyboard_map_symbols[KEY_WAKEUP] = "wakeup";
+  _fcx_keyboard_map_symbols[KEY_FILE] = "file";
+  _fcx_keyboard_map_symbols[KEY_SENDFILE] = "sendfile";
+  _fcx_keyboard_map_symbols[KEY_DELETEFILE] = "deletefile";
+  _fcx_keyboard_map_symbols[KEY_XFER] = "xfer";
+  _fcx_keyboard_map_symbols[KEY_PROG1] = "prog1";
+  _fcx_keyboard_map_symbols[KEY_PROG2] = "prog2";
+  _fcx_keyboard_map_symbols[KEY_WWW] = "www";
+  _fcx_keyboard_map_symbols[KEY_MSDOS] = "msdos";
+  _fcx_keyboard_map_symbols[KEY_COFFEE] = "coffee";
+  _fcx_keyboard_map_symbols[KEY_SCREENLOCK] = "screenlock";
+  _fcx_keyboard_map_symbols[KEY_ROTATE_DISPLAY] = "rotate_display";
+  _fcx_keyboard_map_symbols[KEY_DIRECTION] = "direction";
+  _fcx_keyboard_map_symbols[KEY_CYCLEWINDOWS] = "cyclewindows";
+  _fcx_keyboard_map_symbols[KEY_MAIL] = "mail";
+  _fcx_keyboard_map_symbols[KEY_BOOKMARKS] = "bookmarks";
+  _fcx_keyboard_map_symbols[KEY_COMPUTER] = "computer";
+  _fcx_keyboard_map_symbols[KEY_BACK] = "back";
+  _fcx_keyboard_map_symbols[KEY_FORWARD] = "forward";
+  _fcx_keyboard_map_symbols[KEY_CLOSECD] = "closecd";
+  _fcx_keyboard_map_symbols[KEY_EJECTCD] = "ejectcd";
+  _fcx_keyboard_map_symbols[KEY_EJECTCLOSECD] = "ejectclosecd";
+  _fcx_keyboard_map_symbols[KEY_NEXTSONG] = "nextsong";
+  _fcx_keyboard_map_symbols[KEY_PLAYPAUSE] = "playpause";
+  _fcx_keyboard_map_symbols[KEY_PREVIOUSSONG] = "previoussong";
+  _fcx_keyboard_map_symbols[KEY_STOPCD] = "stopcd";
+  _fcx_keyboard_map_symbols[KEY_RECORD] = "record";
+  _fcx_keyboard_map_symbols[KEY_REWIND] = "rewind";
+  _fcx_keyboard_map_symbols[KEY_PHONE] = "phone";
+  _fcx_keyboard_map_symbols[KEY_ISO] = "iso";
+  _fcx_keyboard_map_symbols[KEY_CONFIG] = "config";
+  _fcx_keyboard_map_symbols[KEY_HOMEPAGE] = "homepage";
+  _fcx_keyboard_map_symbols[KEY_REFRESH] = "refresh";
+  _fcx_keyboard_map_symbols[KEY_EXIT] = "exit";
+  _fcx_keyboard_map_symbols[KEY_MOVE] = "move";
+  _fcx_keyboard_map_symbols[KEY_EDIT] = "edit";
+  _fcx_keyboard_map_symbols[KEY_SCROLLUP] = "scrollup";
+  _fcx_keyboard_map_symbols[KEY_SCROLLDOWN] = "scrolldown";
+  _fcx_keyboard_map_symbols[KEY_KPLEFTPAREN] = "kpleftparen";
+  _fcx_keyboard_map_symbols[KEY_KPRIGHTPAREN] = "kprightparen";
+  _fcx_keyboard_map_symbols[KEY_NEW] = "new";
+  _fcx_keyboard_map_symbols[KEY_REDO] = "redo";
+
+  _fcx_keyboard_map_symbols[KEY_F13] = "f13";
+  _fcx_keyboard_map_symbols[KEY_F14] = "f14";
+  _fcx_keyboard_map_symbols[KEY_F15] = "f15";
+  _fcx_keyboard_map_symbols[KEY_F16] = "f16";
+  _fcx_keyboard_map_symbols[KEY_F17] = "f17";
+  _fcx_keyboard_map_symbols[KEY_F18] = "f18";
+  _fcx_keyboard_map_symbols[KEY_F19] = "f19";
+  _fcx_keyboard_map_symbols[KEY_F20] = "f20";
+  _fcx_keyboard_map_symbols[KEY_F21] = "f21";
+  _fcx_keyboard_map_symbols[KEY_F22] = "f22";
+  _fcx_keyboard_map_symbols[KEY_F23] = "f23";
+  _fcx_keyboard_map_symbols[KEY_F24] = "f24";
+
+  _fcx_keyboard_map_symbols[KEY_PLAYCD] = "playcd";
+  _fcx_keyboard_map_symbols[KEY_PAUSECD] = "pausecd";
+  _fcx_keyboard_map_symbols[KEY_PROG3] = "prog3";
+  _fcx_keyboard_map_symbols[KEY_PROG4] = "prog4";
+  _fcx_keyboard_map_symbols[KEY_ALL_APPLICATIONS] = "all_applications";
+  _fcx_keyboard_map_symbols[KEY_DASHBOARD] = "dashboard";
+  _fcx_keyboard_map_symbols[KEY_SUSPEND] = "suspend";
+  _fcx_keyboard_map_symbols[KEY_CLOSE] = "close";
+  _fcx_keyboard_map_symbols[KEY_PLAY] = "play";
+  _fcx_keyboard_map_symbols[KEY_FASTFORWARD] = "fastforward";
+  _fcx_keyboard_map_symbols[KEY_BASSBOOST] = "bassboost";
+  _fcx_keyboard_map_symbols[KEY_PRINT] = "print";
+  _fcx_keyboard_map_symbols[KEY_HP] = "hp";
+  _fcx_keyboard_map_symbols[KEY_CAMERA] = "camera";
+  _fcx_keyboard_map_symbols[KEY_SOUND] = "sound";
+  _fcx_keyboard_map_symbols[KEY_QUESTION] = "question";
+  _fcx_keyboard_map_symbols[KEY_EMAIL] = "email";
+  _fcx_keyboard_map_symbols[KEY_CHAT] = "chat";
+  _fcx_keyboard_map_symbols[KEY_SEARCH] = "search";
+  _fcx_keyboard_map_symbols[KEY_CONNECT] = "connect";
+  _fcx_keyboard_map_symbols[KEY_FINANCE] = "finance";
+  _fcx_keyboard_map_symbols[KEY_SPORT] = "sport";
+  _fcx_keyboard_map_symbols[KEY_SHOP] = "shop";
+  _fcx_keyboard_map_symbols[KEY_ALTERASE] = "alterase";
+  _fcx_keyboard_map_symbols[KEY_CANCEL] = "cancel";
+  _fcx_keyboard_map_symbols[KEY_BRIGHTNESSDOWN] = "brightnessdown";
+  _fcx_keyboard_map_symbols[KEY_BRIGHTNESSUP] = "brightnessup";
+  _fcx_keyboard_map_symbols[KEY_MEDIA] = "media";
+
+  _fcx_keyboard_map_symbols[KEY_SWITCHVIDEOMODE] = "switchvideomode";
+  _fcx_keyboard_map_symbols[KEY_KBDILLUMTOGGLE] = "kbdillumtoggle";
+  _fcx_keyboard_map_symbols[KEY_KBDILLUMDOWN] = "kbdillumdown";
+  _fcx_keyboard_map_symbols[KEY_KBDILLUMUP] = "kbdillumup";
+
+  _fcx_keyboard_map_symbols[KEY_SEND] = "send";
+  _fcx_keyboard_map_symbols[KEY_REPLY] = "reply";
+  _fcx_keyboard_map_symbols[KEY_FORWARDMAIL] = "forwardmail";
+  _fcx_keyboard_map_symbols[KEY_SAVE] = "save";
+  _fcx_keyboard_map_symbols[KEY_DOCUMENTS] = "documents";
+
+  _fcx_keyboard_map_symbols[KEY_BATTERY] = "battery";
+
+  _fcx_keyboard_map_symbols[KEY_BLUETOOTH] = "bluetooth";
+  _fcx_keyboard_map_symbols[KEY_WLAN] = "wlan";
+  _fcx_keyboard_map_symbols[KEY_UWB] = "uwb";
+
+  _fcx_keyboard_map_symbols[KEY_UNKNOWN] = "unknown";
+
+  _fcx_keyboard_map_symbols[KEY_VIDEO_NEXT] = "video_next";
+  _fcx_keyboard_map_symbols[KEY_VIDEO_PREV] = "video_prev";
+  _fcx_keyboard_map_symbols[KEY_BRIGHTNESS_CYCLE] = "brightness_cycle";
+  _fcx_keyboard_map_symbols[KEY_BRIGHTNESS_AUTO] = "brightness_auto";
+  _fcx_keyboard_map_symbols[KEY_BRIGHTNESS_ZERO] = "brightness_zero";
+  _fcx_keyboard_map_symbols[KEY_DISPLAY_OFF] = "display_off";
+
+  _fcx_keyboard_map_symbols[KEY_WWAN] = "wwan";
+  _fcx_keyboard_map_symbols[KEY_WIMAX] = "wimax";
+  _fcx_keyboard_map_symbols[KEY_RFKILL] = "rfkill";
+
+  _fcx_keyboard_map_symbols[KEY_MICMUTE] = "micmute";
+  return _fcx_keyboard_map_symbols;
+}

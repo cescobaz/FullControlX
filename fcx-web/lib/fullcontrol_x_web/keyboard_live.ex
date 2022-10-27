@@ -24,7 +24,7 @@ defmodule FullControlXWeb.KeyboardLive do
   end
 
   def handle_event("submit", %{"keyboard" => %{"text" => text}}, socket) do
-    FullControlX.keyboard_type(text)
+    FullControlX.keyboard_type_text(text)
     {:noreply, socket}
   end
 end

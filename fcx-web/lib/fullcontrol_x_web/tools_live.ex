@@ -17,16 +17,21 @@ defmodule FullControlXWeb.ToolsLive do
     <% end %>
     <div class="grow flex flex-col justify-end gap-4 pb-4">
       <div class="flex justify-center gap-4">
-        <button phx-click="click" value="brightness_up">Brightness Up</button>
-        <button phx-click="click" value="brightness_down">Brightness Down</button>
+        <button phx-click="keyboard" value="brightnessup">Brightness Up</button>
+        <button phx-click="keyboard" value="brightnessdown">Brightness Down</button>
       </div>
       <div class="flex justify-center gap-4">
-        <button phx-click="click" value="volume_up">Volume Up</button>
-        <button phx-click="click" value="volume_down">Volume Down</button>
-        <button phx-click="click" value="volume_mute">Mute</button>
+        <button phx-click="keyboard" value="volumeup">Volume Up</button>
+        <button phx-click="keyboard" value="volumedown">Volume Down</button>
+        <button phx-click="keyboard" value="mute">Mute</button>
       </div>
     </div>
     """
+  end
+
+  def handle_event("keyboard", %{"value" => symbol}, socket) do
+    FullControlX.keyboard_type_symbol(symbol)
+    {:noreply, socket}
   end
 
   def handle_event(event, params, socket) do
