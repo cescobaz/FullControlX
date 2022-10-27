@@ -11,7 +11,7 @@ defmodule FullControlXWeb.KeyboardLive do
     <div class="grow">
       <.form id="keyboard_textarea" for={:keyboard} phx-change="change" phx-submit="submit" let={f}>
         <div class="flex flex-col items-stretch gap-4 p-4">
-          <%= textarea f, :text %> 
+          <%= textarea f, :text, placeholder: "Type something to send" %> 
           <%= submit "Send" %>
         </div>
       </.form>

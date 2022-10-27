@@ -13,7 +13,10 @@
     @apply block bg-neutral-700 px-2 py-1 rounded;
   }
   textarea {
-    @apply bg-neutral-900 rounded;
+    @apply h-40 bg-neutral-900 rounded border-neutral-700;
+  }
+  textarea:focus {
+    @apply ring-0 ring-offset-0 border-yellow-500;
   }
 }
 
