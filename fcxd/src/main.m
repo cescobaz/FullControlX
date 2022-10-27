@@ -9,7 +9,7 @@ void handle_input_data(void *ctx) {}
 
 int main(int argc, char *argv[]) {
 
-  fcx_app_t *app = fcx_app_init(STDIN_FILENO, STDOUT_FILENO);
+  fcx_app_t *app = fcx_app_init(argc, argv);
 
   dispatch_source_t source = dispatch_source_create(
       DISPATCH_SOURCE_TYPE_READ, app->input, 0, dispatch_get_main_queue());
@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
       exit(0);
       return;
     }
-    if (fcx_app_handle_data(app, app->buffer, r) != 0) {
+    if (fcx_app_handle_data(app, r) != 0) {
       FCX_LOG_ERR("json_tokener_parse_ex error %s",
                   json_tokener_error_desc(app->error));
       exit(1);
