@@ -7,10 +7,13 @@
 #include <IOKit/hidsystem/ev_keymap.h>
 #include <MacTypes.h>
 #include <assert.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/_types/_mbstate_t.h>
 #include <sys/fcntl.h>
+#include <wchar.h>
 
 #define UNICODE_STRING_MAX_LEN 3
 
@@ -125,7 +128,8 @@ void fcx_keyboard_free(fcx_keyboard_t *keyboard) {
 }
 
 struct fcx_keyboard_keycode_mapping *
-_fcx_keyboard_keycode_mapping_from_char(fcx_keyboard_t *keyboard, char c) {
+_fcx_keyboard_keycode_mapping_from_unicode(fcx_keyboard_t *keyboard,
+                                           UniChar c) {
   struct fcx_keyboard *kb = (struct fcx_keyboard *)keyboard;
   for (int mi = 0; mi < kb->keycode_mapping_len; mi++) {
     struct fcx_keyboard_keycode_mapping km = kb->keycode_mapping[mi];
@@ -133,7 +137,8 @@ _fcx_keyboard_keycode_mapping_from_char(fcx_keyboard_t *keyboard, char c) {
       return &(kb->keycode_mapping[mi]);
     }
   }
-  FCX_LOG_WARN("_fcx_keyboard_keycode_mapping_from_char not found char %c", c);
+  FCX_LOG_WARN(
+      "_fcx_keyboard_keycode_mapping_from_unicode not found char 0x%04X", c);
   return NULL;
 }
 
@@ -165,10 +170,23 @@ int fcx_keyboard_type_keycode(fcx_keyboard_t *keyboard, int keycode) {
 
 int fcx_keyboard_type_text(fcx_keyboard_t *keyboard, const char *text) {
   struct fcx_keyboard *kb = (struct fcx_keyboard *)keyboard;
-  int text_len = strlen(text);
-  for (int i = 0; i < text_len; i++) {
+  mbstate_t utf_state;
+  mbrtowc(NULL, NULL, 0, &utf_state);
+  assert(mbsinit(&utf_state) != 0);
+  wchar_t wchar;
+  const char *end = text + strlen(text) + 1;
+  while (text < end) {
+    size_t parsed = mbrtowc(&wchar, text, end - text, &utf_state);
+    if (parsed == -1) {
+      FCX_LOG_ERR("Unable to parse multibyte text, errno %d", errno);
+      return 2;
+    }
+    if (parsed == 0) {
+      return 0;
+    }
+    text += parsed;
     struct fcx_keyboard_keycode_mapping *km =
-        _fcx_keyboard_keycode_mapping_from_char(keyboard, text[i]);
+        _fcx_keyboard_keycode_mapping_from_unicode(keyboard, wchar);
     if (km == NULL) {
       continue;
     }

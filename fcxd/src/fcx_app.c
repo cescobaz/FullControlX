@@ -1,6 +1,7 @@
 #include "fcx_app.h"
 #include "logger.h"
 #include <json-c/json_tokener.h>
+#include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,6 +10,9 @@
 #define BUFFER_SIZE 2048
 
 fcx_app_t *fcx_app_init(int argc, char *argv[]) {
+  char *locale_value = setlocale(LC_ALL, "en_US.UTF-8");
+  FCX_LOG_INFO("Using locale %s", locale_value);
+
   fcx_app_t *app = calloc(1, sizeof(fcx_app_t));
   app->input = STDIN_FILENO;
   app->output = STDOUT_FILENO;
