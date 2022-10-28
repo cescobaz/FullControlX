@@ -22,7 +22,7 @@ if(APPLE)
 
   set(LIBRARIES
       ${LIBRARIES} "-framework CoreFoundation" "-framework CoreGraphics"
-      "-framework AppKit" "-framework IOKit")
+      "-framework AppKit" "-framework IOKit" "-framework Carbon")
 else()
   set(SOURCES
       ${SOURCES} "src/linux/fcx_mouse.c" "src/linux/fcx_system.c"
