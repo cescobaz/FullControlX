@@ -42,7 +42,7 @@ add_library(${LIB_NAME} STATIC ${SOURCES})
 target_link_libraries(${LIB_NAME} PRIVATE ${LIBRARIES})
 
 if(APPLE)
-  add_executable(${PROJECT_NAME} "src/main.m")
+  add_executable(${PROJECT_NAME} "src/mac/main.m")
 else()
   add_executable(${PROJECT_NAME} "src/main.c")
 endif()
