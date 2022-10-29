@@ -2,7 +2,18 @@ cmake_minimum_required(VERSION 3.13)
 project("FullControlX" VERSION 0.9)
 configure_file(src/fullcontrol_x_config.h.in src/fullcontrol_x_config.h)
 
-add_compile_definitions(FCX_LOG_LEVEL=3)
+set(PROJECT_VENDOR "Francesco Burelli (https://cescobaz.com)")
+set(PROJECT_WEBSITE "https://fullcontrol.cescobaz.com")
+set(PROJECT_MAINTAINER "Francesco Burelli <francesco.burelli@gmail.com>")
+set(PROJECT_DESCRIPTION_SUMMARY "A web remote for your PC/Mac")
+set(PROJECT_DESCRIPTION "A web remote for your PC/Mac")
+
+if(CMAKE_BUILD_TYPE STREQUAL Release)
+  add_compile_definitions(FCX_LOG_LEVEL=3)
+  add_compile_options(-O3)
+else()
+  add_compile_definitions(FCX_LOG_LEVEL=4)
+endif()
 
 set(CMAKE_OSX_DEPLOYMENT_TARGET
     10.11
