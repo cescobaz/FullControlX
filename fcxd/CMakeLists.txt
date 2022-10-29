@@ -1,11 +1,12 @@
 cmake_minimum_required(VERSION 3.13)
+project("FullControlX" VERSION 0.9)
+configure_file(src/fullcontrol_x_config.h.in src/fullcontrol_x_config.h)
+
+add_compile_definitions(FCX_LOG_LEVEL=3)
 
 set(CMAKE_OSX_DEPLOYMENT_TARGET
     10.11
     CACHE STRING "Code uses API at least compatible with this OSX version")
-
-project("FullControlX" VERSION 0.9)
-configure_file(src/fullcontrol_x_config.h.in src/fullcontrol_x_config.h)
 
 set(LIB_NAME "${PROJECT_NAME}_s")
 
