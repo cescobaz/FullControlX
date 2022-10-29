@@ -1,6 +1,7 @@
 #include "../fcx_keyboard.h"
 #include "../logger.h"
 #include "fcx_io_hid.h"
+#include "fcx_keyboard_symbols_map.h"
 #include <Carbon/Carbon.h>
 #include <CoreGraphics/CoreGraphics.h>
 #include <IOKit/hidsystem/IOHIDLib.h>
@@ -13,6 +14,7 @@
 #include <string.h>
 #include <sys/_types/_mbstate_t.h>
 #include <sys/fcntl.h>
+#include <unistd.h>
 #include <wchar.h>
 
 #define UNICODE_STRING_MAX_LEN 3
@@ -71,8 +73,8 @@ fcx_keyboard_t *fcx_keyboard_create(const char *keymap_name) {
   UniCharCount unicodeStringMaxLen = UNICODE_STRING_MAX_LEN;
   UniChar unicodeString[UNICODE_STRING_MAX_LEN];
   UniCharCount unicodeStringLen;
-  UInt32 modifiers[] = {0, shift, option, option_shift};
-  UInt16 modifiers_len = 4;
+  UInt32 modifiers[] = {0, shift, option, option_shift, alphaLock >> 8};
+  UInt16 modifiers_len = 5;
   for (int op = 0; op < 2; op++) {
     if (op == 1) {
       keyboard->keycode_mapping =
@@ -108,8 +110,7 @@ fcx_keyboard_t *fcx_keyboard_create(const char *keymap_name) {
           keycode_mapping.keycode = keycode;
           keycode_mapping.modifiers = modifier;
           keycode_mapping.unicode_string_len = unicodeStringLen;
-          memset(keycode_mapping.unicode_string, UNICODE_STRING_MAX_LEN,
-                 sizeof(UniChar));
+          memset(keycode_mapping.unicode_string, 0, sizeof(UniChar));
           memcpy(keycode_mapping.unicode_string, unicodeString,
                  unicodeStringLen * sizeof(UniChar));
           keyboard->keycode_mapping[keycode_index] = keycode_mapping;
@@ -118,9 +119,9 @@ fcx_keyboard_t *fcx_keyboard_create(const char *keymap_name) {
       }
     }
   }
-
   return keyboard;
 }
+
 void fcx_keyboard_free(fcx_keyboard_t *keyboard) {
   struct fcx_keyboard *kb = (struct fcx_keyboard *)keyboard;
   free(kb->keycode_mapping);
@@ -206,6 +207,29 @@ int fcx_keyboard_type_text(fcx_keyboard_t *keyboard, const char *text) {
   return 0;
 }
 
+int fcx_keyboard_set_keytype_state(fcx_keyboard_t *keyboard, int special,
+                                   int state) {
+  IOGPoint loc = {0, 0};
+  NXEventData event;
+  memset(&event, 0, sizeof(NXEventData));
+  event.compound.subType = NX_SUBTYPE_AUX_CONTROL_BUTTONS;
+  event.compound.misc.C[1] = state;
+  event.compound.misc.C[2] = special;
+  memset(&event.compound.misc.C[4], 0xFF, 8); // maybe useless
+
+  return IOHIDPostEvent(fcx_io_hid_connect(), NX_SYSDEFINED, loc, &event,
+                        kNXEventDataVersion, 0, kIOHIDPostHIDManagerEvent);
+}
 int fcx_keyboard_type_symbol(fcx_keyboard_t *keyboard, const char *symbol) {
+
+  int symbols_len = fcx_keyboard_map_symbols_size();
+  char **symbols_map = fcx_keyboard_map_symbols();
+  for (int i = 0; i < symbols_len; i++) {
+    if (strcmp(symbol, symbols_map[i]) == 0) {
+      fcx_keyboard_set_keytype_state(keyboard, i, NX_KEYDOWN);
+      fcx_keyboard_set_keytype_state(keyboard, i, NX_KEYUP);
+      return 0;
+    }
+  }
   return 1;
 }
