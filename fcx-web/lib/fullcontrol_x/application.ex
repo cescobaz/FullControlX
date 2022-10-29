@@ -7,6 +7,8 @@ defmodule FullControlX.Application do
 
   @impl true
   def start(_type, _args) do
+    FullControlX.print_connection_qrcode()
+
     children = [
       # Start the Ecto repository
       FullControlX.Repo,
