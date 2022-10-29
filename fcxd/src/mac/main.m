@@ -1,5 +1,5 @@
-#include "fcx_app.h"
-#include "logger.h"
+#include "../fcx_app.h"
+#include "../logger.h"
 #include "src/fullcontrol_x_config.h"
 #include <Foundation/Foundation.h>
 #include <stdlib.h>

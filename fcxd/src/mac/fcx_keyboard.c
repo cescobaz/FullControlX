@@ -49,9 +49,6 @@ struct fcx_keyboard {
 
 fcx_keyboard_t *fcx_keyboard_create(const char *keymap_name) {
   UInt32 keyboardType = LMGetKbdType();
-  // UInt32 keyboardType = kKeyboardUnknown;
-  FCX_LOG_DEBUG("keyboard type: %d %d", LMGetKbdType(), kKeyboardUnknown);
-
   // TODO: extern const CFStringRef
   // kTISNotifySelectedKeyboardInputSourceChanged
   // AVAILABLE_MAC_OS_X_VERSION_10_5_AND_LATER;
