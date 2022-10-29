@@ -225,11 +225,23 @@ int fcx_keyboard_type_symbol(fcx_keyboard_t *keyboard, const char *symbol) {
   int symbols_len = fcx_keyboard_map_symbols_size();
   char **symbols_map = fcx_keyboard_map_symbols();
   for (int i = 0; i < symbols_len; i++) {
-    if (strcmp(symbol, symbols_map[i]) == 0) {
+    char *sm = symbols_map[i];
+    if (sm != NULL && strcmp(symbol, sm) == 0) {
+      return fcx_keyboard_type_keycode(keyboard, i);
+    }
+  }
+
+  symbols_len = fcx_keyboard_map_system_aux_symbols_size();
+  symbols_map = fcx_keyboard_map_system_aux_symbols();
+  for (int i = 0; i < symbols_len; i++) {
+    char *sm = symbols_map[i];
+    if (sm != NULL && strcmp(symbol, sm) == 0) {
       fcx_keyboard_set_keytype_state(keyboard, i, NX_KEYDOWN);
       fcx_keyboard_set_keytype_state(keyboard, i, NX_KEYUP);
       return 0;
     }
   }
+
+  FCX_LOG_WARN("symbol not found: %s", symbol);
   return 1;
 }
