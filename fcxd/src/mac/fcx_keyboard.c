@@ -207,8 +207,8 @@ int fcx_keyboard_type_text(fcx_keyboard_t *keyboard, const char *text) {
   return 0;
 }
 
-int fcx_keyboard_set_keytype_state(fcx_keyboard_t *keyboard, int special,
-                                   int state) {
+int fcx_keyboard_set_sys_aux_keytype_state(fcx_keyboard_t *keyboard,
+                                           int special, int state) {
   IOGPoint loc = {0, 0};
   NXEventData event;
   memset(&event, 0, sizeof(NXEventData));
@@ -236,8 +236,8 @@ int fcx_keyboard_type_symbol(fcx_keyboard_t *keyboard, const char *symbol) {
   for (int i = 0; i < symbols_len; i++) {
     char *sm = symbols_map[i];
     if (sm != NULL && strcmp(symbol, sm) == 0) {
-      fcx_keyboard_set_keytype_state(keyboard, i, NX_KEYDOWN);
-      fcx_keyboard_set_keytype_state(keyboard, i, NX_KEYUP);
+      fcx_keyboard_set_sys_aux_keytype_state(keyboard, i, NX_KEYDOWN);
+      fcx_keyboard_set_sys_aux_keytype_state(keyboard, i, NX_KEYUP);
       return 0;
     }
   }
