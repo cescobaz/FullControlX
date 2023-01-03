@@ -13,9 +13,11 @@ It is a web remote controller for you PC/Mac, it works, at the moment, for Linux
 
 ## Screenshots
 
-![Tools.PNG](screenshots/Tools.PNG)
-![Trackpad.PNG](screenshots/Trackpad.PNG)
-![Keyboard.PNG](screenshots/Keyboard.PNG)
+<div style="display: flex;">
+<img src="screenshots/Tools.PNG" width="200" />
+<img src="screenshots/Trackpad.PNG" width="200" />
+<img src="screenshots/Keyboard.PNG" width="200" />
+</div>
 
 ## Usage
 
