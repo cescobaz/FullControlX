@@ -11,6 +11,16 @@ It is a web remote controller for you PC/Mac, it works, at the moment, for Linux
 * Mouse with multitouch support for movement, click, double click, right click, scroll and drag
 * Special keyboard command: volume up/down, mute, play/pause, back, forward, brightness up/down and arrows
 
+## Screenshots
+
+![Tools.PNG](screenshots/Tools.PNG)
+![Trackpad.PNG](screenshots/Trackpad.PNG)
+![Keyboard.PNG](screenshots/Keyboard.PNG)
+
+## Usage
+
+Just run `build_and_run.sh` from your console. If everything success, you will get a QR code in the console with the URL, scan with your phone or copy the URL in your browser.
+
 ## Architecture
 
 ```
