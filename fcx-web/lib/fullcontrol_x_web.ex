@@ -17,6 +17,27 @@ defmodule FullControlXWeb do
   and import those modules here.
   """
 
+  def generate_qrcode_svg(conn, content) do
+    hash =
+      :crypto.hash(:sha256, content)
+      |> Base.encode16()
+      |> String.downcase()
+
+    filename = "qrcode-#{hash}.svg"
+    path = "priv/static/assets/#{filename}"
+
+    if not File.exists?(path) do
+      svg =
+        content
+        |> EQRCode.encode()
+        |> EQRCode.svg()
+
+      File.write(path, svg, [:binary])
+    end
+
+    FullControlXWeb.Router.Helpers.static_path(conn, "/assets/#{filename}")
+  end
+
   def controller do
     quote do
       use Phoenix.Controller, namespace: FullControlXWeb
