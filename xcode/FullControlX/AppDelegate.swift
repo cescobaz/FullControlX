@@ -13,8 +13,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem?
     var elixirProcess: Process?
     
+    var host: String = "localhost"
+    var port: Int32 = 4000
+    
     @objc func open(_ sender: Any) {
-        if let url = URL(string: "https://github.com/cescobaz/FullControlX") {
+        if let url = URL(string: "http://\(host):\(port)/") {
             NSWorkspace.shared.open(url)
         }
     }
@@ -40,7 +43,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         return statusItem
     }
     
-    func runElixir() throws -> Process {
+    func runElixir(host: String, port: Int32) throws -> Process {
         guard let driverURL = Bundle.main.url(forResource: "fcxd", withExtension: "") else {
             throw NSError(domain: "Resource not found", code: 1)
         }
@@ -58,8 +61,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             "DATABASE_PATH" :
                 databasePath,
             "SECRET_KEY_BASE" : "tR+7w7T35Y9/NxvAKXGYrhD5dyBy/JwTATSWC/tMIesW/UphSNbDTF1bBtZ9kAyx",
-            "PORT" : "4000",
-            "PHX_HOST" : "localhost",
+            "PORT" : "\(port)",
+            "PHX_HOST" : host,
             "PHX_SERVER" : "true"
         ]
         process.arguments = ["start"]
@@ -73,7 +76,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Insert code here to initialize your application
         statusItem = createStatusBarItem()
         do {
-            elixirProcess = try runElixir()
+            elixirProcess = try runElixir(host: host, port: port)
         } catch {
             print("[ERROR] \(error)")
         }
