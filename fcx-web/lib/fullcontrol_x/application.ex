@@ -20,7 +20,8 @@ defmodule FullControlX.Application do
       FullControlXWeb.Endpoint,
       # Start a worker by calling: FullControlX.Worker.start_link(arg)
       # {FullControlX.Worker, arg}
-      {FullControlX.Driver, name: FullControlX.Driver}
+      {FullControlX.Driver,
+       name: FullControlX.Driver, fcxd_path: Application.get_env(:fullcontrol_x, :fcxd_path)}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

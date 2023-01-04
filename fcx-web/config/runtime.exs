@@ -21,6 +21,15 @@ if System.get_env("PHX_SERVER") do
 end
 
 if config_env() == :prod do
+  fcxd_path =
+    System.get_env("FCXD_PATH") ||
+      raise """
+      environment variable FCXD_PATH is missing.
+      For example: /usr/bin/FullControlX
+      """
+
+  config :fullcontrol_x, fcxd_path: fcxd_path
+
   database_path =
     System.get_env("DATABASE_PATH") ||
       raise """

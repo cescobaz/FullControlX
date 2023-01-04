@@ -9,7 +9,8 @@ import Config
 
 config :fullcontrol_x,
   namespace: FullControlX,
-  ecto_repos: [FullControlX.Repo]
+  ecto_repos: [FullControlX.Repo],
+  fcxd_path: "../fcxd/_build/FullControlX"
 
 # Configures the endpoint
 config :fullcontrol_x, FullControlXWeb.Endpoint,

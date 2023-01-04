@@ -3,7 +3,8 @@ defmodule FullControlX.Driver do
   use GenServer
 
   def start_link(opts) do
-    GenServer.start_link(__MODULE__, :ok, opts)
+    fcxd_path = Keyword.get(opts, :fcxd_path) || raise "Missing :fcxd_path"
+    GenServer.start_link(__MODULE__, [fcxd_path: fcxd_path], opts)
   end
 
   def system_info(driver) do
@@ -59,8 +60,8 @@ defmodule FullControlX.Driver do
   end
 
   @impl true
-  def init(:ok) do
-    filename = "../fcxd/_build/FullControlX"
+  def init(opts) do
+    filename = Keyword.get(opts, :fcxd_path)
     port = Port.open({:spawn_executable, filename}, [:binary, :stream, :hide, :exit_status])
 
     {:ok,
