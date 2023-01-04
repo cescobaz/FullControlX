@@ -68,6 +68,7 @@
 				E10589FF29657E3900FBCF4B /* Sources */,
 				E1058A0029657E3900FBCF4B /* Frameworks */,
 				E1058A0129657E3900FBCF4B /* Resources */,
+				E1058A172965C17600FBCF4B /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -122,6 +123,26 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		E1058A172965C17600FBCF4B /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nDEST=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\"\n\ncd ..\n./fcxd/build.sh\n\nrm \"${DEST}/fcxd\"\ncp ./fcxd/_build/FullControlX \"${DEST}/fcxd\"\n\ncd fcx-web\nexport MIX_ENV=prod\nmix deps.get\nmix release --overwrite\n\nrm -rf \"${DEST}/fullcontrol_x\"\ncp -r _build/prod/rel/fullcontrol_x \"${DEST}\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		E10589FF29657E3900FBCF4B /* Sources */ = {
