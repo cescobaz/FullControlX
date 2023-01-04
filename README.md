@@ -58,5 +58,6 @@ Just run `build_and_run.sh` from your console. If everything success, you will g
 
 * `fcxd` (FullControlX Driver) contains C and Objective-C code for operate directly with the specific OS API (only linux and macos at the moment)
 * `fcx-web` (FullControlX WebApp) contains an Elixir Phoenix LiveView WebApp that launch and interact with `fcxd` process
+* `xcode` contains the Xcode Mac App project that embeds and uses `fcxd` and `fcx-web` binaries
 
 If you need more details please read dedicated README.md in the subfolders.
