@@ -18,6 +18,7 @@
 		E1058A0829657E3B00FBCF4B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E1058A0B29657E3B00FBCF4B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		E1058A0D29657E3B00FBCF4B /* FullControlX.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FullControlX.entitlements; sourceTree = "<group>"; };
+		E1531C7729660E9C0081483E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -50,6 +51,7 @@
 		E1058A0529657E3900FBCF4B /* FullControlX */ = {
 			isa = PBXGroup;
 			children = (
+				E1531C7729660E9C0081483E /* Info.plist */,
 				E1058A0629657E3900FBCF4B /* AppDelegate.swift */,
 				E1058A0829657E3B00FBCF4B /* Assets.xcassets */,
 				E1058A0A29657E3B00FBCF4B /* MainMenu.xib */,
@@ -292,8 +294,8 @@
 				DEVELOPMENT_TEAM = 8EUCAB52AK;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = FullControlX/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Francesco Burelli";
 				INFOPLIST_KEY_NSMainNibFile = MainMenu;
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
@@ -322,8 +324,8 @@
 				DEVELOPMENT_TEAM = 8EUCAB52AK;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = FullControlX/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Francesco Burelli";
 				INFOPLIST_KEY_NSMainNibFile = MainMenu;
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
