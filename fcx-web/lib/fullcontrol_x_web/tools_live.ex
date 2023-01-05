@@ -72,6 +72,7 @@ defmodule FullControlXWeb.ToolsLive do
 
     {:ok,
      socket
+     |> assign(:header_title, "Tools")
      |> assign(:audio_buttons, audio_buttons)
      |> assign(:media_buttons, media_buttons)
      |> assign(:arrows_buttons, arrows_buttons)
@@ -80,9 +81,8 @@ defmodule FullControlXWeb.ToolsLive do
 
   def render(assigns) do
     ~H"""
-    <.header title="Tools" />
-    <div class="overflow-scroll">
-      <div class="flex flex-col justify-end gap-4 pb-4">
+    <div class="h-full flex flex-col justify-end">
+      <div class="overflow-scroll flex flex-col justify-start gap-4 p-4">
         <div class="flex justify-center gap-4">
           <%= for button <- @brightness_buttons do %>
             <._button title={button.title} value={button.value} src={button.src} />

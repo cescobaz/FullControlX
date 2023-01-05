@@ -9,6 +9,7 @@ defmodule FullControlXWeb.InfoLive do
 
     {:ok,
      socket
+     |> assign(:header_title, "Info")
      |> assign(:info, info)
      |> assign(:urls, urls)
      |> assign(:url_in_qrcode, url_in_qrcode)
@@ -17,8 +18,7 @@ defmodule FullControlXWeb.InfoLive do
 
   def render(assigns) do
     ~H"""
-    <.header title="Info" />
-    <div class="m-auto overflow-scroll flex flex-col gap-4 justify-center items-start h-full p-4 max-w-xl">
+    <div class="m-auto flex flex-col gap-4 justify-start items-start p-4 max-w-xl">
       <div>
         <h2>Host</h2>
         <div>

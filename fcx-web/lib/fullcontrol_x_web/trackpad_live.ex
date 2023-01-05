@@ -5,14 +5,15 @@ defmodule FullControlXWeb.TrackpadLive do
 
   def mount(_params, _session, socket) do
     {:ok,
-     assign(socket, :trackpad, TrackpadDriver.init())
+     socket
+     |> assign(:header_title, "Trackpad")
+     |> assign(:trackpad, TrackpadDriver.init())
      |> assign(:timer, nil)}
   end
 
   def render(assigns) do
     ~H"""
-    <.header title="Trackpad" />
-    <div id="view" class="relative grow">
+    <div id="view" class="h-full">
       <div id="placeholder" class="w-full h-full flex flex-col items-center justify-center">
         <div class="p-4">
           <p><span class="font-semibold">Left click</span>: one tap</p>

@@ -9,16 +9,7 @@
     <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/assets/app.css")}/>
     <script defer phx-track-static type="text/javascript" src={Routes.static_path(@conn, "/assets/app.js")}></script>
   </head>
-  <body class="touch-none select-none flex flex-col justify-between items-stretch w-full h-full bg-neutral-900 text-neutral-300">
+  <body class="touch-none select-none w-full h-full bg-neutral-900 text-neutral-300">
     <%= @inner_content %>
-    <nav class="w-full p-2 border-t border-neutral-700">
-      <ul class="flex justify-center gap-4">
-        <li><%= live_redirect "Keyboard", to: Routes.live_path(@conn, FullControlXWeb.KeyboardLive) %></li>
-        <li><%= live_redirect "Trackpad", to: Routes.live_path(@conn, FullControlXWeb.TrackpadLive) %></li>
-        <li><%= live_redirect "Tools", to: Routes.live_path(@conn, FullControlXWeb.ToolsLive) %></li>
-        <li><%= live_redirect "Info", to: Routes.live_path(@conn, FullControlXWeb.InfoLive) %></li>
-      </ul>
-    </nav>
-      
   </body>
 </html>

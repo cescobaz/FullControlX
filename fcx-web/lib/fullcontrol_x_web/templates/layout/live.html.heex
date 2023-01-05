@@ -6,4 +6,15 @@
   phx-click="lv:clear-flash"
   phx-value-key="error"><%= live_flash(@flash, :error) %></p>
 
-<%= @inner_content %>
+<.header title={@header_title} />
+<div class="relative grow overflow-scroll">
+  <%= @inner_content %>
+</div>
+<nav class="w-full p-2 border-t border-neutral-700">
+  <ul class="flex justify-center gap-4">
+    <li><%= live_redirect "Keyboard", to: Routes.live_path(@socket, FullControlXWeb.KeyboardLive) %></li>
+    <li><%= live_redirect "Trackpad", to: Routes.live_path(@socket, FullControlXWeb.TrackpadLive) %></li>
+    <li><%= live_redirect "Tools", to: Routes.live_path(@socket, FullControlXWeb.ToolsLive) %></li>
+    <li><%= live_redirect "Info", to: Routes.live_path(@socket, FullControlXWeb.InfoLive) %></li>
+  </ul>
+</nav>
