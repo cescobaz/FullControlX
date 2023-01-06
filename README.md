@@ -61,3 +61,8 @@ Just run `build_and_run.sh` from your console. If everything success, you will g
 * `xcode` contains the Xcode Mac App project that embeds and uses `fcxd` and `fcx-web` binaries
 
 If you need more details please read dedicated README.md in the subfolders.
+
+## Roadmap
+
+* Publish a Mac App Release ready to use for intel and arm (a .dmg image)
+* Windows compatibility (in `fcxd` sub-project)
