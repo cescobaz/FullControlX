@@ -5,7 +5,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef _WIN32
+#include <io.h>
+#define STDIN_FILENO _fileno(stdin)
+#define STDOUT_FILENO _fileno(stdout)
+#else
 #include <unistd.h>
+#endif
 
 #define BUFFER_SIZE 2048
 
@@ -39,8 +45,13 @@ void __fcx_app_handle_request_cb(struct json_object *response, void *ctx) {
   if (response != NULL) {
     const char *response_str =
         json_object_to_json_string_ext(response, JSON_C_TO_STRING_PLAIN);
+#ifdef _WIN32
+    _write(app->output, response_str, (unsigned int)(strlen(response_str) + 1));
+    //_commit(app->output);
+#else
     write(app->output, response_str, strlen(response_str) + 1);
     fsync(app->output);
+#endif
   }
 }
 
@@ -48,7 +59,7 @@ int fcx_app_handle_data(fcx_app_t *app, size_t size) {
   size_t buffer_start = 0;
   while (buffer_start < size) {
     struct json_object *req_obj = json_tokener_parse_ex(
-        app->tokener, &(app->buffer)[buffer_start], size - buffer_start);
+        app->tokener, &(app->buffer)[buffer_start], (int)(size - buffer_start));
     buffer_start += json_tokener_get_parse_end(app->tokener);
     app->error = json_tokener_get_error(app->tokener);
     if (app->error == json_tokener_continue) {

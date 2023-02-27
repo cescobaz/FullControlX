@@ -80,7 +80,7 @@ void fcx_handle_request_result(struct json_object *result, void *data) {
 
 void __fcx_request_ctx_delete(struct json_object *obj, void *userdata) {
   int is_free = fcx_request_ctx_release(userdata);
-  FCX_LOG_DEBUG("released req_ctx %d", is_free);
+  FCX_LOG_DEBUG( "released req_ctx %d", is_free ) ;
 }
 
 int fcx_handle_request(fcx_request_handler_t *handler,

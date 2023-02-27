@@ -1,7 +1,12 @@
 #include "../src/fcx_mouse.h"
 #include <CUnit/Basic.h>
 #include <json-c/json.h>
+
+#ifdef _WIN32
+#include <Winsock2.h>
+#else
 #include <unistd.h>
+#endif
 
 int init_suite() { return 0; }
 
