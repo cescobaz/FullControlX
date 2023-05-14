@@ -49,6 +49,12 @@ Info, error and debug messages are available from standard error output.
 * C Unit (for testing) [https://cunit.sourceforge.io/](https://cunit.sourceforge.io/)
 * For MacOS: Minimum deployment target: 10.11
 
+#### Install dependencies (MacOS)
+
+```bash
+brew install json-c cunit
+```
+
 ### Build with CMake
 
 ```bash
