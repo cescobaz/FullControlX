@@ -10,3 +10,7 @@ cd "$build_dir"
 
 cmake ..
 cmake --build .
+
+if ! [ -e $dir/compile_commands.json ]; then
+  ln -s $build_dir/compile_commands.json $dir/compile_commands.json
+fi
