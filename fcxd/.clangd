@@ -6,4 +6,3 @@ If:
   PathMatch: test/.*\.(h|c)
 CompileFlags:
   Add: [-I/usr/local/include/unity, -I../src]
----
