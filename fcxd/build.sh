@@ -8,7 +8,7 @@ build_dir="$dir/_build"
 mkdir -p "$build_dir"
 cd "$build_dir"
 
-cmake ..
+cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1 ..
 cmake --build .
 
 if ! [ -e $dir/compile_commands.json ]; then
