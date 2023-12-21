@@ -62,8 +62,24 @@ or use the script [build.sh](build.sh).
 
 Then run `_build/FullControlX`.
 
+### Build - Windows
+
+Tips:
+- disable test because of cunit
+- use MinGW
+- use json-c static
+
+#### Using MinGW
+
+```sh
+mkdir _build
+cd _build
+cmake -G "MinGW Makefiles" -DCMAKE_PREFIX_PATH=/Program\ files\ \(x86\)/json-c/lib/cmake
+```
+
 ## Where are framework headers?
 
 ```
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks
 ```
+
