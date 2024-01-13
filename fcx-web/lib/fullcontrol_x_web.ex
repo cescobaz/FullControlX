@@ -1,4 +1,6 @@
 defmodule FullControlXWeb do
+  require Logger
+
   @moduledoc """
   The entrypoint for defining your web interface, such
   as controllers, views, channels and so on.
@@ -24,7 +26,8 @@ defmodule FullControlXWeb do
       |> String.downcase()
 
     filename = "qrcode-#{hash}.svg"
-    path = "priv/static/assets/#{filename}"
+    files_path = Application.get_env(:fullcontrol_x, :files_path) || "priv/static/assets"
+    path = "#{files_path}/#{filename}"
 
     if not File.exists?(path) do
       svg =
@@ -32,10 +35,13 @@ defmodule FullControlXWeb do
         |> EQRCode.encode()
         |> EQRCode.svg()
 
-      File.write(path, svg, [:binary])
+      case File.write(path, svg, [:binary]) do
+        {:error, error} -> Logger.error(file_write: error)
+        _ -> nil
+      end
     end
 
-    FullControlXWeb.Router.Helpers.static_path(conn, "/assets/#{filename}")
+    FullControlXWeb.Router.Helpers.static_path(conn, "/files/#{filename}")
   end
 
   def controller do

@@ -22,6 +22,23 @@ defmodule FullControlXWeb.Endpoint do
     gzip: false,
     only: ~w(assets fonts images favicon.ico robots.txt)
 
+  defp files(conn, _params) do
+    with {:ok, files_path} <- Application.fetch_env(:fullcontrol_x, :files_path) do
+      opts =
+        Plug.Static.init(
+          at: "/files",
+          from: files_path,
+          gzip: false
+        )
+
+      Plug.Static.call(conn, opts)
+    else
+      _ -> conn
+    end
+  end
+
+  plug :files, nil
+
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
   if code_reloading? do

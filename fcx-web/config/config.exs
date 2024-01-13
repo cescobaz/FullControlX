@@ -10,7 +10,8 @@ import Config
 config :fullcontrol_x,
   namespace: FullControlX,
   ecto_repos: [FullControlX.Repo],
-  fcxd_path: "../fcxd/_build/FullControlX"
+  fcxd_path: "../fcxd/_build/FullControlX",
+  files_path: "priv/static/assets"
 
 # Configures the endpoint
 config :fullcontrol_x, FullControlXWeb.Endpoint,

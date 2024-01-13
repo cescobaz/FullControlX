@@ -20,6 +20,10 @@ if System.get_env("PHX_SERVER") do
   config :fullcontrol_x, FullControlXWeb.Endpoint, server: true
 end
 
+with files_path when is_binary(files_path) <- System.get_env("FILES_PATH") do
+  config :fullcontrol_x, files_path: files_path
+end
+
 if config_env() == :prod do
   fcxd_path =
     System.get_env("FCXD_PATH") ||
@@ -66,5 +70,6 @@ if config_env() == :prod do
       ip: {0, 0, 0, 0, 0, 0, 0, 0},
       port: port
     ],
+    check_origin: false,
     secret_key_base: secret_key_base
 end

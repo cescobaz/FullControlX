@@ -52,14 +52,32 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         print("[INFO] driverURL \(driverURL), exeURL \(exeURL)")
         
-        let databasePath = "\(NSHomeDirectory())/sqlite.db"
+        guard let supportDirectory = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true).first else {
+            throw NSError(domain: "Support Directory not found", code: 3)
+        }
+        guard let bundleId = Bundle.main.bundleIdentifier else {
+            throw NSError(domain: "bundleIdentifier not found", code: 3)
+        }
+        let appDirectory = "\(supportDirectory)/\(bundleId)"
+        
+        print("[INFO] appDir \(appDirectory)")
+        
+        let databasePath = "\(appDirectory)/sqlite.db"
         print("[INFO] databasePath \(databasePath)")
+        
+        let filesPath = "\(appDirectory)/files"
+        if let url = URL(string: "file://\(filesPath)") {
+            try! FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        }
+        print("[INFO] filesPath \(filesPath)")
         
         let process = Process()
         process.environment = [
             "FCXD_PATH" : driverURL.path,
             "DATABASE_PATH" :
                 databasePath,
+            "FILES_PATH" :
+                filesPath,
             "SECRET_KEY_BASE" : "tR+7w7T35Y9/NxvAKXGYrhD5dyBy/JwTATSWC/tMIesW/UphSNbDTF1bBtZ9kAyx",
             "PORT" : "\(port)",
             "PHX_HOST" : host,
@@ -89,6 +107,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         if let process = elixirProcess {
             process.terminate()
+            process.waitUntilExit()
         }
     }
     
