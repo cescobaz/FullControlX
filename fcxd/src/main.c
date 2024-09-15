@@ -6,12 +6,12 @@
 
 #ifdef _WIN32
 #include <io.h>
-#define STDIN_FILENO _fileno(stdin)
 #else
 #include <unistd.h>
 #endif
 
 int main(int argc, char *argv[]) {
+  FCX_LOG_INFO("Hello by FullControlX");
   fcx_app_t *app = fcx_app_init(argc, argv);
 
   int rc = 0;

@@ -7,8 +7,6 @@
 #include <string.h>
 #ifdef _WIN32
 #include <io.h>
-#define STDIN_FILENO _fileno(stdin)
-#define STDOUT_FILENO _fileno(stdout)
 #else
 #include <unistd.h>
 #endif

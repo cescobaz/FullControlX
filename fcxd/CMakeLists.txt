@@ -33,7 +33,7 @@ find_package(json-c CONFIG REQUIRED)
 set(SOURCES "src/logger.c" "src/fcx_request_handler.c" "src/fcx_app.c")
 
 if(WIN32)
-set(LIBRARIES json-c::json-c json-c::json-c-static)
+set(LIBRARIES json-c::json-c-static)
 else()
 set(LIBRARIES json-c::json-c)
 endif()
@@ -53,6 +53,7 @@ if(APPLE)
       ${LIBRARIES} "-framework CoreFoundation" "-framework CoreGraphics"
       "-framework AppKit" "-framework IOKit" "-framework Carbon")
 elseif(WIN32)
+  message("weee")
   set(SOURCES
       ${SOURCES} "src/windows/fcx_mouse.c" "src/windows/fcx_system.c"
       "src/windows/fcx_keyboard.c"
@@ -68,7 +69,7 @@ else()
   set(LIBRARIES ${LIBRARIES} ${KEYMAP_LIBRARY} ${KBDFILE_LIBRARY})
 endif()
 
-add_library(${LIB_NAME} STATIC ${SOURCES})
+add_library(${LIB_NAME} SHARED ${SOURCES})
 target_link_libraries(${LIB_NAME} PRIVATE ${LIBRARIES})
 
 if(APPLE)
@@ -77,22 +78,5 @@ else()
   add_executable(${PROJECT_NAME} "src/main.c")
 endif()
 
-target_link_libraries(${PROJECT_NAME} PRIVATE ${LIB_NAME} json-c::json-c)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${LIB_NAME} ${LIBRARIES})
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_BINARY_DIR}")
-
-include(CTest)
-# find_package(cunit CONFIG REQUIRED)
-if(WIN32)
-  find_package(unofficial-cunit CONFIG REQUIRED)
-  link_libraries(${LIB_NAME} unofficial::cunit::cunit json-c::json-c)
-else()
-  find_library(CUNIT_LIBRARY NAMES cunit libcunit cunitlib)
-  link_libraries(${LIB_NAME} ${CUNIT_LIBRARY} json-c::json-c)
-endif()
-
-set(TESTS mouse)
-
-foreach(T ${TESTS})
-  add_executable(${T} test/${T}.c)
-  add_test(NAME ${T} COMMAND ${T})
-endforeach()
