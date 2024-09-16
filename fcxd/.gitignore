@@ -1,8 +1,8 @@
 _build/
 .cache
 
-# Created by https://www.toptal.com/developers/gitignore/api/cmake,vim,c
-# Edit at https://www.toptal.com/developers/gitignore?templates=cmake,vim,c
+# Created by https://www.toptal.com/developers/gitignore/api/c,vim,zig,cmake
+# Edit at https://www.toptal.com/developers/gitignore?templates=c,vim,zig,cmake
 
 ### C ###
 # Prerequisites
@@ -96,4 +96,13 @@ tags
 # Persistent undo
 [._]*.un~
 
-# End of https://www.toptal.com/developers/gitignore/api/cmake,vim,c
+### zig ###
+# Zig programming language
+
+.zig-cache/
+zig-out/
+build/
+build-*/
+docgen_tmp/
+
+# End of https://www.toptal.com/developers/gitignore/api/c,vim,zig,cmake
