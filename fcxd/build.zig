@@ -35,8 +35,7 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
     });
-    lib.linkLibC();
-    lib.linkSystemLibrary("json-c");
+    lib.linkSystemLibrary2("json-c", .{ .preferred_link_mode = .static });
     lib.addConfigHeader(config);
     lib.addCSourceFiles(.{
         .root = b.path("src"),
@@ -79,7 +78,7 @@ pub fn build(b: *std.Build) void {
     });
     exe.addConfigHeader(config);
     exe.linkLibrary(lib);
-    exe.linkSystemLibrary("json-c");
+    exe.linkSystemLibrary2("json-c", .{ .preferred_link_mode = .static });
     if (target.result.isDarwin()) {
         exe.addCSourceFile(.{ .file = b.path("src/mac/main.m") });
     } else {
