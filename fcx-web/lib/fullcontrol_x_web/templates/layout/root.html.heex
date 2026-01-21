@@ -4,12 +4,14 @@
     <meta charset="utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-    <meta name="csrf-token" content={csrf_token_value()}>
-    <%= live_title_tag assigns[:page_title] || "FullControlX", suffix: " · FullControlX" %>
+    <meta name="csrf-token" content={Plug.CSRFProtection.get_csrf_token()} />
+    <.live_title default="FullControlX" suffix=" · FullControlX">
+      {assigns[:page_title]}
+    </.live_title>
     <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/assets/app.css")}/>
     <script defer phx-track-static type="text/javascript" src={Routes.static_path(@conn, "/assets/app.js")}></script>
   </head>
-  <body class="touch-none select-none w-full h-full bg-neutral-900 text-neutral-300">
+  <body class="touch-none select-none w-full h-full bg-neutral-900 bg-black text-neutral-300">
     <%= @inner_content %>
   </body>
 </html>

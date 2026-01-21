@@ -3,18 +3,25 @@ defmodule FullControlXWeb.ErrorHelpers do
   Conveniences for translating and building error messages.
   """
 
-  use Phoenix.HTML
+  import Phoenix.HTML.Form
+  use Gettext, backend: FullControlXWeb.Gettext
+  use Phoenix.Component
 
   @doc """
   Generates tag for inlined form input errors.
   """
-  def error_tag(form, field) do
-    Enum.map(Keyword.get_values(form.errors, field), fn error ->
-      content_tag(:span, translate_error(error),
-        class: "invalid-feedback",
-        phx_feedback_for: input_name(form, field)
-      )
-    end)
+
+  attr :form, :any
+  attr :field, :any
+
+  def error_tag(assigns) do
+    ~H"""
+    <%= for error <- Keyword.get_values(@form.errors, @field) do %>
+      <span class="invalid-feedback" phx-feedback-for={input_name(@form, @field)}>
+        {translate_error(error)}
+      </span>
+    <% end %>
+    """
   end
 
   @doc """

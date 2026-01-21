@@ -1,3 +1,6 @@
+@import "tailwindcss" source("../../lib");
+@source "../js/fullcontrolx.js";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,15 +9,26 @@
   h2 {
     @apply text-xl font-semibold;
   }
-  a, a:link, a:visited, a:hover, a:active {
+
+  a,
+  a:link,
+  a:visited,
+  a:hover,
+  a:active {
     @apply underline text-yellow-500;
   }
-  [type='submit'], [type='button'], button, .button {
+
+  [type='submit'],
+  [type='button'],
+  button,
+  .button {
     @apply block bg-neutral-700 px-2 py-1 rounded;
   }
+
   textarea {
     @apply h-40 bg-neutral-900 rounded border-neutral-700;
   }
+
   textarea:focus {
     @apply ring-0 ring-offset-0 border-yellow-500;
   }
@@ -27,13 +41,13 @@
   height: 34px;
 }
 
-.switch > input { 
+.switch>input {
   opacity: 0;
   width: 0;
   height: 0;
 }
 
-.switch > .slider {
+.switch>.slider {
   position: absolute;
   cursor: pointer;
   top: 0;
@@ -45,7 +59,7 @@
   transition: .4s;
 }
 
-.switch > .slider:before {
+.switch>.slider:before {
   position: absolute;
   content: "";
   height: 26px;
@@ -57,37 +71,39 @@
   transition: .4s;
 }
 
-.switch > input:checked + .slider {
+.switch>input:checked+.slider {
   background-color: #2196F3;
 }
 
-.switch > input:focus + .slider {
+.switch>input:focus+.slider {
   box-shadow: 0 0 1px #2196F3;
 }
 
-.switch > input:checked + .slider:before {
+.switch>input:checked+.slider:before {
   -webkit-transform: translateX(26px);
   -ms-transform: translateX(26px);
   transform: translateX(26px);
 }
 
-.switch > .slider {
+.switch>.slider {
   border-radius: 34px;
 }
 
-.switch > .slider:before {
+.switch>.slider:before {
   border-radius: 50%;
 }
 
- /* Hide scrollbar for Chrome, Safari and Opera */
+/* Hide scrollbar for Chrome, Safari and Opera */
 .scrollbar-hidden::-webkit-scrollbar {
   display: none;
 }
 
 /* Hide scrollbar for IE, Edge and Firefox */
 .scrollbar-hidden {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 /* Alerts and form errors used by phx.new */
@@ -97,27 +113,33 @@
   border: 1px solid transparent;
   border-radius: 4px;
 }
+
 .alert-info {
   color: #31708f;
   background-color: #d9edf7;
   border-color: #bce8f1;
 }
+
 .alert-warning {
   color: #8a6d3b;
   background-color: #fcf8e3;
   border-color: #faebcc;
 }
+
 .alert-danger {
   color: #a94442;
   background-color: #f2dede;
   border-color: #ebccd1;
 }
+
 .alert p {
   margin-bottom: 0;
 }
+
 .alert:empty {
   display: none;
 }
+
 .invalid-feedback {
   color: #a94442;
   display: block;
@@ -135,12 +157,12 @@
   transition: opacity 1s ease-out;
 }
 
-.phx-loading{
+.phx-loading {
   cursor: wait;
 }
 
 .phx-modal {
-  opacity: 1!important;
+  opacity: 1 !important;
   position: fixed;
   z-index: 1;
   left: 0;
@@ -148,7 +170,7 @@
   width: 100%;
   height: 100%;
   overflow: auto;
-  background-color: rgba(0,0,0,0.4);
+  background-color: rgba(0, 0, 0, 0.4);
 }
 
 .phx-modal-content {
@@ -184,27 +206,51 @@
 .fade-in {
   animation: 0.2s ease-out 0s normal forwards 1 fade-in-keys;
 }
+
 .fade-out {
   animation: 0.2s ease-out 0s normal forwards 1 fade-out-keys;
 }
 
-@keyframes fade-in-scale-keys{
-  0% { scale: 0.95; opacity: 0; }
-  100% { scale: 1.0; opacity: 1; }
+@keyframes fade-in-scale-keys {
+  0% {
+    scale: 0.95;
+    opacity: 0;
+  }
+
+  100% {
+    scale: 1.0;
+    opacity: 1;
+  }
 }
 
-@keyframes fade-out-scale-keys{
-  0% { scale: 1.0; opacity: 1; }
-  100% { scale: 0.95; opacity: 0; }
+@keyframes fade-out-scale-keys {
+  0% {
+    scale: 1.0;
+    opacity: 1;
+  }
+
+  100% {
+    scale: 0.95;
+    opacity: 0;
+  }
 }
 
-@keyframes fade-in-keys{
-  0% { opacity: 0; }
-  100% { opacity: 1; }
+@keyframes fade-in-keys {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }
 
-@keyframes fade-out-keys{
-  0% { opacity: 1; }
-  100% { opacity: 0; }
-}
+@keyframes fade-out-keys {
+  0% {
+    opacity: 1;
+  }
 
+  100% {
+    opacity: 0;
+  }
+}

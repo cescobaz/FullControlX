@@ -44,6 +44,8 @@ defmodule FullControlXWeb do
     FullControlXWeb.Router.Helpers.static_path(conn, "/files/#{filename}")
   end
 
+  def static_paths, do: ~w(assets fonts images favicon.ico robots.txt)
+
   def controller do
     quote do
       use Phoenix.Controller, namespace: FullControlXWeb
@@ -56,9 +58,7 @@ defmodule FullControlXWeb do
 
   def view do
     quote do
-      use Phoenix.View,
-        root: "lib/fullcontrol_x_web/templates",
-        namespace: FullControlXWeb
+      use Phoenix.Component
 
       # Import convenience functions from controllers
       import Phoenix.Controller,
@@ -74,7 +74,7 @@ defmodule FullControlXWeb do
   def live_view do
     quote do
       use Phoenix.LiveView,
-        layout: {FullControlXWeb.LayoutView, "live.html"},
+        layout: {FullControlXWeb.LayoutView, :live},
         container: {:div, class: "h-full flex flex-col justify-between items-stretch"}
 
       import FullControlXWeb.Components
@@ -121,13 +121,15 @@ defmodule FullControlXWeb do
   defp view_helpers do
     quote do
       # Use all HTML functionality (forms, tags, etc)
-      use Phoenix.HTML
+      import Phoenix.HTML
+      import Phoenix.HTML.Form
+      # use PhoenixHTMLHelpers
 
       # Import LiveView and .heex helpers (live_render, live_patch, <.form>, etc)
       import Phoenix.LiveView.Helpers
 
       # Import basic rendering functionality (render, render_layout, etc)
-      import Phoenix.View
+      import Phoenix.Component
 
       import FullControlXWeb.ErrorHelpers
       import FullControlXWeb.Gettext
