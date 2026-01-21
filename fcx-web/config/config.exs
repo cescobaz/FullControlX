@@ -34,10 +34,10 @@ config :tailwind,
   version: "4.0.9",
   default: [
     args: ~w(
-      --input=assets/css/app.css
-      --output=priv/static/assets/app.css
+      --input=css/app.css
+      --output=../priv/static/assets/app.css
     ),
-    cd: Path.expand("..", __DIR__)
+    cd: Path.expand("../assets", __DIR__)
   ]
 
 # Configures Elixir's Logger

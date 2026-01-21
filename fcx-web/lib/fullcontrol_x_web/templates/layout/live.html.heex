@@ -1,20 +1,50 @@
-<p class="alert alert-info" role="alert"
+<p
+  :if={Phoenix.Flash.get(@flash, :info)}
+  id="flash-info"
+  class="alert alert-info"
+  role="alert"
   phx-click="lv:clear-flash"
-  phx-value-key="info"><%= Phoenix.Flash.get(@flash, :info) %></p>
+  phx-value-key="info"
+>
+  {Phoenix.Flash.get(@flash, :info)}
+</p>
 
-<p class="alert alert-danger" role="alert"
+<p
+  :if={Phoenix.Flash.get(@flash, :error)}
+  id="flash-error"
+  class="alert alert-danger"
+  role="alert"
   phx-click="lv:clear-flash"
-  phx-value-key="error"><%= Phoenix.Flash.get(@flash, :error) %></p>
+  phx-value-key="error"
+>
+  {Phoenix.Flash.get(@flash, :error)}
+</p>
 
 <.header title={@header_title} />
 <div class="relative grow overflow-scroll">
-  <%= @inner_content %>
+  {@inner_content}
 </div>
 <nav class="w-full p-2 border-t border-neutral-700">
   <ul class="btm-bar-cnt">
-    <li><.link navigate={Routes.live_path(@socket, FullControlXWeb.KeyboardLive)} title="Keyword"><.icon name="ri-keyboard-line" /></.link></li>
-    <li><.link navigate={Routes.live_path(@socket, FullControlXWeb.TrackpadLive)} title="Trackpad"><.icon name="ri-cursor-line" /></.link></li>
-    <li><.link navigate={Routes.live_path(@socket, FullControlXWeb.ToolsLive)} title="Tools"><.icon name="ri-equalizer-3-line" /></.link></li>
-    <li><.link navigate={Routes.live_path(@socket, FullControlXWeb.InfoLive)} title="Info"><.icon name="ri-info-i" /></.link></li>
+    <li class={if(@header_title === "Keyboard", do: "selected")}>
+      <.link navigate={Routes.live_path(@socket, FullControlXWeb.KeyboardLive)} title="Keyword">
+        <.icon name="ri-keyboard-line" />
+      </.link>
+    </li>
+    <li class={if(@header_title === "Trackpad", do: "selected")}>
+      <.link navigate={Routes.live_path(@socket, FullControlXWeb.TrackpadLive)} title="Trackpad">
+        <.icon name="ri-cursor-line" />
+      </.link>
+    </li>
+    <li class={if(@header_title === "Tools", do: "selected")}>
+      <.link navigate={Routes.live_path(@socket, FullControlXWeb.ToolsLive)} title="Tools">
+        <.icon name="ri-equalizer-3-line" />
+      </.link>
+    </li>
+    <li class={if(@header_title === "Info", do: "selected")}>
+      <.link navigate={Routes.live_path(@socket, FullControlXWeb.InfoLive)} title="Info">
+        <.icon name="ri-info-i" />
+      </.link>
+    </li>
   </ul>
 </nav>

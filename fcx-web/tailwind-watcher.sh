@@ -15,14 +15,16 @@
 
 set -e
 
+cd assets
+
 build_css() {
-  ./_build/tailwind-macos-arm64 --input=assets/css/app.css --output=priv/static/assets/app.css
+  ../_build/tailwind-macos-arm64 --input=css/app.css --output=../priv/static/assets/app.css
 }
 
 # Initial build
 build_css
 
 # Watch for changes to app.css and rebuild
-fswatch -o assets/css/app.css | while read -r; do
+fswatch -o css/app.css | while read -r; do
   build_css
 done
