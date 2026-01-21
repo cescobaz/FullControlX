@@ -46,7 +46,14 @@ defmodule FullControlX.MixProject do
       {:gettext, "~> 0.26.2"},
       {:jason, "~> 1.4.4"},
       {:plug_cowboy, "~> 2.7.3"},
-      {:tailwind, "~> 0.3", runtime: Mix.env() == :dev},
+      {:tailwind, "~> 0.4.1", runtime: Mix.env() == :dev},
+      {:remixicons,
+       github: "Remix-Design/RemixIcon",
+       sparse: "icons",
+       tag: "v4.8.0",
+       app: false,
+       compile: false,
+       depth: 1},
       {:eqrcode, "~> 0.2.0"}
     ]
   end
@@ -63,6 +70,8 @@ defmodule FullControlX.MixProject do
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
+      "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
+      "assets.build": ["tailwind default", "esbuild default"],
       "assets.deploy": ["tailwind default --minify", "esbuild default --minify", "phx.digest"]
     ]
   end

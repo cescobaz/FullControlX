@@ -11,10 +11,10 @@
   <%= @inner_content %>
 </div>
 <nav class="w-full p-2 border-t border-neutral-700">
-  <ul class="flex justify-center gap-4">
-    <li><.link navigate={Routes.live_path(@socket, FullControlXWeb.KeyboardLive)}>Keyboard</.link></li>
-    <li><.link navigate={Routes.live_path(@socket, FullControlXWeb.TrackpadLive)}>Trackpad</.link></li>
-    <li><.link navigate={Routes.live_path(@socket, FullControlXWeb.ToolsLive)}>Tools</.link></li>
-    <li><.link navigate={Routes.live_path(@socket, FullControlXWeb.InfoLive)}>Info</.link></li>
+  <ul class="btm-bar-cnt">
+    <li><.link navigate={Routes.live_path(@socket, FullControlXWeb.KeyboardLive)} title="Keyword"><.icon name="ri-keyboard-line" /></.link></li>
+    <li><.link navigate={Routes.live_path(@socket, FullControlXWeb.TrackpadLive)} title="Trackpad"><.icon name="ri-cursor-line" /></.link></li>
+    <li><.link navigate={Routes.live_path(@socket, FullControlXWeb.ToolsLive)} title="Tools"><.icon name="ri-equalizer-3-line" /></.link></li>
+    <li><.link navigate={Routes.live_path(@socket, FullControlXWeb.InfoLive)} title="Info"><.icon name="ri-info-i" /></.link></li>
   </ul>
 </nav>

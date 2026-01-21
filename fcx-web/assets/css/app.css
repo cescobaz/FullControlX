@@ -1,5 +1,6 @@
 @import "tailwindcss" source("../../lib");
 @source "../js/fullcontrolx.js";
+@plugin "../vendor/remixicons.js";
 
 @tailwind base;
 @tailwind components;
@@ -31,6 +32,14 @@
 
   textarea:focus {
     @apply ring-0 ring-offset-0 border-yellow-500;
+  }
+
+  .btm-bar-cnt {
+    @apply flex justify-center gap-4;
+  }
+
+  .btm-bar-cnt > li > a {
+    @apply block px-4 py-2;
   }
 }
 
