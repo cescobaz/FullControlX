@@ -3,71 +3,27 @@ defmodule FullControlXWeb.ToolsLive do
 
   def mount(_params, _session, socket) do
     audio_buttons = [
-      %{
-        title: "Volume Down",
-        value: "volumedown",
-        src: Routes.static_path(socket, "/images/VolumeDown.png")
-      },
-      %{title: "Mute", value: "mute", src: Routes.static_path(socket, "/images/Mute.png")},
-      %{
-        title: "Volume Up",
-        value: "volumeup",
-        src: Routes.static_path(socket, "/images/VolumeUp.png")
-      }
+      %{title: "Volume Down", value: "volumedown", icon: "ri-volume-down-line"},
+      %{title: "Mute", value: "mute", icon: "ri-volume-mute-line"},
+      %{title: "Volume Up", value: "volumeup", icon: "ri-volume-up-line"}
     ]
 
     media_buttons = [
-      %{
-        title: "Back",
-        value: "back",
-        src: Routes.static_path(socket, "/images/Back.png")
-      },
-      %{
-        title: "Play/Pause",
-        value: "playpause",
-        src: Routes.static_path(socket, "/images/PlayPause.png")
-      },
-      %{
-        title: "Forward",
-        value: "forward",
-        src: Routes.static_path(socket, "/images/Forward.png")
-      }
+      %{title: "Back", value: "back", icon: "ri-skip-back-line"},
+      %{title: "Play/Pause", value: "playpause", icon: "ri-play-line"},
+      %{title: "Forward", value: "forward", icon: "ri-skip-forward-line"}
     ]
 
     arrows_buttons = [
-      %{
-        title: "Left",
-        value: "left",
-        src: Routes.static_path(socket, "/images/LeftArrow.png")
-      },
-      %{
-        title: "Down",
-        value: "down",
-        src: Routes.static_path(socket, "/images/DownArrow2.png")
-      },
-      %{
-        title: "Up",
-        value: "up",
-        src: Routes.static_path(socket, "/images/UpArrow.png")
-      },
-      %{
-        title: "Right",
-        value: "right",
-        src: Routes.static_path(socket, "/images/RightArrow.png")
-      }
+      %{title: "Left", value: "left", icon: "ri-arrow-left-line"},
+      %{title: "Down", value: "down", icon: "ri-arrow-down-line"},
+      %{title: "Up", value: "up", icon: "ri-arrow-up-line"},
+      %{title: "Right", value: "right", icon: "ri-arrow-right-line"}
     ]
 
     brightness_buttons = [
-      %{
-        title: "Brightness Down",
-        value: "brightnessdown",
-        src: Routes.static_path(socket, "/images/BrightnessDown@2x.png")
-      },
-      %{
-        title: "Brightness Up",
-        value: "brightnessup",
-        src: Routes.static_path(socket, "/images/BrightnessUp@2x.png")
-      }
+      %{title: "Brightness Down", value: "brightnessdown", icon: "ri-sun-line"},
+      %{title: "Brightness Up", value: "brightnessup", icon: "ri-sun-fill"}
     ]
 
     {:ok,
@@ -82,25 +38,25 @@ defmodule FullControlXWeb.ToolsLive do
   def render(assigns) do
     ~H"""
     <div class="h-full flex flex-col justify-end">
-      <div class="overflow-scroll flex flex-col justify-start gap-4 p-4">
+      <div class="overflow-scroll flex flex-col justify-start gap-6 p-4">
         <div class="flex justify-center gap-4">
           <%= for button <- @brightness_buttons do %>
-            <._button title={button.title} value={button.value} src={button.src} />
+            <._button title={button.title} value={button.value} icon={button.icon} />
           <% end %>
         </div>
         <div class="flex justify-center gap-4">
           <%= for button <- @arrows_buttons do %>
-            <._button title={button.title} value={button.value} src={button.src} />
+            <._button title={button.title} value={button.value} icon={button.icon} />
           <% end %>
         </div>
         <div class="flex justify-center gap-4">
           <%= for button <- @media_buttons do %>
-            <._button title={button.title} value={button.value} src={button.src} />
+            <._button title={button.title} value={button.value} icon={button.icon} />
           <% end %>
         </div>
         <div class="flex justify-center gap-4">
           <%= for button <- @audio_buttons do %>
-            <._button title={button.title} value={button.value} src={button.src} />
+            <._button title={button.title} value={button.value} icon={button.icon} />
           <% end %>
         </div>
       </div>
@@ -111,7 +67,7 @@ defmodule FullControlXWeb.ToolsLive do
   def _button(assigns) do
     ~H"""
     <button phx-click="keyboard" value={@value} title={@title}>
-      <img src={@src} />
+      <.icon name={@icon} class="size-12" />
     </button>
     """
   end
