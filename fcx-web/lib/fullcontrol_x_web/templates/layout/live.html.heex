@@ -1,10 +1,10 @@
 <p class="alert alert-info" role="alert"
   phx-click="lv:clear-flash"
-  phx-value-key="info"><%= live_flash(@flash, :info) %></p>
+  phx-value-key="info"><%= Phoenix.Flash.get(@flash, :info) %></p>
 
 <p class="alert alert-danger" role="alert"
   phx-click="lv:clear-flash"
-  phx-value-key="error"><%= live_flash(@flash, :error) %></p>
+  phx-value-key="error"><%= Phoenix.Flash.get(@flash, :error) %></p>
 
 <.header title={@header_title} />
 <div class="relative grow overflow-scroll">
@@ -12,9 +12,9 @@
 </div>
 <nav class="w-full p-2 border-t border-neutral-700">
   <ul class="flex justify-center gap-4">
-    <li><%= live_redirect "Keyboard", to: Routes.live_path(@socket, FullControlXWeb.KeyboardLive) %></li>
-    <li><%= live_redirect "Trackpad", to: Routes.live_path(@socket, FullControlXWeb.TrackpadLive) %></li>
-    <li><%= live_redirect "Tools", to: Routes.live_path(@socket, FullControlXWeb.ToolsLive) %></li>
-    <li><%= live_redirect "Info", to: Routes.live_path(@socket, FullControlXWeb.InfoLive) %></li>
+    <li><.link navigate={Routes.live_path(@socket, FullControlXWeb.KeyboardLive)}>Keyboard</.link></li>
+    <li><.link navigate={Routes.live_path(@socket, FullControlXWeb.TrackpadLive)}>Trackpad</.link></li>
+    <li><.link navigate={Routes.live_path(@socket, FullControlXWeb.ToolsLive)}>Tools</.link></li>
+    <li><.link navigate={Routes.live_path(@socket, FullControlXWeb.InfoLive)}>Info</.link></li>
   </ul>
 </nav>
