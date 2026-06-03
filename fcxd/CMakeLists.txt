@@ -35,7 +35,8 @@ if(APPLE)
       "src/mac/fcx_keyboard_symbols_map.c"
       "src/mac/fcx_keyboard.c"
       "src/mac/fcx_apps.m"
-      "src/mac/fcx_io_hid.c")
+      "src/mac/fcx_io_hid.c"
+      "src/mac/fcx_ui_inspector.m")
 
   set(LIBRARIES
       ${LIBRARIES} "-framework CoreFoundation" "-framework CoreGraphics"
