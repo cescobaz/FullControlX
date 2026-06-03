@@ -2,6 +2,7 @@
 #include "fcx_apps.h"
 #include "fcx_mouse.h"
 #include "fcx_system.h"
+#include "fcx_ui_inspector.h"
 #include "logger.h"
 #include <json-c/json_object.h>
 #include <stdio.h>
@@ -21,6 +22,7 @@ const char fcx_req_keyboard_prefix[] = "keyboard_";
 const char fcx_req_keyboard_type_text[] = "keyboard_type_text";
 const char fcx_req_keyboard_type_symbol[] = "keyboard_type_symbol";
 const char fcx_req_ui_apps[] = "ui_apps";
+const char fcx_req_ui_app_commands[] = "ui_app_command";
 const char fcx_req_apps_observe[] = "apps_observe";
 const char fcx_req_ignore_all[] = "ignore_all";
 const char fcx_req_ignore[] = "ignore";
@@ -157,6 +159,8 @@ int fcx_handle_request(fcx_request_handler_t *handler,
     int len = json_object_array_length(handler->requests_ctxs);
     json_object_array_del_idx(handler->requests_ctxs, 0, len);
     result = json_object_new_string("ok");
+  } else if (strcmp(function, fcx_req_ui_app_commands) == 0) {
+    result = fcx_ui_inspector_app_commands(1593);
   } else {
     FCX_LOG_ERR("fcx_request_handler unknown request");
     result = NULL;
