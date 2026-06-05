@@ -10,7 +10,7 @@ import Config
 config :fullcontrol_x,
   namespace: FullControlX,
   ecto_repos: [FullControlX.Repo],
-  fcxd_path: "../fcxd/zig-out/bin/FullControlX",
+  fcxd_path: "../zig-out/bin/FullControlX",
   files_path: "priv/static/assets"
 
 # Configures the endpoint

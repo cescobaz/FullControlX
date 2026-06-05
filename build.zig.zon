@@ -1,0 +1,14 @@
+.{
+    // Build orchestrator for the whole project: builds the fcxd driver
+    // (consumed as a path dependency) and drives the Elixir/mix web build.
+    .name = .fullcontrolx,
+    .version = "0.1.0",
+    .fingerprint = 0x4a5eeda6be46c85b,
+    .dependencies = .{
+        .fcxd = .{ .path = "fcxd" },
+    },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+    },
+}

@@ -24,16 +24,13 @@ with files_path when is_binary(files_path) <- System.get_env("FILES_PATH") do
   config :fullcontrol_x, files_path: files_path
 end
 
-if config_env() == :prod do
-  fcxd_path =
-    System.get_env("FCXD_PATH") ||
-      raise """
-      environment variable FCXD_PATH is missing.
-      For example: /usr/bin/FullControlX
-      """
-
+# Override the fcxd binary location in any environment. Falls back to the
+# default in config.exs (../zig-out/bin/FullControlX) when unset.
+if fcxd_path = System.get_env("FCXD_PATH") do
   config :fullcontrol_x, fcxd_path: fcxd_path
+end
 
+if config_env() == :prod do
   database_path =
     System.get_env("DATABASE_PATH") ||
       raise """

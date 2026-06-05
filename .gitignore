@@ -1,0 +1,3 @@
+# Zig build artifacts (root orchestrator)
+/zig-out/
+/.zig-cache/

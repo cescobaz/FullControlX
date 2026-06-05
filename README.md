@@ -21,7 +21,7 @@ It is a web remote controller for you PC/Mac, it works, at the moment, for Linux
 
 ## Usage
 
-Just run `build_and_run.sh` from your console. If everything success, you will get a QR code in the console with the URL, scan with your phone or copy the URL in your browser.
+Just run `zig build run` from your console. If everything success, you will get a QR code in the console with the URL, scan with your phone or copy the URL in your browser.
 
 ## Architecture
 
