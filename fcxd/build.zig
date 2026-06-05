@@ -4,19 +4,44 @@ const std = @import("std");
 // declaratively construct a build graph that will be executed by an external
 // runner.
 pub fn build(b: *std.Build) void {
-    const target = b.standardTargetOptions(.{});
+    const host_is_darwin = @import("builtin").os.tag.isDarwin();
+
+    // macOS deployment target is 10.11. The OS tag must be set explicitly (.macos)
+    // alongside os_version_min, otherwise the target resolves to an unspecified
+    // "native" OS. Gated to darwin hosts so native Linux builds are unaffected. This
+    // stamps the binary's LC_VERSION_MIN_MACOSX = 10.11 so it can actually run on that
+    // deployment target.
+    const default_target: std.Target.Query = if (host_is_darwin)
+        .{
+            .os_tag = .macos,
+            .os_version_min = .{ .semver = .{ .major = 10, .minor = 11, .patch = 0 } },
+        }
+    else
+        .{};
+    const target = b.standardTargetOptions(.{ .default_target = default_target });
     const optimize = b.standardOptimizeOption(.{});
 
-    const cflags = [_][]const u8{
-        "-std=c99",
-    };
-
-    const config = b.addConfigHeader(.{
-        .style = .{ .cmake = b.path("src/fullcontrol_x_config.h.in") },
-        .include_path = "src/fullcontrol_x_config.h",
-    }, cmake_config);
-
     const is_darwin = target.result.os.tag.isDarwin();
+
+    // Pinning os_version_min makes the target "non-native", so Zig no longer
+    // auto-injects the macOS SDK for system headers, frameworks and libSystem. Point
+    // each module at the active SDK explicitly. (A global b.sysroot would also rebase
+    // json-c's homebrew -L path under the SDK and break it, so set paths per module.)
+    var sdk_frameworks: ?std.Build.LazyPath = null;
+    var sdk_include: ?std.Build.LazyPath = null;
+    var sdk_lib: ?std.Build.LazyPath = null;
+    if (host_is_darwin and is_darwin) {
+        const sdk = std.mem.trimEnd(u8, b.run(&.{ "xcrun", "--show-sdk-path" }), " \n\r");
+        sdk_frameworks = .{ .cwd_relative = b.pathJoin(&.{ sdk, "System/Library/Frameworks" }) };
+        sdk_include = .{ .cwd_relative = b.pathJoin(&.{ sdk, "usr/include" }) };
+        sdk_lib = .{ .cwd_relative = b.pathJoin(&.{ sdk, "usr/lib" }) };
+    }
+
+    const cflags: []const []const u8 = &.{"-std=c99"};
+
+    // FCX_LOG_LEVEL: 4 (debug) in Debug builds, 3 (info) otherwise. logger.h has no
+    // default, so leaving it undefined would disable all logging.
+    const log_level = if (optimize == .Debug) "4" else "3";
 
     const lib_mod = b.createModule(.{
         .target = target,
@@ -24,7 +49,7 @@ pub fn build(b: *std.Build) void {
         .link_libc = true,
     });
     lib_mod.linkSystemLibrary("json-c", .{ .preferred_link_mode = .static });
-    lib_mod.addConfigHeader(config);
+    lib_mod.addCMacro("FCX_LOG_LEVEL", log_level);
     lib_mod.addCSourceFiles(.{
         .root = b.path("src"),
         .files = &.{
@@ -32,9 +57,11 @@ pub fn build(b: *std.Build) void {
             "fcx_request_handler.c",
             "fcx_app.c",
         },
-        .flags = &cflags,
+        .flags = cflags,
     });
     if (is_darwin) {
+        if (sdk_frameworks) |p| lib_mod.addSystemFrameworkPath(p);
+        if (sdk_include) |p| lib_mod.addSystemIncludePath(p);
         lib_mod.linkFramework("CoreFoundation", .{});
         lib_mod.linkFramework("CoreGraphics", .{});
         lib_mod.linkFramework("AppKit", .{});
@@ -50,7 +77,21 @@ pub fn build(b: *std.Build) void {
                 "fcx_apps.m",
                 "fcx_io_hid.c",
             },
-            .flags = &cflags,
+            .flags = cflags,
+        });
+    } else {
+        lib_mod.linkSystemLibrary("keymap", .{});
+        lib_mod.linkSystemLibrary("kbdfile", .{});
+        lib_mod.addCSourceFiles(.{
+            .root = b.path("src/linux"),
+            .files = &.{
+                "fcx_mouse.c",
+                "fcx_system.c",
+                "fcx_keyboard_map.c",
+                "fcx_keyboard.c",
+                "fcx_apps.c",
+            },
+            .flags = cflags,
         });
     }
 
@@ -66,13 +107,16 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
         .link_libc = true,
     });
-    exe_mod.addConfigHeader(config);
+    exe_mod.addCMacro("FCX_LOG_LEVEL", log_level);
     exe_mod.linkLibrary(lib);
     exe_mod.linkSystemLibrary("json-c", .{ .preferred_link_mode = .static });
     if (is_darwin) {
-        exe_mod.addCSourceFile(.{ .file = b.path("src/mac/main.m"), .flags = &cflags });
+        if (sdk_frameworks) |p| exe_mod.addSystemFrameworkPath(p);
+        if (sdk_include) |p| exe_mod.addSystemIncludePath(p);
+        if (sdk_lib) |p| exe_mod.addLibraryPath(p);
+        exe_mod.addCSourceFile(.{ .file = b.path("src/mac/main.m"), .flags = cflags });
     } else {
-        exe_mod.addCSourceFile(.{ .file = b.path("src/main.c"), .flags = &cflags });
+        exe_mod.addCSourceFile(.{ .file = b.path("src/main.c"), .flags = cflags });
     }
 
     const exe = b.addExecutable(.{
@@ -89,58 +133,3 @@ pub fn build(b: *std.Build) void {
     const run_step = b.step("run", "Run the app");
     run_step.dependOn(&run_cmd.step);
 }
-
-const cmake_config = .{
-    .HAVE_DLFCN_H = 1,
-    .HAVE_ENDIAN_H = 1,
-    .HAVE_FCNTL_H = 1,
-    .HAVE_INTTYPES_H = 1,
-    .HAVE_LIMITS_H = 1,
-    .HAVE_LOCALE_H = 1,
-    .HAVE_MEMORY_H = 1,
-    .HAVE_STDARG_H = 1,
-    .HAVE_STDINT_H = 1,
-    .HAVE_STDLIB_H = 1,
-    .HAVE_STRINGS_H = 1,
-    .HAVE_STRING_H = 1,
-    .HAVE_SYSLOG_H = 1,
-    .HAVE_SYS_CDEFS_H = 1,
-    .HAVE_SYS_PARAM_H = 1,
-    .HAVE_SYS_RANDOM_H = 1,
-    .HAVE_SYS_RESOURCE_H = 1,
-    .HAVE_SYS_STAT_H = 1,
-    .HAVE_SYS_TYPES_H = 1,
-    .HAVE_UNISTD_H = 1,
-    .HAVE_ATOMIC_BUILTINS = 1,
-    .HAVE_DECL_INFINITY = 1,
-    .HAVE_DECL_ISINF = 1,
-    .HAVE_DECL_ISNAN = 1,
-    .HAVE_DECL_NAN = 1,
-    .HAVE_OPEN = 1,
-    .HAVE_REALLOC = 1,
-    .HAVE_SETLOCALE = 1,
-    .HAVE_SNPRINTF = 1,
-    .HAVE_STRCASECMP = 1,
-    .HAVE_STRDUP = 1,
-    .HAVE_STRERROR = 1,
-    .HAVE_STRNCASECMP = 1,
-    .HAVE_USELOCALE = 1,
-    .HAVE_VASPRINTF = 1,
-    .HAVE_VPRINTF = 1,
-    .HAVE_VSNPRINTF = 1,
-    .HAVE_VSYSLOG = 1,
-    .HAVE_GETRANDOM = 1,
-    .HAVE_GETRUSAGE = 1,
-    .HAVE_STRTOLL = 1,
-    .HAVE_STRTOULL = 1,
-    .HAVE___THREAD = 1,
-    .JSON_C_HAVE_INTTYPES_H = 1,
-    .SIZEOF_INT = @sizeOf(c_int),
-    .SIZEOF_INT64_T = @sizeOf(i64),
-    .SIZEOF_LONG = @sizeOf(c_long),
-    .SIZEOF_LONG_LONG = @sizeOf(c_longlong),
-    .SIZEOF_SIZE_T = @sizeOf(usize),
-    .SIZEOF_SSIZE_T = @sizeOf(isize),
-    .SPEC___THREAD = "__thread",
-    .STDC_HEADERS = 1,
-};

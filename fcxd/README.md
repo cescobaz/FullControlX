@@ -44,29 +44,33 @@ Info, error and debug messages are available from standard error output.
 
 ### Requirements
 
-* CMake [https://cmake.org/](https://cmake.org/)
+* Zig [https://ziglang.org/](https://ziglang.org/) (0.16)
 * json-c lib [https://github.com/json-c/json-c](https://github.com/json-c/json-c)
-* C Unit (for testing) [https://cunit.sourceforge.io/](https://cunit.sourceforge.io/)
 * For MacOS: Minimum deployment target: 10.11
+* For Linux: `keymap` and `kbdfile` libraries
 
 #### Install dependencies (MacOS)
 
 ```bash
-brew install json-c cunit
+brew install json-c
 ```
 
-### Build with CMake
+### Build with Zig
 
 ```bash
-mkdir _build
-cd _build
-cmake ..
-cmake --build .
+zig build
 ```
 
 or use the script [build.sh](build.sh).
 
-Then run `_build/FullControlX`.
+Then run `zig-out/bin/FullControlX`.
+
+## Project metadata
+
+* Vendor: Francesco Burelli (https://cescobaz.com)
+* Website: https://fullcontrol.cescobaz.com
+* Maintainer: Francesco Burelli
+* Description: A web remote for your PC/Mac
 
 ## Where are framework headers?
 
