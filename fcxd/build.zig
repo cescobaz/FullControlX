@@ -37,7 +37,15 @@ pub fn build(b: *std.Build) void {
         sdk_lib = .{ .cwd_relative = b.pathJoin(&.{ sdk, "usr/lib" }) };
     }
 
-    const cflags: []const []const u8 = &.{"-std=c99"};
+    // Stay on strict ISO c99. On glibc (Linux), strict c99 (__STRICT_ANSI__) hides the
+    // POSIX/BSD extensions the sources use (gmtime_r, clock_gettime, struct timespec,
+    // CLOCK_* ids), so define _DEFAULT_SOURCE to re-expose them — it's exactly the
+    // feature-test macro gnu99 would auto-define. Darwin's libc exposes these by default
+    // and ignores _DEFAULT_SOURCE, so it's a no-op there and we leave it off.
+    const cflags: []const []const u8 = if (is_darwin)
+        &.{"-std=c99"}
+    else
+        &.{ "-std=c99", "-D_DEFAULT_SOURCE" };
 
     // FCX_LOG_LEVEL: 4 (debug) in Debug builds, 3 (info) otherwise. logger.h has no
     // default, so leaving it undefined would disable all logging.
@@ -48,7 +56,11 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
         .link_libc = true,
     });
-    lib_mod.linkSystemLibrary("json-c", .{ .preferred_link_mode = .static });
+    // System libraries are linked on the executable module, not here: linking them
+    // on the static-library module bakes the system .so files into libFullControlX_s.a
+    // as archive members, which the final link then rejects ("neither ET_REL nor LLVM
+    // bitcode"). The lib's sources still compile because all required headers (json-c,
+    // keymap, kbdfile) live under the default /usr/include search path.
     lib_mod.addCMacro("FCX_LOG_LEVEL", log_level);
     lib_mod.addCSourceFiles(.{
         .root = b.path("src"),
@@ -80,8 +92,6 @@ pub fn build(b: *std.Build) void {
             .flags = cflags,
         });
     } else {
-        lib_mod.linkSystemLibrary("keymap", .{});
-        lib_mod.linkSystemLibrary("kbdfile", .{});
         lib_mod.addCSourceFiles(.{
             .root = b.path("src/linux"),
             .files = &.{
@@ -116,6 +126,8 @@ pub fn build(b: *std.Build) void {
         if (sdk_lib) |p| exe_mod.addLibraryPath(p);
         exe_mod.addCSourceFile(.{ .file = b.path("src/mac/main.m"), .flags = cflags });
     } else {
+        exe_mod.linkSystemLibrary("keymap", .{});
+        exe_mod.linkSystemLibrary("kbdfile", .{});
         exe_mod.addCSourceFile(.{ .file = b.path("src/main.c"), .flags = cflags });
     }
 
