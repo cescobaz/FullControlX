@@ -37,7 +37,7 @@ function drawTouches(touches) {
     if (!touch_el) {
       touch_el = document.createElement("div")
       touch_el.id = touch_el_id
-      touch_el.className = 'absolute rounded-full bg-blue-900'
+      touch_el.className = 'absolute rounded-full bg-blue-900 opacity-60'
       touch_el.style.width = `${touch_el_width}px`
       touch_el.style.height = `${touch_el_height}px`
       parent.appendChild(touch_el)

@@ -20,5 +20,5 @@ defmodule FullControlXWeb.Gettext do
 
   See the [Gettext Docs](https://hexdocs.pm/gettext) for detailed usage.
   """
-  use Gettext, otp_app: :fullcontrol_x
+  use Gettext.Backend, otp_app: :fullcontrol_x
 end

@@ -20,7 +20,7 @@ defmodule FullControlXWeb.Endpoint do
     at: "/",
     from: :fullcontrol_x,
     gzip: false,
-    only: ~w(assets fonts images favicon.ico robots.txt)
+    only: FullControlXWeb.static_paths()
 
   defp files(conn, _params) do
     with {:ok, files_path} <- Application.fetch_env(:fullcontrol_x, :files_path) do

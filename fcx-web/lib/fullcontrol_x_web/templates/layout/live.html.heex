@@ -1,20 +1,50 @@
-<p class="alert alert-info" role="alert"
+<p
+  :if={Phoenix.Flash.get(@flash, :info)}
+  id="flash-info"
+  class="alert alert-info"
+  role="alert"
   phx-click="lv:clear-flash"
-  phx-value-key="info"><%= live_flash(@flash, :info) %></p>
+  phx-value-key="info"
+>
+  {Phoenix.Flash.get(@flash, :info)}
+</p>
 
-<p class="alert alert-danger" role="alert"
+<p
+  :if={Phoenix.Flash.get(@flash, :error)}
+  id="flash-error"
+  class="alert alert-danger"
+  role="alert"
   phx-click="lv:clear-flash"
-  phx-value-key="error"><%= live_flash(@flash, :error) %></p>
+  phx-value-key="error"
+>
+  {Phoenix.Flash.get(@flash, :error)}
+</p>
 
 <.header title={@header_title} />
 <div class="relative grow overflow-scroll">
-  <%= @inner_content %>
+  {@inner_content}
 </div>
 <nav class="w-full p-2 border-t border-neutral-700">
-  <ul class="flex justify-center gap-4">
-    <li><%= live_redirect "Keyboard", to: Routes.live_path(@socket, FullControlXWeb.KeyboardLive) %></li>
-    <li><%= live_redirect "Trackpad", to: Routes.live_path(@socket, FullControlXWeb.TrackpadLive) %></li>
-    <li><%= live_redirect "Tools", to: Routes.live_path(@socket, FullControlXWeb.ToolsLive) %></li>
-    <li><%= live_redirect "Info", to: Routes.live_path(@socket, FullControlXWeb.InfoLive) %></li>
+  <ul class="btm-bar-cnt">
+    <li class={if(@header_title === "Keyboard", do: "selected")}>
+      <.link navigate={Routes.live_path(@socket, FullControlXWeb.KeyboardLive)} title="Keyword">
+        <.icon name="ri-keyboard-line" />
+      </.link>
+    </li>
+    <li class={if(@header_title === "Trackpad", do: "selected")}>
+      <.link navigate={Routes.live_path(@socket, FullControlXWeb.TrackpadLive)} title="Trackpad">
+        <.icon name="ri-cursor-line" />
+      </.link>
+    </li>
+    <li class={if(@header_title === "Tools", do: "selected")}>
+      <.link navigate={Routes.live_path(@socket, FullControlXWeb.ToolsLive)} title="Tools">
+        <.icon name="ri-equalizer-3-line" />
+      </.link>
+    </li>
+    <li class={if(@header_title === "Info", do: "selected")}>
+      <.link navigate={Routes.live_path(@socket, FullControlXWeb.InfoLive)} title="Info">
+        <.icon name="ri-info-i" />
+      </.link>
+    </li>
   </ul>
 </nav>
