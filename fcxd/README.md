@@ -69,13 +69,46 @@ Tips:
 - use MinGW
 - use json-c static
 
-#### Using MinGW
+Dependencies are declared in [vcpkg.json](vcpkg.json) (vcpkg manifest mode).
+When CMake is configured with the vcpkg toolchain, json-c is downloaded,
+built and installed automatically — no separate install step is needed.
+
+#### Using the build script (recommended)
+
+From a PowerShell prompt in this directory:
+
+```powershell
+.\build_windows.ps1
+```
+
+The script clones and bootstraps vcpkg (into `_build\vcpkg`), then configures
+and builds with CMake. Defaults: MinGW + `x64-mingw-static` + Release.
+
+For an MSVC build instead:
+
+```powershell
+.\build_windows.ps1 -Triplet x64-windows-static -Generator "Visual Studio 17 2022"
+```
+
+Other parameters: `-VcpkgRoot` (reuse an existing vcpkg checkout),
+`-BuildType` (e.g. `Debug`).
+
+#### Manual (MinGW)
+
+If you already have vcpkg, configure CMake directly — vcpkg reads `vcpkg.json`
+and installs json-c during this step:
 
 ```sh
 mkdir _build
 cd _build
-cmake -G "MinGW Makefiles" -DCMAKE_PREFIX_PATH=/Program\ files\ \(x86\)/json-c/lib/cmake
+cmake .. -G "MinGW Makefiles" \
+  -DCMAKE_TOOLCHAIN_FILE=C:/path/to/vcpkg/scripts/buildsystems/vcpkg.cmake \
+  -DVCPKG_TARGET_TRIPLET=x64-mingw-static
+cmake --build .
 ```
+
+The triplet controls static-vs-shared (use `*-static`, since the build links
+`json-c::json-c-static` on Windows) and MinGW-vs-MSVC.
 
 ## Where are framework headers?
 
