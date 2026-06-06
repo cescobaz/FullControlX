@@ -74,6 +74,16 @@ pub fn build(b: *std.Build) void {
     if (is_darwin) {
         if (sdk_frameworks) |p| lib_mod.addSystemFrameworkPath(p);
         if (sdk_include) |p| lib_mod.addSystemIncludePath(p);
+        // The lib's sources include <json-c/json.h>. Pinning os_version_min drops Zig's
+        // default native search paths, and homebrew's json-c lives outside the SDK
+        // (/opt/homebrew/opt/json-c/include), so add its includedir explicitly. The lib
+        // only needs the header, not the link — json-c is linked on the exe module, as
+        // linking system libs here would bake .so members into the static archive. Query
+        // pkg-config (already a hard dep, since the exe's linkSystemLibrary uses it).
+        if (host_is_darwin) {
+            const inc = std.mem.trimEnd(u8, b.run(&.{ "pkg-config", "--variable=includedir", "json-c" }), " \n\r");
+            lib_mod.addSystemIncludePath(.{ .cwd_relative = inc });
+        }
         lib_mod.linkFramework("CoreFoundation", .{});
         lib_mod.linkFramework("CoreGraphics", .{});
         lib_mod.linkFramework("AppKit", .{});

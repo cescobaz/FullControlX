@@ -1,3 +1,4 @@
+#pragma once
 
 typedef void fcx_keyboard_t;
 
