@@ -89,15 +89,16 @@ defmodule FullControlX.Driver do
   def handle_info({_port, {:data, data}}, state) do
     {messages, state} = parse(data, state)
 
-    Enum.reduce(messages, state, fn message, state ->
-      with %{"request" => [req_id | _]} = message when not is_nil(req_id) <- message,
-           %{awating: %{^req_id => from} = awating} <- state do
-        GenServer.reply(from, Map.get(message, "response"))
-        %{state | awating: Map.delete(awating, req_id)}
-      else
-        _ -> state
-      end
-    end)
+    state =
+      Enum.reduce(messages || [], state, fn message, state ->
+        with %{"id" => req_id} when not is_nil(req_id) <- message,
+             %{awating: %{^req_id => from} = awating} <- state do
+          GenServer.reply(from, reply_value(message))
+          %{state | awating: Map.delete(awating, req_id)}
+        else
+          _ -> state
+        end
+      end)
 
     {:noreply, state}
   end
@@ -111,6 +112,10 @@ defmodule FullControlX.Driver do
     IO.inspect(handle_info_message: message)
     {:noreply, state}
   end
+
+  defp reply_value(%{"error" => error}) when not is_nil(error), do: {:error, error}
+  defp reply_value(%{"payload" => payload}), do: {:ok, payload}
+  defp reply_value(_), do: {:ok, nil}
 
   defp parse(data, %{data: previous_data} = state) do
     to_parse = previous_data <> data
@@ -155,7 +160,7 @@ defmodule FullControlX.Driver do
        when is_list(request) do
     {:ok, data} = Jason.encode_to_iodata([req_id | request])
 
-    if Port.command(port, data) do
+    if Port.command(port, [data, 0]) do
       {req_id, %{state | next_req_id: req_id + 1}}
     else
       {nil, state}

@@ -140,7 +140,19 @@ int fcx_handle_request(fcx_request_handler_t *handler,
       }
     }
   } else if (strcmp(function, fcx_req_system_info) == 0) {
-    result = fcx_system_info();
+    fcx_system_info_t sysinfo;
+    fcx_system_info(&sysinfo);
+    result = json_object_new_object();
+    json_object_object_add(result, "os_version",
+                           json_object_new_string(sysinfo.os_version));
+    json_object_object_add(result, "username",
+                           json_object_new_string(sysinfo.username));
+    json_object_object_add(result, "full_user_name",
+                           json_object_new_string(sysinfo.full_user_name));
+    json_object_object_add(result, "home_directory",
+                           json_object_new_string(sysinfo.home_directory));
+    json_object_object_add(result, "hostname",
+                           json_object_new_string(sysinfo.hostname));
   } else if (strcmp(function, fcx_req_ui_apps) == 0) {
     result = fcx_ui_apps();
   } else if (strcmp(function, fcx_req_apps_observe) == 0) {

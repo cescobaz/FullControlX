@@ -2,7 +2,12 @@ defmodule FullControlXWeb.InfoLive do
   use FullControlXWeb, :live_view
 
   def mount(_params, _session, socket) do
-    info = FullControlX.system_info() || %{}
+    info =
+      case FullControlX.system_info() do
+        {:ok, info} when is_map(info) -> info
+        _ -> %{}
+      end
+
     urls = FullControlX.get_urls()
     url_in_qrcode = List.last(urls)
     qrcode_svg_url = FullControlXWeb.generate_qrcode_svg(socket, url_in_qrcode)

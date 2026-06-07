@@ -4,9 +4,10 @@ const Response = @import("Response.zig");
 
 const c = @cImport({
     @cInclude("fcx_mouse.h");
+    @cInclude("fcx_system.h");
 });
 
-pub fn handle(request: Request) !Response {
+pub fn handle(allocator: std.mem.Allocator, request: Request) !Response {
     switch (request.payload) {
         // Mouse
         .mouse_move => |p| _ = c.fcx_mouse_move(p.x, p.y),
@@ -26,12 +27,33 @@ pub fn handle(request: Request) !Response {
             _ = p.symbol;
         },
 
-        // System / apps
-        .system_info,
+        // System
+        .system_info => return systemInfo(allocator, request.id),
+
+        // Apps
         .ui_apps,
         .apps_observe,
         .ignore_all,
         => {},
     }
     return Response.ok(request.id);
+}
+
+/// Read system info from the C API and copy it into an allocator-owned
+/// Response (the C struct is stack-local, so its strings must be duped).
+fn systemInfo(allocator: std.mem.Allocator, id: u32) !Response {
+    var info: c.fcx_system_info_t = undefined;
+    c.fcx_system_info(&info);
+    return .{ .id = id, .payload = .{ .system_info = .{
+        .os_version = try dupeCStr(allocator, &info.os_version),
+        .username = try dupeCStr(allocator, &info.username),
+        .full_user_name = try dupeCStr(allocator, &info.full_user_name),
+        .home_directory = try dupeCStr(allocator, &info.home_directory),
+        .hostname = try dupeCStr(allocator, &info.hostname),
+    } } }; // err defaults to null
+}
+
+/// Dupe a fixed-size, NUL-terminated C char buffer into an owned slice.
+fn dupeCStr(allocator: std.mem.Allocator, buf: []const u8) ![]const u8 {
+    return allocator.dupe(u8, std.mem.sliceTo(buf, 0));
 }

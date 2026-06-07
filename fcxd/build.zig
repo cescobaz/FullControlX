@@ -123,10 +123,10 @@ pub fn build(b: *std.Build) void {
     b.installArtifact(lib);
 
     const exe_mod = b.createModule(.{
-        // On darwin the entry point is main.zig (a Zig module root); its @cImport
-        // pulls in fcx_app.h, dispatch and the objc runtime. On Linux the entry point
-        // stays main.c, added below as a plain C source with no Zig root.
-        .root_source_file = if (is_darwin) b.path("src/mac/main.zig") else null,
+        // The entry point stays C/ObjC (main.m on darwin, main.c on Linux), added
+        // below as a plain C source with no Zig root. The Zig request pipeline is
+        // linked in as a static library (runner_lib) and called over its C ABI.
+        .root_source_file = null,
         .target = target,
         .optimize = optimize,
         .link_libc = true,
@@ -138,10 +138,30 @@ pub fn build(b: *std.Build) void {
         if (sdk_frameworks) |p| exe_mod.addSystemFrameworkPath(p);
         if (sdk_include) |p| exe_mod.addSystemIncludePath(p);
         if (sdk_lib) |p| exe_mod.addLibraryPath(p);
-        // main.zig's @cInclude("fcx_app.h") needs src/ on the include path. The json-c
+        // main.m's @cInclude("fcx_app.h") needs src/ on the include path. The json-c
         // includedir that fcx_app.h pulls in via <json-c/json.h> is already added by
         // linkSystemLibrary("json-c") above (-I from pkg-config), so don't re-add it.
         exe_mod.addIncludePath(b.path("src"));
+        exe_mod.addCSourceFile(.{ .file = b.path("src/mac/main.m"), .flags = cflags });
+
+        // Zig request pipeline as a static library, called from main.m via its
+        // C ABI (RunnerC.zig / fcx_runner.h). It @cImports fcx_mouse.h, so it
+        // needs src/ and the SDK headers; the fcx_mouse_* symbols it references
+        // resolve at the final link against the C lib above.
+        const runner_mod = b.createModule(.{
+            .root_source_file = b.path("src/RunnerC.zig"),
+            .target = target,
+            .optimize = optimize,
+            .link_libc = true,
+        });
+        if (sdk_include) |p| runner_mod.addSystemIncludePath(p);
+        runner_mod.addIncludePath(b.path("src"));
+        const runner_lib = b.addLibrary(.{
+            .name = "fcx_runner",
+            .root_module = runner_mod,
+            .linkage = .static,
+        });
+        exe_mod.linkLibrary(runner_lib);
     } else {
         exe_mod.linkSystemLibrary("keymap", .{});
         exe_mod.linkSystemLibrary("kbdfile", .{});
