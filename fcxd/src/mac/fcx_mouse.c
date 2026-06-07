@@ -15,13 +15,11 @@ void _fcx_mouse_location(CGPoint *cg_location) {
   CFRelease(event);
 }
 
-struct json_object *fcx_mouse_location() {
+fcx_mouse_location_t fcx_mouse_location() {
   CGPoint cg_location;
   _fcx_mouse_location(&cg_location);
 
-  struct json_object *location = json_object_new_array();
-  json_object_array_add(location, json_object_new_int(cg_location.x));
-  json_object_array_add(location, json_object_new_int(cg_location.y));
+  fcx_mouse_location_t location = {(int)cg_location.x, (int)cg_location.y};
   return location;
 }
 

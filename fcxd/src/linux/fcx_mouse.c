@@ -69,8 +69,9 @@ int _fcx_mouse_emit(int fd, int type, int code, int val) {
   return write(fd, &ie, sizeof(ie));
 }
 
-struct json_object *fcx_mouse_location() {
-  return NULL;
+fcx_mouse_location_t fcx_mouse_location() {
+  fcx_mouse_location_t location = {0, 0};
+  return location;
 }
 
 int fcx_mouse_move(int x, int y) {

@@ -123,6 +123,10 @@ pub fn build(b: *std.Build) void {
     b.installArtifact(lib);
 
     const exe_mod = b.createModule(.{
+        // On darwin the entry point is main.zig (a Zig module root); its @cImport
+        // pulls in fcx_app.h, dispatch and the objc runtime. On Linux the entry point
+        // stays main.c, added below as a plain C source with no Zig root.
+        .root_source_file = if (is_darwin) b.path("src/mac/main.zig") else null,
         .target = target,
         .optimize = optimize,
         .link_libc = true,
@@ -134,7 +138,10 @@ pub fn build(b: *std.Build) void {
         if (sdk_frameworks) |p| exe_mod.addSystemFrameworkPath(p);
         if (sdk_include) |p| exe_mod.addSystemIncludePath(p);
         if (sdk_lib) |p| exe_mod.addLibraryPath(p);
-        exe_mod.addCSourceFile(.{ .file = b.path("src/mac/main.m"), .flags = cflags });
+        // main.zig's @cInclude("fcx_app.h") needs src/ on the include path. The json-c
+        // includedir that fcx_app.h pulls in via <json-c/json.h> is already added by
+        // linkSystemLibrary("json-c") above (-I from pkg-config), so don't re-add it.
+        exe_mod.addIncludePath(b.path("src"));
     } else {
         exe_mod.linkSystemLibrary("keymap", .{});
         exe_mod.linkSystemLibrary("kbdfile", .{});

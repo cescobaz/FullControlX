@@ -1,6 +1,9 @@
-#include <json-c/json.h>
+typedef struct {
+  int x;
+  int y;
+} fcx_mouse_location_t;
 
-struct json_object *fcx_mouse_location();
+fcx_mouse_location_t fcx_mouse_location();
 int fcx_mouse_move(int x, int y);
 
 int fcx_mouse_left_down();
