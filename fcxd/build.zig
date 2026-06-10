@@ -123,10 +123,11 @@ pub fn build(b: *std.Build) void {
     b.installArtifact(lib);
 
     const exe_mod = b.createModule(.{
-        // The entry point stays C/ObjC (main.m on darwin, main.c on Linux), added
-        // below as a plain C source with no Zig root. The Zig request pipeline is
-        // linked in as a static library (runner_lib) and called over its C ABI.
-        .root_source_file = null,
+        // On darwin the entry point stays ObjC (main.m, added below as a C source
+        // with no Zig root); the Zig pipeline is linked in as a static library
+        // (runner_lib) and called over its C ABI. On Linux main is Zig (main.zig),
+        // so it is the module root and imports the Runner directly — no C shim.
+        .root_source_file = if (is_darwin) null else b.path("src/main.zig"),
         .target = target,
         .optimize = optimize,
         .link_libc = true,
@@ -165,7 +166,11 @@ pub fn build(b: *std.Build) void {
     } else {
         exe_mod.linkSystemLibrary("keymap", .{});
         exe_mod.linkSystemLibrary("kbdfile", .{});
-        exe_mod.addCSourceFile(.{ .file = b.path("src/main.c"), .flags = cflags });
+        // main.zig (and the Runner it imports) @cImports fcx_mouse.h /
+        // fcx_keyboard.h; the fcx_* symbols resolve at the final link against the
+        // C lib above. json-c's includedir is already on the path via the
+        // linkSystemLibrary("json-c") -I from pkg-config.
+        exe_mod.addIncludePath(b.path("src"));
     }
 
     const exe = b.addExecutable(.{
