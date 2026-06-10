@@ -17,11 +17,12 @@ fn trampoline(zig_ctx: *anyopaque, bytes: []const u8) void {
     wc.cb(wc.ctx, bytes.ptr, bytes.len);
 }
 
-/// Allocate and initialize a Runner. Returns null on OOM.
-export fn fcx_runner_create() callconv(.c) ?*Runner {
+/// Allocate and initialize a Runner. `mouse`/`keyboard` are caller-owned
+/// handles forwarded to the request pipeline. Returns null on OOM.
+export fn fcx_runner_create(mouse: ?*anyopaque, keyboard: ?*anyopaque) callconv(.c) ?*Runner {
     const allocator = std.heap.c_allocator;
     const runner = allocator.create(Runner) catch return null;
-    runner.* = Runner.init(allocator);
+    runner.* = Runner.init(allocator, mouse, keyboard);
     return runner;
 }
 

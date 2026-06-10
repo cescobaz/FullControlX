@@ -4,10 +4,21 @@
 #include <IOKit/hidsystem/IOHIDLib.h>
 #include <MacTypes.h>
 #include <mach/kern_return.h>
-#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+
+struct fcx_mouse {
+  io_connect_t hid_connect;
+};
+
+fcx_mouse_t *fcx_mouse_create() {
+  struct fcx_mouse *mouse = malloc(sizeof(struct fcx_mouse));
+  mouse->hid_connect = fcx_io_hid_connect();
+  return mouse;
+}
+
+void fcx_mouse_free(fcx_mouse_t *mouse) { free(mouse); }
 
 void _fcx_mouse_location(CGPoint *cg_location) {
   CGEventRef event = CGEventCreate(nil);
@@ -15,7 +26,7 @@ void _fcx_mouse_location(CGPoint *cg_location) {
   CFRelease(event);
 }
 
-fcx_mouse_location_t fcx_mouse_location() {
+fcx_mouse_location_t fcx_mouse_location(fcx_mouse_t *mouse) {
   CGPoint cg_location;
   _fcx_mouse_location(&cg_location);
 
@@ -23,7 +34,7 @@ fcx_mouse_location_t fcx_mouse_location() {
   return location;
 }
 
-int fcx_mouse_move(int x, int y) {
+int fcx_mouse_move(fcx_mouse_t *mouse, int x, int y) {
   if (x == 0 && y == 0) {
     return 0;
   }
@@ -36,12 +47,13 @@ int fcx_mouse_move(int x, int y) {
   event.mouseMove.dy = (SInt32)y;
   event.mouseMove.subType = NX_SUBTYPE_DEFAULT;
 
-  return IOHIDPostEvent(fcx_io_hid_connect(), NX_MOUSEMOVED, location, &event,
-                        kNXEventDataVersion, kIOHIDSetGlobalEventFlags,
+  return IOHIDPostEvent(((struct fcx_mouse *)mouse)->hid_connect, NX_MOUSEMOVED,
+                        location, &event, kNXEventDataVersion,
+                        kIOHIDSetGlobalEventFlags,
                         kIOHIDSetRelativeCursorPosition);
 }
 
-int fcx_mouse_left_down() {
+int fcx_mouse_left_down(fcx_mouse_t *mouse) {
 
   NXEventData event;
   memset(&event, 0, sizeof(NXEventData));
@@ -49,12 +61,12 @@ int fcx_mouse_left_down() {
 
   IOGPoint location = {0, 0};
 
-  return IOHIDPostEvent(fcx_io_hid_connect(), NX_LMOUSEDOWN, location, &event,
-                        kNXEventDataVersion, kIOHIDSetGlobalEventFlags,
-                        kIOHIDPostHIDManagerEvent);
+  return IOHIDPostEvent(((struct fcx_mouse *)mouse)->hid_connect, NX_LMOUSEDOWN,
+                        location, &event, kNXEventDataVersion,
+                        kIOHIDSetGlobalEventFlags, kIOHIDPostHIDManagerEvent);
 }
 
-int fcx_mouse_left_up() {
+int fcx_mouse_left_up(fcx_mouse_t *mouse) {
 
   NXEventData event;
   memset(&event, 0, sizeof(NXEventData));
@@ -62,17 +74,17 @@ int fcx_mouse_left_up() {
 
   IOGPoint location = {0, 0};
 
-  return IOHIDPostEvent(fcx_io_hid_connect(), NX_LMOUSEUP, location, &event,
-                        kNXEventDataVersion, kIOHIDSetGlobalEventFlags,
-                        kIOHIDPostHIDManagerEvent);
+  return IOHIDPostEvent(((struct fcx_mouse *)mouse)->hid_connect, NX_LMOUSEUP,
+                        location, &event, kNXEventDataVersion,
+                        kIOHIDSetGlobalEventFlags, kIOHIDPostHIDManagerEvent);
 }
 
-int fcx_mouse_left_click() {
-  fcx_mouse_left_down();
-  return fcx_mouse_left_up();
+int fcx_mouse_left_click(fcx_mouse_t *mouse) {
+  fcx_mouse_left_down(mouse);
+  return fcx_mouse_left_up(mouse);
 }
 
-int fcx_mouse_right_down() {
+int fcx_mouse_right_down(fcx_mouse_t *mouse) {
 
   NXEventData event;
   memset(&event, 0, sizeof(NXEventData));
@@ -80,12 +92,12 @@ int fcx_mouse_right_down() {
 
   IOGPoint location = {0, 0};
 
-  return IOHIDPostEvent(fcx_io_hid_connect(), NX_RMOUSEDOWN, location, &event,
-                        kNXEventDataVersion, kIOHIDSetGlobalEventFlags,
-                        kIOHIDPostHIDManagerEvent);
+  return IOHIDPostEvent(((struct fcx_mouse *)mouse)->hid_connect, NX_RMOUSEDOWN,
+                        location, &event, kNXEventDataVersion,
+                        kIOHIDSetGlobalEventFlags, kIOHIDPostHIDManagerEvent);
 }
 
-int fcx_mouse_right_up() {
+int fcx_mouse_right_up(fcx_mouse_t *mouse) {
 
   NXEventData event;
   memset(&event, 0, sizeof(NXEventData));
@@ -93,22 +105,22 @@ int fcx_mouse_right_up() {
 
   IOGPoint location = {0, 0};
 
-  return IOHIDPostEvent(fcx_io_hid_connect(), NX_RMOUSEUP, location, &event,
-                        kNXEventDataVersion, kIOHIDSetGlobalEventFlags,
-                        kIOHIDPostHIDManagerEvent);
+  return IOHIDPostEvent(((struct fcx_mouse *)mouse)->hid_connect, NX_RMOUSEUP,
+                        location, &event, kNXEventDataVersion,
+                        kIOHIDSetGlobalEventFlags, kIOHIDPostHIDManagerEvent);
 }
 
-int fcx_mouse_right_click() {
-  fcx_mouse_right_down();
-  return fcx_mouse_right_up();
+int fcx_mouse_right_click(fcx_mouse_t *mouse) {
+  fcx_mouse_right_down(mouse);
+  return fcx_mouse_right_up(mouse);
 }
 
-int fcx_mouse_double_click() {
-  fcx_mouse_left_click();
-  return fcx_mouse_left_click();
+int fcx_mouse_double_click(fcx_mouse_t *mouse) {
+  fcx_mouse_left_click(mouse);
+  return fcx_mouse_left_click(mouse);
 }
 
-int fcx_mouse_scroll_wheel(int x, int y) {
+int fcx_mouse_scroll_wheel(fcx_mouse_t *mouse, int x, int y) {
   if (x == 0 && y == 0) {
     return 0;
   }
@@ -132,12 +144,13 @@ int fcx_mouse_scroll_wheel(int x, int y) {
 
   IOGPoint location = {0, 0};
 
-  return IOHIDPostEvent(fcx_io_hid_connect(), NX_SCROLLWHEELMOVED, location,
-                        &event, kNXEventDataVersion, kIOHIDSetGlobalEventFlags,
+  return IOHIDPostEvent(((struct fcx_mouse *)mouse)->hid_connect,
+                        NX_SCROLLWHEELMOVED, location, &event,
+                        kNXEventDataVersion, kIOHIDSetGlobalEventFlags,
                         kIOHIDPostHIDManagerEvent);
 }
 
-int fcx_mouse_drag(int x, int y) {
+int fcx_mouse_drag(fcx_mouse_t *mouse, int x, int y) {
   if (x == 0 && y == 0) {
     return 0;
   }
@@ -150,7 +163,8 @@ int fcx_mouse_drag(int x, int y) {
   event.mouseMove.dy = (SInt32)y;
   event.mouseMove.subType = NX_SUBTYPE_DEFAULT;
 
-  return IOHIDPostEvent(fcx_io_hid_connect(), NX_LMOUSEDRAGGED, location,
-                        &event, kNXEventDataVersion, kIOHIDSetGlobalEventFlags,
+  return IOHIDPostEvent(((struct fcx_mouse *)mouse)->hid_connect,
+                        NX_LMOUSEDRAGGED, location, &event, kNXEventDataVersion,
+                        kIOHIDSetGlobalEventFlags,
                         kIOHIDSetRelativeCursorPosition);
 }

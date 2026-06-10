@@ -20,8 +20,10 @@ fcx_app_t *fcx_app_init(int argc, char *argv[]) {
   app->buffer_size = BUFFER_SIZE;
   app->tokener = json_tokener_new();
   app->keyboard = fcx_keyboard_create("us");
+  app->mouse = fcx_mouse_create();
   app->request_handler = fcx_request_handler_create();
   app->request_handler->keyboard = app->keyboard;
+  app->request_handler->mouse = app->mouse;
   return app;
 }
 
@@ -30,6 +32,7 @@ void fcx_app_free(fcx_app_t *app) {
   json_tokener_free(app->tokener);
   fcx_request_handler_free(app->request_handler);
   fcx_keyboard_free(app->keyboard);
+  fcx_mouse_free(app->mouse);
   free(app);
 }
 

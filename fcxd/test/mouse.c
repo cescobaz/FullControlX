@@ -24,10 +24,11 @@ void wait_for_event_post() {
 void test_mouse_move() {
   int mx = 21;
   int my = 7;
-  struct json_object *location = fcx_mouse_location();
-  CU_ASSERT_TRUE(0 == fcx_mouse_move(mx, my));
+  fcx_mouse_t *mouse = fcx_mouse_create();
+  struct json_object *location = fcx_mouse_location(mouse);
+  CU_ASSERT_TRUE(0 == fcx_mouse_move(mouse, mx, my));
   wait_for_event_post();
-  struct json_object *new_location = fcx_mouse_location();
+  struct json_object *new_location = fcx_mouse_location(mouse);
   int dx =
       location_axis(new_location, axis_x) - location_axis(location, axis_x);
   CU_ASSERT_TRUE(dx <= mx + 2);
@@ -36,6 +37,7 @@ void test_mouse_move() {
       location_axis(new_location, axis_y) - location_axis(location, axis_y);
   CU_ASSERT_TRUE(dy <= my + 2);
   CU_ASSERT_TRUE(dy >= my - 2);
+  fcx_mouse_free(mouse);
 }
 
 int main() {

@@ -8,6 +8,7 @@ const Runner = @This();
 allocator: std.mem.Allocator,
 arena: std.heap.ArenaAllocator,
 parser: JsonParser,
+request_handler: RequestHandler,
 
 /// Invoked with response bytes to write out, plus the opaque `ctx` passed to
 /// handle(). May be called several times per handle() — emit every slice in
@@ -16,11 +17,14 @@ pub const WriteCallback = *const fn (ctx: *anyopaque, bytes: []const u8) void;
 
 const terminator = [_]u8{0};
 
-pub fn init(allocator: std.mem.Allocator) Runner {
+/// `mouse`/`keyboard` are caller-owned C handles, forwarded to the
+/// RequestHandler. The Runner does not free them.
+pub fn init(allocator: std.mem.Allocator, mouse: ?*anyopaque, keyboard: ?*anyopaque) Runner {
     return .{
         .allocator = allocator,
         .arena = std.heap.ArenaAllocator.init(allocator),
         .parser = JsonParser.init(allocator),
+        .request_handler = RequestHandler.init(mouse, keyboard),
     };
 }
 
@@ -39,7 +43,7 @@ pub fn handle(self: *Runner, data: []const u8, writeCallback: WriteCallback, ctx
 
     for (try self.parser.parse(a, data)) |value| {
         const request = try Request.fromJson(value);
-        const response = try RequestHandler.handle(a, request);
+        const response = try self.request_handler.handle(a, request);
         const json = try std.json.Stringify.valueAlloc(a, response, .{});
         writeCallback(ctx, json);
         writeCallback(ctx, &terminator); // frame terminator, matching requests

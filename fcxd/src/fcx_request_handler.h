@@ -1,4 +1,5 @@
 #include "fcx_keyboard.h"
+#include "fcx_mouse.h"
 #include <json-c/json.h>
 
 typedef void (*fcx_handle_request_cb)(struct json_object *, void *);
@@ -14,6 +15,7 @@ typedef struct {
 typedef struct {
   struct json_object *requests_ctxs;
   fcx_keyboard_t *keyboard;
+  fcx_mouse_t *mouse;
 } fcx_request_handler_t;
 
 fcx_request_ctx_t *fcx_request_ctx_create(struct json_object *req,

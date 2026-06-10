@@ -1,4 +1,5 @@
 #include "fcx_keyboard.h"
+#include "fcx_mouse.h"
 #include "fcx_request_handler.h"
 #include <json-c/json.h>
 #include <stdint.h>
@@ -12,6 +13,7 @@ typedef struct {
   enum json_tokener_error error;
   fcx_request_handler_t *request_handler;
   fcx_keyboard_t *keyboard;
+  fcx_mouse_t *mouse;
 } fcx_app_t;
 
 fcx_app_t *fcx_app_init(int argc, char *argv[]);
