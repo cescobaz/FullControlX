@@ -1,0 +1,36 @@
+name: fcxd
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  fcxd-windows:
+    name: fcxd (Windows / Zig)
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: fcxd
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: mlugg/setup-zig@v2
+        with:
+          version: "0.16.0"
+
+      - name: Build
+        run: zig build
+
+      - name: Unit tests
+        run: zig build test --summary all
+
+      - name: Integration smoke test
+        run: ./test_windows.ps1
+        shell: pwsh
