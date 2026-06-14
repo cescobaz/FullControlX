@@ -11,7 +11,8 @@ config :fullcontrol_x,
   namespace: FullControlX,
   ecto_repos: [FullControlX.Repo],
   fcxd_path: "../zig-out/bin/FullControlX",
-  files_path: "priv/static/assets"
+  files_path: "priv/static/assets",
+  start_driver: true
 
 # Configures the endpoint
 config :fullcontrol_x, FullControlXWeb.Endpoint,

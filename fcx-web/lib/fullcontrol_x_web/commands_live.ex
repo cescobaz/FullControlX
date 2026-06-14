@@ -12,10 +12,11 @@ defmodule FullControlXWeb.CommandsLive do
     ~H"""
     <.header title="FullControlX" />
     <div class="grow"></div>
+
     <ul class="flex gap-2 overflow-x-scroll scrollbar-hidden scroll-smooth">
       <%= for app <- @apps do %>
         <li class={app_class(app)}>
-          <%= "#{Map.get(app, "localized_name")}" %>
+          {"#{Map.get(app, "localized_name")}"}
         </li>
       <% end %>
     </ul>

@@ -32,8 +32,7 @@ defmodule FullControlXWeb.Components do
   def switch(assigns) do
     ~H"""
     <label class="switch">
-      <input type="checkbox" checked />
-      <span class="slider"></span>
+      <input type="checkbox" checked /> <span class="slider"></span>
     </label>
     """
   end

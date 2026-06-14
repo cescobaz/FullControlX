@@ -44,16 +44,19 @@ defmodule FullControlXWeb.ToolsLive do
             <._button title={button.title} value={button.value} icon={button.icon} />
           <% end %>
         </div>
+
         <div class="flex justify-center gap-4">
           <%= for button <- @arrows_buttons do %>
             <._button title={button.title} value={button.value} icon={button.icon} />
           <% end %>
         </div>
+
         <div class="flex justify-center gap-4">
           <%= for button <- @media_buttons do %>
             <._button title={button.title} value={button.value} icon={button.icon} />
           <% end %>
         </div>
+
         <div class="flex justify-center gap-4">
           <%= for button <- @audio_buttons do %>
             <._button title={button.title} value={button.value} icon={button.icon} />
