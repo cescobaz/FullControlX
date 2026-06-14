@@ -1,0 +1,107 @@
+name: fcx-web
+
+on:
+  push:
+  pull_request:
+
+# Cancel superseded runs on the same ref so rapid pushes don't pile up.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  MIX_ENV: test
+
+jobs:
+  # Formatting is version-independent, so check it once instead of per matrix cell.
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    env:
+      ELIXIR_VERSION: "1.15"
+      OTP_VERSION: "25"
+    defaults:
+      run:
+        working-directory: fcx-web
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Elixir / OTP
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: ${{ env.OTP_VERSION }}
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+
+      - name: Cache deps and _build
+        uses: actions/cache@v5
+        with:
+          path: |
+            fcx-web/deps
+            fcx-web/_build
+          key: ${{ runner.os }}-mix-lint-${{ env.ELIXIR_VERSION }}-${{ env.OTP_VERSION }}-${{ hashFiles('fcx-web/mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-lint-${{ env.ELIXIR_VERSION }}-${{ env.OTP_VERSION }}-
+
+      - name: Install dependencies
+        run: mix deps.get
+
+      # Compile before format so all dependency apps are loaded.
+      - name: Compile
+        run: mix compile
+
+      - name: Check formatting
+        run: mix format --check-formatted
+
+  test:
+    name: fcx-web tests (Elixir ${{ matrix.elixir }} / OTP ${{ matrix.otp }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - elixir: "1.15"
+            otp: "25"
+          - elixir: "1.16"
+            otp: "26"
+          - elixir: "1.17"
+            otp: "27"
+          - elixir: "1.18"
+            otp: "27"
+          - elixir: "1.19"
+            otp: "28"
+
+    defaults:
+      run:
+        working-directory: fcx-web
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Elixir / OTP
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: ${{ matrix.otp }}
+          elixir-version: ${{ matrix.elixir }}
+
+      - name: Cache deps and _build
+        uses: actions/cache@v5
+        with:
+          path: |
+            fcx-web/deps
+            fcx-web/_build
+          key: ${{ runner.os }}-mix-${{ matrix.otp }}-${{ matrix.elixir }}-${{ hashFiles('fcx-web/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-${{ matrix.otp }}-${{ matrix.elixir }}-
+
+      - name: Install dependencies
+        run: mix deps.get
+
+      - name: Compile (warnings as errors)
+        run: mix compile --warnings-as-errors
+
+      # SQLite test DB — no database service required.
+      - name: Run tests
+        run: mix test

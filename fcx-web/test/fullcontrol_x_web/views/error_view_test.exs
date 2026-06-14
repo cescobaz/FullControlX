@@ -1,14 +1,14 @@
 defmodule FullControlXWeb.ErrorViewTest do
   use FullControlXWeb.ConnCase, async: true
 
-  # Bring render/3 and render_to_string/3 for testing custom views
-  import Phoenix.View
-
-  test "renders 404.html" do
-    assert render_to_string(FullControlXWeb.ErrorView, "404.html", []) == "Not Found"
+  # ErrorView has no templates, so it falls back to template_not_found/2,
+  # which returns the status message for the requested template.
+  test "renders the 404 status message" do
+    assert FullControlXWeb.ErrorView.template_not_found("404.html", %{}) == "Not Found"
   end
 
-  test "renders 500.html" do
-    assert render_to_string(FullControlXWeb.ErrorView, "500.html", []) == "Internal Server Error"
+  test "renders the 500 status message" do
+    assert FullControlXWeb.ErrorView.template_not_found("500.html", %{}) ==
+             "Internal Server Error"
   end
 end

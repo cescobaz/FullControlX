@@ -17,8 +17,11 @@ config :fullcontrol_x, FullControlXWeb.Endpoint,
   secret_key_base: "EgTKrB+SZcnfHfZUYem501WigH0KvvCe5J6YSP6JfwxM7aKjQ2BQWw2SaCUegyhS",
   server: false
 
+# No native fcxd binary in test; don't start the driver.
+config :fullcontrol_x, start_driver: false
+
 # Print only warnings and errors during test
-config :logger, level: :warn
+config :logger, level: :warning
 
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime

@@ -17,12 +17,24 @@ defmodule FullControlXWeb.TrackpadLive do
       <div id="placeholder" class="w-full h-full flex flex-col items-center justify-center">
         <div class="p-4">
           <p><span class="font-semibold">Left click</span>: one tap</p>
+
           <p><span class="font-semibold">Right click</span>: one tap with two fingers</p>
+
           <p><span class="font-semibold">Scroll</span>: drag with two fingers</p>
+
           <p><span class="font-semibold">Drag</span>: one tap and drag or drag with three fingers</p>
         </div>
       </div>
-      <div id="trackpad" class="absolute left-0 top-0 h-full w-full" phx-touchstart="touchstart" phx-touchmove="touchmove" phx-touchend="touchend" phx-touchcancel="touchcancel" phx-hook="Trackpad">
+
+      <div
+        id="trackpad"
+        class="absolute left-0 top-0 h-full w-full"
+        phx-touchstart="touchstart"
+        phx-touchmove="touchmove"
+        phx-touchend="touchend"
+        phx-touchcancel="touchcancel"
+        phx-hook="Trackpad"
+      >
       </div>
     </div>
     """
