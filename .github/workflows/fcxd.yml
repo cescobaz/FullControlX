@@ -29,7 +29,7 @@ jobs:
         run: zig build
 
       - name: Unit tests
-        run: zig build test
+        run: zig build test --summary all
 
       - name: Integration smoke test
         run: ./test_windows.ps1

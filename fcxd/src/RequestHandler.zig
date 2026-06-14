@@ -60,10 +60,12 @@ pub fn handle(self: *RequestHandler, allocator: std.mem.Allocator, request: Requ
         // System
         .system_info => return systemInfo(allocator, id),
 
+        // No-op acknowledgement.
+        .ignore_all => return Response.ok(id),
+
         // Apps — not yet implemented under the zig Runner.
         .ui_apps,
         .apps_observe,
-        .ignore_all,
         => return Response.failure(id, "command not implemented"),
     }
     return Response.ok(id);

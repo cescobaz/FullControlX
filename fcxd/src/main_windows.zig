@@ -40,3 +40,16 @@ pub fn main() !void {
         };
     }
 }
+
+test {
+    // Pull every module's tests into `zig build test`.
+    _ = @import("Runner.zig");
+    _ = @import("Request.zig");
+    _ = @import("Response.zig");
+    _ = @import("JsonParser.zig");
+    _ = @import("RequestHandler.zig");
+    _ = @import("windows/win32.zig");
+    _ = @import("windows/mouse.zig");
+    _ = @import("windows/keyboard.zig");
+    _ = @import("windows/system.zig");
+}

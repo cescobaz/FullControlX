@@ -2,6 +2,7 @@ const std = @import("std");
 const JsonParser = @import("JsonParser.zig");
 const Request = @import("Request.zig");
 const RequestHandler = @import("RequestHandler.zig");
+const Response = @import("Response.zig");
 
 const Runner = @This();
 
@@ -42,10 +43,65 @@ pub fn handle(self: *Runner, data: []const u8, writeCallback: WriteCallback, ctx
     const a = self.arena.allocator();
 
     for (try self.parser.parse(a, data)) |value| {
-        const request = try Request.fromJson(value);
-        const response = try self.request_handler.handle(a, request);
+        // A bad request (unknown command, wrong params, bad envelope) must not
+        // take the driver down: reply with an error and keep going. Only
+        // allocation failure is fatal.
+        const response = self.dispatch(a, value) catch |err| switch (err) {
+            error.OutOfMemory => return err,
+            else => Response.failure(requestId(value), "invalid request"),
+        };
         const json = try std.json.Stringify.valueAlloc(a, response, .{});
         writeCallback(ctx, json);
         writeCallback(ctx, &terminator); // frame terminator, matching requests
     }
+}
+
+fn dispatch(self: *Runner, a: std.mem.Allocator, value: std.json.Value) !Response {
+    return self.request_handler.handle(a, try Request.fromJson(value));
+}
+
+/// Best-effort request id for error replies; 0 when the envelope lacks one.
+fn requestId(value: std.json.Value) u32 {
+    if (value == .array and value.array.items.len > 0 and value.array.items[0] == .integer) {
+        return std.math.cast(u32, value.array.items[0].integer) orelse 0;
+    }
+    return 0;
+}
+
+const Collector = struct {
+    list: std.ArrayList(u8) = .empty,
+    allocator: std.mem.Allocator,
+    fn write(ctx: *anyopaque, bytes: []const u8) void {
+        const self: *Collector = @ptrCast(@alignCast(ctx));
+        self.list.appendSlice(self.allocator, bytes) catch unreachable;
+    }
+};
+
+test "a bad request gets an error reply, not a crash" {
+    var collector = Collector{ .allocator = std.testing.allocator };
+    defer collector.list.deinit(std.testing.allocator);
+
+    var runner = Runner.init(std.testing.allocator, null, null);
+    defer runner.deinit();
+
+    // Unknown command: fromJson rejects it before any device call.
+    try runner.handle("[7,\"fly_to_moon\"]\x00", Collector.write, &collector);
+
+    try std.testing.expect(std.mem.indexOf(u8, collector.list.items, "\"id\":7") != null);
+    try std.testing.expect(std.mem.indexOf(u8, collector.list.items, "\"error\":\"invalid request\"") != null);
+}
+
+test "valid requests get one NUL-framed ok reply each" {
+    var collector = Collector{ .allocator = std.testing.allocator };
+    defer collector.list.deinit(std.testing.allocator);
+
+    var runner = Runner.init(std.testing.allocator, null, null);
+    defer runner.deinit();
+
+    // ignore_all is a device-free no-op that replies ok.
+    try runner.handle("[1,\"ignore_all\"]\x00[2,\"ignore_all\"]\x00", Collector.write, &collector);
+
+    try std.testing.expectEqual(@as(usize, 2), std.mem.count(u8, collector.list.items, "\x00"));
+    try std.testing.expect(std.mem.indexOf(u8, collector.list.items, "{\"id\":1,\"error\":null,\"payload\":null}") != null);
+    try std.testing.expect(std.mem.indexOf(u8, collector.list.items, "{\"id\":2,\"error\":null,\"payload\":null}") != null);
 }
