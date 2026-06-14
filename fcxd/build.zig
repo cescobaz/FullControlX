@@ -23,6 +23,40 @@ pub fn build(b: *std.Build) void {
 
     const is_darwin = target.result.os.tag.isDarwin();
 
+    // Windows: pure-Zig build (no C sources / json-c); link the Win32 libs.
+    if (target.result.os.tag == .windows) {
+        const exe_mod = b.createModule(.{
+            .root_source_file = b.path("src/main_windows.zig"),
+            .target = target,
+            .optimize = optimize,
+            .link_libc = true,
+        });
+        exe_mod.addIncludePath(b.path("src")); // RequestHandler @cImports fcx_*.h
+        exe_mod.linkSystemLibrary("user32", .{});
+        exe_mod.linkSystemLibrary("advapi32", .{});
+
+        const exe = b.addExecutable(.{ .name = "FullControlX", .root_module = exe_mod });
+        b.installArtifact(exe);
+
+        const run_cmd = b.addRunArtifact(exe);
+        run_cmd.step.dependOn(b.getInstallStep());
+        if (b.args) |args| run_cmd.addArgs(args);
+        b.step("run", "Run the app").dependOn(&run_cmd.step);
+
+        const tests = b.addTest(.{ .root_module = b.createModule(.{
+            .root_source_file = b.path("src/main_windows.zig"),
+            .target = target,
+            .optimize = optimize,
+            .link_libc = true,
+        }) });
+        tests.root_module.addIncludePath(b.path("src"));
+        tests.root_module.linkSystemLibrary("user32", .{});
+        tests.root_module.linkSystemLibrary("advapi32", .{});
+        const run_tests = b.addRunArtifact(tests);
+        b.step("test", "Run unit tests").dependOn(&run_tests.step);
+        return;
+    }
+
     // Pinning os_version_min makes the target "non-native", so Zig no longer
     // auto-injects the macOS SDK for system headers, frameworks and libSystem. Point
     // each module at the active SDK explicitly. (A global b.sysroot would also rebase
